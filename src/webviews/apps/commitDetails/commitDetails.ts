@@ -18,7 +18,6 @@ import {
 } from '../../commitDetails/protocol';
 import { App } from '../shared/appBase';
 import type { FileChangeItem, FileChangeItemEventDetail } from '../shared/components/commit/file-change-item';
-import { formatDate } from '../shared/date';
 import { DOM } from '../shared/dom';
 import './commitDetails.scss';
 import '../shared/components/codicon';
@@ -320,7 +319,8 @@ export class CommitDetailsApp extends App<Serialized<State>> {
 				<commit-identity
 					name="${state.selected.author.name}"
 					email="${state.selected.author.email}"
-					date="${formatDate(state.selected.author.date, state.dateFormat)}"
+					date=${state.selected.author.date}
+					dateFormat="${state.dateFormat}"
 					avatar="${state.selected.author.avatar}"
 				></commit-identity>
 			`;
@@ -415,7 +415,8 @@ export class CommitDetailsApp extends App<Serialized<State>> {
 					url="${state.pullRequest.url}"
 					key="${state.pullRequest.id}"
 					status="${state.pullRequest.state}"
-					date="${formatDate(state.pullRequest.date, state.dateFormat)}"
+					date=${state.pullRequest.date}
+					dateFormat="${state.dateFormat}"
 				></issue-pull-request>
 			`;
 			$el.setAttribute('aria-hidden', 'false');

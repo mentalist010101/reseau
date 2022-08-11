@@ -278,9 +278,7 @@ export class CommitDetailsWebviewView extends WebviewViewBase<State, Serialized<
 			richStateLoaded: true,
 			formattedMessage: formattedMessage,
 			autolinkedIssues:
-				autolinkedIssuesOrPullRequests != null
-					? [...autolinkedIssuesOrPullRequests.values()].filter(<T>(i: T | undefined): i is T => i != null)
-					: undefined,
+				autolinkedIssuesOrPullRequests != null ? [...autolinkedIssuesOrPullRequests.values()] : undefined,
 			pullRequest: pr,
 		});
 
@@ -302,7 +300,7 @@ export class CommitDetailsWebviewView extends WebviewViewBase<State, Serialized<
 
 		this.updatePendingContext({
 			commit: commit,
-			richStateLoaded: false,
+			richStateLoaded: Boolean(commit?.isUncommitted),
 			formattedMessage: undefined,
 			autolinkedIssues: undefined,
 			pullRequest: undefined,

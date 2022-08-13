@@ -31,10 +31,12 @@ import {
 	OpenFileCompareWorkingCommandType,
 	OpenFileOnRemoteCommandType,
 	PickCommitCommandType,
+	PinCommitCommandType,
 	SearchCommitCommandType,
 } from './protocol';
 
 interface Context {
+	pinned: boolean;
 	commit: GitCommit | undefined;
 
 	richStateLoaded: boolean;
@@ -58,6 +60,7 @@ export class CommitDetailsWebviewView extends WebviewViewBase<State, Serialized<
 		super(container, 'gitlens.views.commitDetails', 'commitDetails.html', 'Commit Details');
 
 		this._context = {
+			pinned: false,
 			commit: undefined,
 			richStateLoaded: false,
 			formattedMessage: undefined,
@@ -119,6 +122,8 @@ export class CommitDetailsWebviewView extends WebviewViewBase<State, Serialized<
 				commit = lineTracker.getState(line)?.commit;
 			}
 
+			// keep the last selected commit if the lineTracker can't find a commit
+			if (commit == null && this._context.commit != null) return;
 			this.updateCommit(commit);
 		}
 
@@ -182,6 +187,9 @@ export class CommitDetailsWebviewView extends WebviewViewBase<State, Serialized<
 			case AutolinkSettingsCommandType.method:
 				onIpc(AutolinkSettingsCommandType, e, _params => this.showAutolinkSettings());
 				break;
+			case PinCommitCommandType.method:
+				onIpc(PinCommitCommandType, e, params => this.updatePinned(params.pin ?? false));
+				break;
 		}
 	}
 
@@ -226,6 +234,7 @@ export class CommitDetailsWebviewView extends WebviewViewBase<State, Serialized<
 		// const commitChoices = await Promise.all(this.commits.map(async commit => summaryModel(commit)));
 
 		const state = serialize<State>({
+			pinned: current.pinned,
 			includeRichContent: current.richStateLoaded,
 			// commits: commitChoices,
 			selected: details,
@@ -306,6 +315,18 @@ export class CommitDetailsWebviewView extends WebviewViewBase<State, Serialized<
 			pullRequest: undefined,
 		});
 		this.updateState(true);
+	}
+
+	private updatePinned(pinned: boolean = false) {
+		if (pinned === this._context.pinned) return;
+
+		this._pinned = pinned;
+		this.updatePendingContext({
+			pinned: pinned,
+		});
+
+		// TODO: this is not ideal
+		this.onVisibilityChanged(this.visible);
 	}
 
 	private updatePendingContext(context: Partial<Context>): boolean {

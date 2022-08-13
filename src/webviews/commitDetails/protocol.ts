@@ -23,6 +23,7 @@ export type CommitDetails = CommitSummary & {
 };
 
 export type State = {
+	pinned: boolean;
 	// commits?: CommitSummary[];
 	includeRichContent?: boolean;
 
@@ -58,6 +59,11 @@ export const OpenFileComparePreviousCommandType = new IpcCommandType<FileActionP
 export const PickCommitCommandType = new IpcCommandType<undefined>('commit/pickCommit');
 export const SearchCommitCommandType = new IpcCommandType<undefined>('commit/searchCommit');
 export const AutolinkSettingsCommandType = new IpcCommandType<undefined>('commit/autolinkSettings');
+
+export interface PinParams {
+	pin: boolean;
+}
+export const PinCommitCommandType = new IpcCommandType<PinParams>('commit/pin');
 
 // NOTIFICATIONS
 

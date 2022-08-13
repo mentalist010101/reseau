@@ -259,10 +259,14 @@ ul {
 	}
 
 	&__rich {
-		padding: 0.5rem var(--gitlens-scrollbar-gutter-width) 1rem var(--gitlens-gutter-width);
+		padding: 0 var(--gitlens-scrollbar-gutter-width) 1.5rem var(--gitlens-gutter-width);
 
+		> :first-child {
+			margin-top: 0;
+		}
 		> :last-child {
 			margin-top: 0.5rem;
+			margin-bottom: 0;
 		}
 	}
 	&__pull-request {

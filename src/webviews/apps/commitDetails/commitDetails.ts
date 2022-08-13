@@ -14,6 +14,7 @@ import {
 	OpenFileCompareWorkingCommandType,
 	OpenFileOnRemoteCommandType,
 	PickCommitCommandType,
+	PinCommitCommandType,
 	SearchCommitCommandType,
 } from '../../commitDetails/protocol';
 import { App } from '../shared/appBase';
@@ -77,6 +78,7 @@ export class CommitDetailsApp extends App<Serialized<State>> {
 					$next?.focus();
 				}
 			}),
+			DOM.on('[data-action="commit-actions-pin"]', 'click', e => this.onTogglePin(e)),
 		];
 
 		return disposables;
@@ -116,6 +118,11 @@ export class CommitDetailsApp extends App<Serialized<State>> {
 				});
 				break;
 		}
+	}
+
+	private onTogglePin(e: MouseEvent) {
+		e.preventDefault();
+		this.sendCommand(PinCommitCommandType, { pin: !this.state.pinned });
 	}
 
 	private onAutolinkSettings(e: MouseEvent) {
@@ -193,6 +200,7 @@ export class CommitDetailsApp extends App<Serialized<State>> {
 			return;
 		}
 
+		this.renderPin(this.state);
 		this.renderSha(this.state);
 		this.renderMessage(this.state);
 		this.renderAuthor(this.state);
@@ -202,6 +210,20 @@ export class CommitDetailsApp extends App<Serialized<State>> {
 		// if (this.state.includeRichContent) {
 		this.renderPullRequestAndAutolinks(this.state);
 		// }
+	}
+
+	renderPin(state: CommitState) {
+		const $el = document.querySelector<HTMLElement>('[data-action="commit-actions-pin"]');
+		if ($el == null) {
+			return;
+		}
+
+		const label = state.pinned ? 'Un-pin to Follow Open Files' : 'Pin this Commit';
+		$el.setAttribute('aria-label', label);
+		$el.setAttribute('title', label);
+
+		const $icon = $el.querySelector('[data-region="commit-pin"]');
+		$icon?.setAttribute('icon', state.pinned ? 'pinned' : 'pin');
 	}
 
 	renderSha(state: CommitState) {

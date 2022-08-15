@@ -218,7 +218,7 @@ export class CommitDetailsApp extends App<Serialized<State>> {
 			return;
 		}
 
-		const label = state.pinned ? 'Un-pin to Follow Open Files' : 'Pin this Commit';
+		const label = state.pinned ? 'Unpin this Commit' : 'Pin this Commit';
 		$el.setAttribute('aria-label', label);
 		$el.setAttribute('title', label);
 

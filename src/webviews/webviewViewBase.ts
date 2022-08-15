@@ -201,7 +201,7 @@ export abstract class WebviewViewBase<State, SerializedState = State> implements
 
 		const html = content.replace(
 			/#{(head|body|endOfBody|placement|cspSource|cspNonce|root|webroot)}/g,
-			(_substring, token: string) => {
+			(_substring: string, token: string) => {
 				switch (token) {
 					case 'head':
 						return head ?? '';

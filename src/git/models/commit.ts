@@ -84,9 +84,9 @@ export class GitCommit implements GitRevisionReference {
 				this._files = files;
 			} else if (files instanceof GitFileChange) {
 				this._file = files;
-				if (GitRevision.isUncommitted(sha, true)) {
-					this._files = [files];
-				}
+				// if (GitRevision.isUncommitted(sha, true)) {
+				// 	this._files = [files];
+				// }
 			} else {
 				if (files.file != null) {
 					this._file = files.file;
@@ -177,25 +177,32 @@ export class GitCommit implements GitRevisionReference {
 		return (
 			this.message != null &&
 			this.files != null &&
-			this.parents.length !== 0 &&
+			(this.isUncommitted || this.parents.length !== 0) &&
 			(this.refType !== 'stash' || this._stashUntrackedFilesLoaded)
 		);
 	}
 
 	assertsFullDetails(): asserts this is GitCommit & SomeNonNullable<GitCommit, 'message' | 'files'> {
-		if (
-			this.message == null ||
-			this.files == null ||
-			this.parents.length === 0 ||
-			(this.refType === 'stash' && !this._stashUntrackedFilesLoaded)
-		) {
+		if (!this.hasFullDetails()) {
 			throw new Error(`GitCommit(${this.sha}) is not fully loaded`);
 		}
 	}
 
 	@gate()
 	async ensureFullDetails(): Promise<void> {
-		if (this.isUncommitted || this.hasFullDetails()) return;
+		if (this.hasFullDetails()) return;
+
+		if (this.isUncommitted) {
+			this._message = 'Uncommitted Changes';
+			const status = await this.container.git.getStatusForRepo(this.repoPath);
+			if (status != null) {
+				this._files = status.files.map(f => new GitFileChange(this.repoPath, f.path, f.status, f.originalPath));
+			} else if (this.file != null) {
+				this._files = [this.file];
+			}
+
+			return;
+		}
 
 		const [commitResult, untrackedResult] = await Promise.allSettled([
 			this.refType !== 'stash' ? this.container.git.getCommit(this.repoPath, this.sha) : undefined,

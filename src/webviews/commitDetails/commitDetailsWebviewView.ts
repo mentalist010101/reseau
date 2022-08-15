@@ -1,5 +1,5 @@
-import type { CancellationToken, Disposable } from 'vscode';
-import { CancellationTokenSource, env, Uri, window } from 'vscode';
+import type { CancellationToken, TreeViewSelectionChangeEvent, TreeViewVisibilityChangeEvent } from 'vscode';
+import { CancellationTokenSource, Disposable, env, Uri, window } from 'vscode';
 import { executeGitCommand, GitActions } from '../../commands/gitCommands.actions';
 import { configuration } from '../../configuration';
 import { Commands } from '../../constants';
@@ -17,6 +17,10 @@ import { getSettledValue } from '../../system/promise';
 import type { Serialized } from '../../system/serialize';
 import { serialize } from '../../system/serialize';
 import type { LinesChangeEvent } from '../../trackers/lineTracker';
+import { CommitFileNode } from '../../views/nodes/commitFileNode';
+import { CommitNode } from '../../views/nodes/commitNode';
+import { FileRevisionAsCommitNode } from '../../views/nodes/fileRevisionAsCommitNode';
+import type { ViewNode } from '../../views/nodes/viewNode';
 import type { IpcMessage } from '../protocol';
 import { onIpc } from '../protocol';
 import { WebviewViewBase } from '../webviewViewBase';
@@ -75,22 +79,12 @@ export class CommitDetailsWebviewView extends WebviewViewBase<State, Serialized<
 			// eslint-disable-next-line prefer-const
 			({ commit, ...options } = options);
 			if (commit != null) {
-				this.updateCommit(commit);
-				// void this.refresh();
+				this.updateCommit(commit, { pinned: true });
 			}
 		}
 
 		return super.show(options);
 	}
-
-	// protected override onInitializing(): Disposable[] | undefined {
-	// 	return [
-	// 		this.container.lineTracker.subscribe(
-	// 			this,
-	// 			this.container.lineTracker.onDidChangeActiveLines(this.onActiveLinesChanged, this),
-	// 		),
-	// 	];
-	// }
 
 	protected override async includeBootstrap(): Promise<Serialized<State>> {
 		this._bootstraping = true;
@@ -103,42 +97,41 @@ export class CommitDetailsWebviewView extends WebviewViewBase<State, Serialized<
 
 	private _visibilityDisposable: Disposable | undefined;
 	protected override onVisibilityChanged(visible: boolean) {
-		this._visibilityDisposable?.dispose();
-		this._visibilityDisposable = undefined;
-
+		this.ensureTrackers();
 		if (!visible) return;
-
-		if (!this._pinned) {
-			const { lineTracker } = this.container;
-
-			this._visibilityDisposable = lineTracker.subscribe(
-				this,
-				lineTracker.onDidChangeActiveLines(this.onActiveLinesChanged, this),
-			);
-
-			let commit;
-			const line = lineTracker.selections?.[0].active;
-			if (line != null) {
-				commit = lineTracker.getState(line)?.commit;
-			}
-
-			// keep the last selected commit if the lineTracker can't find a commit
-			if (commit == null && this._context.commit != null) return;
-			this.updateCommit(commit);
-		}
 
 		// Since this gets called even the first time the webview is shown, avoid sending an update, because the bootstrap has the data
 		if (this._bootstraping) {
 			this._bootstraping = false;
 
-			// If the commit changed since bootstrap still send the update
-			if (this._pendingContext == null || !('commit' in this._pendingContext)) {
-				return;
-			}
+			if (this._pendingContext == null) return;
 		}
 
-		// Should be immediate, but it causes the bubbles to go missing on the chart, since the update happens while it still rendering
-		this.updateState();
+		this.updateState(true);
+	}
+
+	private ensureTrackers(): void {
+		this._visibilityDisposable?.dispose();
+		this._visibilityDisposable = undefined;
+
+		if (this._pinned || !this.visible) return;
+
+		const { lineTracker, commitsView } = this.container;
+		this._visibilityDisposable = Disposable.from(
+			lineTracker.subscribe(this, lineTracker.onDidChangeActiveLines(this.onActiveLinesChanged, this)),
+			commitsView.onDidChangeVisibility(this.onCommitsViewVisibilityChanged, this),
+			commitsView.onDidChangeSelection(this.onCommitsViewSelectionChanged, this),
+		);
+
+		let commit;
+		const line = lineTracker.selections?.[0].active;
+		if (line != null) {
+			commit = lineTracker.getState(line)?.commit;
+		}
+
+		// // keep the last selected commit if the lineTracker can't find a commit
+		// if (commit == null && this._context.commit != null) return;
+		this.updateCommit(commit, { immediate: false });
 	}
 
 	protected override onMessageReceived(e: IpcMessage) {
@@ -188,15 +181,38 @@ export class CommitDetailsWebviewView extends WebviewViewBase<State, Serialized<
 				onIpc(AutolinkSettingsCommandType, e, _params => this.showAutolinkSettings());
 				break;
 			case PinCommitCommandType.method:
-				onIpc(PinCommitCommandType, e, params => this.updatePinned(params.pin ?? false));
+				onIpc(PinCommitCommandType, e, params => this.updatePinned(params.pin ?? false, true));
 				break;
 		}
 	}
 
 	private onActiveLinesChanged(e: LinesChangeEvent) {
-		if (!e.pending && e.selections !== undefined) {
-			const commit = this.container.lineTracker.getState(e.selections[0].active)?.commit;
-			this.updateCommit(commit);
+		if (e.pending) return;
+
+		const commit =
+			e.selections != null ? this.container.lineTracker.getState(e.selections[0].active)?.commit : undefined;
+		this.updateCommit(commit);
+	}
+
+	private onCommitsViewSelectionChanged(e: TreeViewSelectionChangeEvent<ViewNode>) {
+		const node = e.selection?.[0];
+		if (
+			node != null &&
+			(node instanceof CommitNode || node instanceof FileRevisionAsCommitNode || node instanceof CommitFileNode)
+		) {
+			this.updateCommit(node.commit);
+		}
+	}
+
+	private onCommitsViewVisibilityChanged(e: TreeViewVisibilityChangeEvent) {
+		if (!e.visible) return;
+
+		const node = this.container.commitsView.activeSelection;
+		if (
+			node != null &&
+			(node instanceof CommitNode || node instanceof FileRevisionAsCommitNode || node instanceof CommitFileNode)
+		) {
+			this.updateCommit(node.commit);
 		}
 	}
 
@@ -205,8 +221,9 @@ export class CommitDetailsWebviewView extends WebviewViewBase<State, Serialized<
 	@debug({ args: false })
 	protected async getState(current: Context): Promise<Serialized<State>> {
 		if (this._cancellationTokenSource != null) {
-			this._cancellationTokenSource?.cancel();
-			this._cancellationTokenSource?.dispose();
+			this._cancellationTokenSource.cancel();
+			this._cancellationTokenSource.dispose();
+			this._cancellationTokenSource = undefined;
 		}
 
 		const dateFormat = configuration.get('defaultDateFormat') ?? 'MMMM Do, YYYY h:mma';
@@ -303,7 +320,7 @@ export class CommitDetailsWebviewView extends WebviewViewBase<State, Serialized<
 		// };
 	}
 
-	private updateCommit(commit: GitCommit | undefined) {
+	private updateCommit(commit: GitCommit | undefined, options?: { pinned?: boolean; immediate?: boolean }) {
 		// this.commits = [commit];
 		if (this._context.commit?.sha === commit?.sha) return;
 
@@ -314,19 +331,22 @@ export class CommitDetailsWebviewView extends WebviewViewBase<State, Serialized<
 			autolinkedIssues: undefined,
 			pullRequest: undefined,
 		});
-		this.updateState(true);
+
+		if (options?.pinned != null) {
+			this.updatePinned(options?.pinned);
+		}
+
+		this.updateState(options?.immediate ?? true);
 	}
 
-	private updatePinned(pinned: boolean = false) {
+	private updatePinned(pinned: boolean, immediate?: boolean) {
 		if (pinned === this._context.pinned) return;
 
 		this._pinned = pinned;
-		this.updatePendingContext({
-			pinned: pinned,
-		});
+		this.ensureTrackers();
 
-		// TODO: this is not ideal
-		this.onVisibilityChanged(this.visible);
+		this.updatePendingContext({ pinned: pinned });
+		this.updateState(immediate);
 	}
 
 	private updatePendingContext(context: Partial<Context>): boolean {

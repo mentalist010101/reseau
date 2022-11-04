@@ -9,6 +9,7 @@ import {
 	volatile,
 	when,
 } from '@microsoft/fast-element';
+import { hasNodes } from '../helpers/slots';
 import { elementBase } from '../styles/base';
 
 const template = html<PopOver>`
@@ -103,8 +104,4 @@ export class PopOver extends FASTElement {
 	get hasHeadingNodes() {
 		return hasNodes(this.headingNodes);
 	}
-}
-
-function hasNodes(...nodes: Array<Node[] | undefined>) {
-	return nodes.some(nodes => (nodes?.length ?? 0) > 0);
 }

@@ -37,7 +37,7 @@ const styles = css`
 		flex-direction: row;
 		padding: 0.8rem 1.2rem;
 		background-color: var(--color-alert-neutralBackground);
-		border-left: 0.3rem solid var(--color-alert-neutralBorder);
+		border-left: 0.3rem solid var(--color-foreground--50);
 		color: var(--color-alert-foreground);
 	}
 

@@ -135,6 +135,18 @@
 							<p>Click on the icon to the left to set the location of your GitLens views.</p>
 						</div>
 						<div class="activitybar-banner__media">
+							<a
+								href="command:gitlens.setViewsLayout?%7B%22layout%22%3A%22scm%22%7D"
+								class="activitybar-banner__nav-item"
+								title="Move views to the Source Control side bar"
+								aria-label="Move views to the Source Control side bar"
+							></a>
+							<a
+								href="command:gitlens.setViewsLayout?%7B%22layout%22%3A%22gitlens%22%7D"
+								class="activitybar-banner__nav-item"
+								title="Move views to the GitLens side bar"
+								aria-label="Move views to the GitLens side bar"
+							></a>
 							<svg class="svg" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 68 91">
 								<rect x=".5" y=".5" width="40" height="90" rx="16.5" stroke="url(#a)" />
 								<rect x="3" y="3" width="35" height="85" rx="14" fill="#333" class="svg__bar" />
@@ -194,30 +206,8 @@
 									</linearGradient>
 								</defs>
 							</svg>
-							<nav class="activitybar-banner__nav">
-								<a
-									href="command:gitlens.setViewsLayout?%7B%22layout%22%3A%22scm%22%7D"
-									class="activitybar-banner__nav-item"
-									title="Move views to the Source Control side bar"
-									aria-label="Move views to the Source Control side bar"
-								></a>
-								<a
-									href="command:gitlens.setViewsLayout?%7B%22layout%22%3A%22gitlens%22%7D"
-									class="activitybar-banner__nav-item"
-									title="Move views to the GitLens side bar"
-									aria-label="Move views to the GitLens side bar"
-								></a>
-							</nav>
 						</div>
 					</div>
-				</stepped-section>
-				<stepped-section id="integrations">
-					<span slot="heading">Integrations</span>
-					<p>GitLens provides issue and pull request auto-linking with many Git hosting services.</p>
-					<p class="mb-0">
-						Rich integrations with GitHub & GitLab provide more detailed hover information for auto-linked
-						issues and pull requests, pull requests associated with branches and commits, and avatars.
-					</p>
 				</stepped-section>
 				<stepped-section id="plus">
 					<span slot="heading">GitLens+ Features</span>
@@ -228,6 +218,14 @@
 						</div>
 					</card-section>
 					<plus-content id="plus-content"></plus-content>
+				</stepped-section>
+				<stepped-section id="integrations">
+					<span slot="heading">Integrations</span>
+					<p>GitLens provides issue and pull request auto-linking with many Git hosting services.</p>
+					<p class="mb-0">
+						Rich integrations with GitHub & GitLab provide more detailed hover information for auto-linked
+						issues and pull requests, pull requests associated with branches and commits, and avatars.
+					</p>
 				</stepped-section>
 			</div>
 			<!-- check for gitlens+ -->

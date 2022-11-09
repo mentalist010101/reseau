@@ -416,8 +416,19 @@ ul {
 		gap: 1.6rem;
 
 		&-item {
-			width: 4.8rem;
-			height: 3.1rem;
+			position: absolute;
+			left: 0.5rem;
+			width: 4.6rem;
+			height: 3.2rem;
+			// background-color: #ff000066;
+
+			&:first-of-type {
+				top: 2.2rem;
+			}
+
+			&:last-of-type {
+				top: 7rem;
+			}
 		}
 	}
 
@@ -529,6 +540,8 @@ vscode-button {
 	height: auto;
 
 	&__outline {
+		transition: all ease 250ms;
+
 		.vscode-light &,
 		.vscode-high-contrast-light & {
 			stop-color: var(--color-background--darken-15);
@@ -540,27 +553,22 @@ vscode-button {
 		}
 	}
 
-	&__bar {
-		fill: var(--vscode-activityBar-background);
+	&:hover &__outline,
+	.activitybar-banner__nav-item:focus ~ & &__outline,
+	.activitybar-banner__nav-item:hover ~ & &__outline {
+		.vscode-light &,
+		.vscode-high-contrast-light & {
+			stop-color: var(--color-background--darken-50);
+		}
+
+		.vscode-dark &,
+		.vscode-high-contrast & {
+			stop-color: var(--color-background--lighten-50);
+		}
 	}
 
-	&__indicator-active {
-		fill: var(--vscode-activityBar-activeBorder);
-	}
-	&__icon-active {
-		fill: var(--vscode-activityBar-foreground);
-	}
-	&__arrow-active {
-		fill: var(--vscode-textLink-foreground);
-	}
-	&__indicator-inactive {
-		fill: transparent;
-	}
-	&__icon-inactive {
-		fill: var(--vscode-activityBar-inactiveForeground);
-	}
-	&__arrow-inactive {
-		fill: var(--vscode-foreground);
+	&__bar {
+		fill: var(--vscode-activityBar-background);
 	}
 
 	&__indicator {
@@ -570,6 +578,7 @@ vscode-button {
 		}
 	}
 	&__icon {
+		transition: all ease 100ms;
 		fill: var(--vscode-activityBar-inactiveForeground);
 		&.is-active {
 			fill: var(--vscode-activityBar-foreground);
@@ -580,5 +589,12 @@ vscode-button {
 		&.is-active {
 			fill: var(--vscode-textLink-foreground);
 		}
+	}
+
+	.activitybar-banner__nav-item:first-of-type:focus ~ & &__icon:last-of-type,
+	.activitybar-banner__nav-item:first-of-type:hover ~ & &__icon:last-of-type,
+	.activitybar-banner__nav-item:last-of-type:focus ~ & &__icon:first-of-type,
+	.activitybar-banner__nav-item:last-of-type:hover ~ & &__icon:first-of-type {
+		fill: var(--vscode-activityBar-foreground);
 	}
 }

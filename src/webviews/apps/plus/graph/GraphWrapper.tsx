@@ -1,4 +1,4 @@
-import GraphContainer, { GRAPH_ZONE_TYPE, REF_ZONE_TYPE } from '@gitkraken/gitkraken-components';
+import GraphContainer, { commitZone, refZone } from '@gitkraken/gitkraken-components';
 import type {
 	GraphColumnSetting,
 	GraphColumnsSettings,
@@ -111,10 +111,7 @@ const createIconElements = (): { [key: string]: ReactElement<any> } => {
 		'hide',
 	];
 
-	const miniIconList = [
-		'upstream-ahead',
-		'upstream-behind',
-	];
+	const miniIconList = ['upstream-ahead', 'upstream-behind'];
 
 	const elementLibrary: { [key: string]: ReactElement<any> } = {};
 	iconList.forEach(iconKey => {
@@ -623,7 +620,7 @@ export function GraphWrapper({
 		graphZoneType: GraphZoneType,
 		row: GraphRow,
 	) => {
-		if (graphZoneType === REF_ZONE_TYPE || graphZoneType === GRAPH_ZONE_TYPE) return;
+		if (graphZoneType === refZone || graphZoneType === commitZone) return;
 
 		onDoubleClickRow?.(row, true);
 	};

@@ -1,5 +1,6 @@
 import { css, html, LitElement } from 'lit';
 import { customElement } from 'lit/decorators.js';
+import { focusOutline } from './a11y.css';
 import { elementBase } from './base.css';
 
 @customElement('gk-card')
@@ -12,6 +13,18 @@ export class GKCard extends LitElement {
 				padding: 1.6rem;
 				background-color: var(--gk-card-background);
 				border-radius: var(--gk-card-radius);
+			}
+
+			:host([tabindex]:not([tabindex='-1'])) {
+				cursor: pointer;
+			}
+
+			:host([tabindex]:not([tabindex='-1']):hover) {
+				background-color: var(--gk-card-hover-background);
+			}
+
+			:host([tabindex]:not([tabindex='-1']):focus) {
+				${focusOutline}
 			}
 
 			.header {

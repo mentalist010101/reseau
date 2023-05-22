@@ -15,7 +15,7 @@ export class GKButton extends LitElement {
 
 				display: inline-block;
 				border: none;
-				padding: 0.4rem;
+				padding: 0.4rem 1.1rem;
 				font-family: inherit;
 				font-size: inherit;
 				line-height: 1.694;

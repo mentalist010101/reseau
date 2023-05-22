@@ -7,9 +7,11 @@
 .vscode-high-contrast,
 .vscode-dark {
 	--gk-card-background: var(--color-background--lighten-075);
+	--gk-card-hover-background: var(--color-background--lighten-10);
 }
 
 .vscode-high-contrast-light,
 .vscode-light {
 	--gk-card-background: var(--color-background--darken-075);
+	--gk-card-hover-background: var(--color-background--darken-10);
 }

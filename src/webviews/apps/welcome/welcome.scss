@@ -48,9 +48,20 @@ h3 {
 	font-weight: normal;
 }
 
+p,
+li {
+	color: var(--color-foreground--65);
+}
+
 .t {
 	&-desc {
+		font-size: 1.4rem;
+		color: var(--color-foreground);
+	}
+
+	&-feature {
 		font-size: 1.6rem;
+		color: var(--color-foreground);
 	}
 }
 
@@ -252,10 +263,18 @@ gk-card p {
 
 	&-git-codelens {
 		fill: var(--vscode-editorCodeLens-foreground);
+
+		&.is-disabled {
+			opacity: 0;
+		}
 	}
 
 	&-inline-blame {
 		fill: var(--vscode-gitlens-trailingLineForegroundColor);
+
+		&.is-disabled {
+			opacity: 0;
+		}
 	}
 
 	&-function-declaration {

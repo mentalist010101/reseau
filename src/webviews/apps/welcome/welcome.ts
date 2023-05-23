@@ -10,6 +10,8 @@ import { DOM } from '../shared/dom';
 import '../shared/components/code-icon';
 import './components/button';
 import './components/card';
+import './components/gitlens-logo';
+import './components/gitlens-plus-logo';
 
 export class WelcomeApp extends App<State> {
 	constructor() {

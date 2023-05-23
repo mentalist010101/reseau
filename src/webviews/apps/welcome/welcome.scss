@@ -118,9 +118,11 @@ gk-card p {
 		margin: 0;
 
 		small {
+			display: inline-block;
 			font-size: 1.3rem;
 			font-weight: normal;
 			color: var(--color-foreground--50);
+			transform: translateY(0.3rem);
 		}
 	}
 

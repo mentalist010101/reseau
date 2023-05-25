@@ -5,7 +5,7 @@ import { ViewsLayout } from '../../../commands/setViewsLayout';
 import type { Container } from '../../../container';
 import type { RepositoriesVisibility } from '../../../git/gitProviderService';
 import type { Subscription } from '../../../subscription';
-import { executeCoreCommand, registerCommand } from '../../../system/command';
+import { registerCommand } from '../../../system/command';
 import { configuration } from '../../../system/configuration';
 import type { Deferrable } from '../../../system/function';
 import { debounce } from '../../../system/function';

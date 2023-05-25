@@ -1,5 +1,5 @@
 import { css, html, LitElement } from 'lit';
-import { customElement } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
 import { focusOutline } from './a11y.css';
 import { elementBase } from './base.css';
 
@@ -13,6 +13,11 @@ export class GKCard extends LitElement {
 				padding: 1.6rem;
 				background-color: var(--gk-card-background);
 				border-radius: var(--gk-card-radius);
+			}
+
+			:host > a {
+				color: inherit;
+				text-decoration: none;
 			}
 
 			:host([tabindex]:not([tabindex='-1'])) {
@@ -49,8 +54,11 @@ export class GKCard extends LitElement {
 		`,
 	];
 
+	@property()
+	href?: string;
+
 	override render() {
-		return html`
+		const main = html`
 			<div class="header">
 				<slot name="header"></slot>
 			</div>
@@ -58,5 +66,6 @@ export class GKCard extends LitElement {
 				<slot></slot>
 			</div>
 		`;
+		return this.href != null ? html`<a href=${this.href}>${main}</a>` : main;
 	}
 }

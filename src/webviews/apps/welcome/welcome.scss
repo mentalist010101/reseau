@@ -48,6 +48,77 @@ h3 {
 	font-weight: normal;
 }
 
+h4 {
+	margin-top: 1rem;
+	margin-bottom: 0.4rem;
+	font-weight: normal;
+}
+
+.checkbox {
+	cursor: pointer;
+	position: relative;
+	text-align: left;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	user-select: none;
+	display: inline-flex;
+	align-items: center;
+}
+
+input[type='checkbox'] {
+	position: relative;
+	appearance: none;
+	cursor: pointer;
+	width: 2rem;
+	height: 2rem;
+
+	border: 1px solid var(--vscode-input-border);
+	background-color: var(--vscode-checkbox-background);
+	border-color: var(--vscode-checkbox-border);
+	border-radius: 0.25rem;
+	color: var(--vscode-checkbox-foreground);
+	outline: none;
+	margin-right: 0.5rem;
+	vertical-align: middle;
+	transition: border-color 0.1s ease-in-out;
+
+	&::after {
+		content: '';
+		border: 0.2rem solid var(--vscode-checkbox-foreground);
+		border-width: 0 0.2rem 0.2rem 0;
+		position: absolute;
+		top: 0.2rem;
+		left: 0.6rem;
+		height: 1.2rem;
+		width: 0.6rem;
+
+		opacity: 0;
+		transform: rotate(0deg);
+		transition: 0.2s ease-in-out;
+	}
+
+	&:checked {
+		background-color: var(--vscode-checkbox-selectBackground);
+		border-color: var(--vscode-checkbox-selectBorder);
+
+		&::after {
+			opacity: 1;
+			transform: rotate(45deg);
+		}
+	}
+
+	&:hover,
+	&:focus {
+		background-color: var(--vscode-checkbox-selectBackground);
+		border-color: var(--vscode-focusBorder);
+	}
+}
+
+label {
+	vertical-align: middle;
+	cursor: pointer;
+}
+
 p,
 li {
 	color: var(--color-foreground--65);
@@ -143,9 +214,14 @@ gk-card p {
 	}
 
 	&__section {
+		&:first-child {
+			margin: 0 3rem;
+		}
+
 		& + & {
-			border-top: 1px solid var(--vscode-editorWidget-border);
-			padding-top: 1.6rem;
+			// border-top: 1px solid var(--vscode-editorWidget-border);
+			padding-top: 0.5rem;
+			max-width: 695px;
 		}
 
 		> *:last-child {
@@ -156,8 +232,9 @@ gk-card p {
 	&__toolbar {
 		display: flex;
 		flex-direction: row;
-		align-items: flex-start;
+		align-items: center;
 		gap: 1.6rem;
+		justify-content: space-between;
 
 		:last-child {
 			flex: none;
@@ -254,10 +331,19 @@ gk-card p {
 			grid-template-columns: 4fr 2fr;
 		}
 	}
+
+	@media (min-width: 1200px) {
+		margin: 0 auto;
+		max-width: 1200px;
+	}
 }
 
 .editor {
 	border: 0.1rem solid var(--vscode-editorWidget-border);
+
+	&-cursor {
+		stroke: var(--vscode-editorCursor-foreground);
+	}
 
 	&-window {
 		fill: var(--color-background);

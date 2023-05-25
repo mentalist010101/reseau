@@ -19,7 +19,6 @@ export class WelcomeApp extends App<State> {
 	}
 
 	protected override onInitialize() {
-		this.state = this.getState() ?? this.state;
 		this.updateState();
 	}
 

@@ -3825,7 +3825,7 @@
 					"gitlens.showWelcomeOnInstall": {
 						"type": "boolean",
 						"default": true,
-						"markdownDescription": "Specifies whether to show the Welcome (Quick Setup) experience on first install",
+						"markdownDescription": "Specifies whether to show the Welcome experience on first install",
 						"scope": "window",
 						"order": 10
 					},
@@ -4749,7 +4749,7 @@
 			},
 			{
 				"command": "gitlens.showWelcomePage",
-				"title": "Welcome (Quick Setup)",
+				"title": "Welcome",
 				"category": "GitLens"
 			},
 			{
@@ -13715,6 +13715,15 @@
 					"icon": "$(gitlens-gitlens)",
 					"initialSize": 6,
 					"visibility": "visible"
+				},
+				{
+					"type": "webview",
+					"id": "gitlens.views.account",
+					"name": "GitKraken Account",
+					"contextualTitle": "GitLens",
+					"icon": "$(gitlens-gitlens)",
+					"initialSize": 1,
+					"visibility": "collapsed"
 				},
 				{
 					"id": "gitlens.views.contributors",

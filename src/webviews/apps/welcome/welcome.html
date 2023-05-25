@@ -26,52 +26,16 @@
 					<strong>untapped knowledge</strong> within each repository to help you
 					<strong>better understand code</strong>
 				</p>
-
-				<h2>Get Started</h2>
-				<style nonce="#{cspNonce}">
-					.video-button {
-						--video-banner-bg: url(#{webroot}/media/getting-started.webp);
-					}
-					.vscode-high-contrast .video-button,
-					.vscode-dark .video-button {
-						--video-banner-play: url(#{webroot}/media/play-button.webp);
-					}
-					.vscode-high-contrast-light .video-button,
-					.vscode-light .video-button {
-						--video-banner-play: url(#{webroot}/media/play-button-dark.webp);
-					}
-				</style>
-				<nav class="welcome__starting-nav" aria-label="Getting started links">
-					<a class="video-button" href="https://www.youtube.com/watch?v=UQPb73Zz9qk"
-						><span>Git Started</span> <small>Tutorial Video</small></a
-					>
-					<div>
-						<gk-button data-command="command:gitlens.getStarted">Get Started Walkthrough</gk-button>
-					</div>
-					<div>
-						<gk-button appearance="secondary" data-command="command:gitlens.showSettingsPage"
-							>Tips &amp; Tricks</gk-button
-						>
-					</div>
-				</nav>
-
-				<p>
-					Use the interactive
-					<a href="command:gitlens.showSettingsPage"
-						><code-icon icon="gear"></code-icon>GitLens Settings Editor</a
-					>
-					to customize GitLens to meet your needs
-				</p>
 			</section>
 			<section class="welcome__section">
-				<h2>Powerful Features</h2>
+				<h2>Get Started with Powerful Features</h2>
 				<h3>
-					<input type="checkbox" id="inline-blame" data-feature="inline-blame" checked /><label
-						for="inline-blame"
-						>Inline Blame</label
-					>
-					and <input type="checkbox" id="codelens" data-feature="git-codelens" checked /><label for="codelens"
-						>Git CodeLens</label
+					<label class="checkbox" for="inline-blame"
+						><input type="checkbox" id="inline-blame" data-feature="inline-blame" checked />Inline
+						Blame</label
+					><span style="vertical-align: middle; margin-left: 0.4rem; margin-right: 0.4rem"> and </span
+					><label class="checkbox" for="codelens"
+						><input type="checkbox" id="codelens" data-feature="git-codelens" checked />Git CodeLens</label
 					>
 				</h3>
 				<p>In-editor code annotations help you better understand how code changed and by whom</p>
@@ -96,8 +60,7 @@
 						y2="43"
 						stroke="white"
 						stroke-width="0.5"
-						class="editor-inline-blame"
-						data-feature="inline-blame"
+						class="editor-cursor"
 					/>
 					<path
 						d="M20.1582 31.4336C19.9863 31.3789 19.7812 31.334 19.543 31.2988C19.3086 31.2598 19.0684 31.2402 18.8223 31.2402C18.6543 31.2402 18.498 31.2637 18.3535 31.3105C18.209 31.3535 18.084 31.4238 17.9785 31.5215C17.873 31.6191 17.7891 31.7441 17.7266 31.8965C17.668 32.0449 17.6387 32.2266 17.6387 32.4414V33.4023H19.9766V34.5156H17.6387V38.5H16.1973V34.5156H14.4688V33.4023H16.1973V32.5C16.1973 32.0781 16.2578 31.7168 16.3789 31.416C16.5039 31.1113 16.6777 30.8633 16.9004 30.6719C17.127 30.4766 17.3984 30.334 17.7148 30.2441C18.0312 30.1543 18.3848 30.1094 18.7754 30.1094C19.0332 30.1094 19.2773 30.127 19.5078 30.1621C19.7422 30.1934 19.959 30.2324 20.1582 30.2793V31.4336ZM22.8301 32.5469V36.4258C22.8301 36.75 22.8906 36.9961 23.0117 37.1641C23.1328 37.3281 23.3164 37.4102 23.5625 37.4102C23.8008 37.4102 24.0293 37.3125 24.248 37.1172C24.4707 36.918 24.7051 36.6504 24.9512 36.3145V32.5469H26.3809V38.5H25.1445L25.1094 37.6211C24.9844 37.7734 24.8574 37.9121 24.7285 38.0371C24.5996 38.1621 24.459 38.2695 24.3066 38.3594C24.1582 38.4453 23.9941 38.5117 23.8145 38.5586C23.6387 38.6094 23.4434 38.6348 23.2285 38.6348C22.9238 38.6348 22.6562 38.5859 22.4258 38.4883C22.1992 38.3867 22.0098 38.2441 21.8574 38.0605C21.7051 37.877 21.5898 37.6582 21.5117 37.4043C21.4375 37.1465 21.4004 36.8594 21.4004 36.543V32.5469H22.8301ZM31.5605 38.5V34.6211C31.5605 33.9688 31.3184 33.6426 30.834 33.6426C30.5918 33.6426 30.3594 33.7402 30.1367 33.9355C29.918 34.1309 29.6855 34.3965 29.4395 34.7324V38.5H28.0098V32.5469H29.2461L29.2812 33.4258C29.4023 33.2734 29.5273 33.1348 29.6562 33.0098C29.7891 32.8848 29.9316 32.7793 30.084 32.6934C30.2363 32.6035 30.4004 32.5352 30.5762 32.4883C30.752 32.4414 30.9492 32.418 31.168 32.418C31.4727 32.418 31.7383 32.4688 31.9648 32.5703C32.1914 32.668 32.3809 32.8086 32.5332 32.9922C32.6855 33.1719 32.7988 33.3906 32.873 33.6484C32.9512 33.9023 32.9902 34.1875 32.9902 34.5039V38.5H31.5605ZM39.4238 38.2715C39.1426 38.3848 38.8516 38.4688 38.5508 38.5234C38.25 38.5781 37.9355 38.6055 37.6074 38.6055C37.1348 38.6055 36.7109 38.541 36.3359 38.4121C35.9609 38.2832 35.6426 38.0918 35.3809 37.8379C35.1191 37.584 34.918 37.2695 34.7773 36.8945C34.6406 36.5195 34.5723 36.0859 34.5723 35.5938C34.5723 35.1172 34.6465 34.6855 34.7949 34.2988C34.9473 33.9121 35.1602 33.582 35.4336 33.3086C35.707 33.0352 36.0352 32.8242 36.418 32.6758C36.8047 32.5273 37.2344 32.4531 37.707 32.4531C38.0938 32.4531 38.418 32.4746 38.6797 32.5176C38.9453 32.5566 39.1836 32.6074 39.3945 32.6699V34.0586C39.1523 33.9375 38.8887 33.8438 38.6035 33.7773C38.3223 33.7109 38.0547 33.6777 37.8008 33.6777C37.5352 33.6777 37.2969 33.7227 37.0859 33.8125C36.875 33.9023 36.6973 34.0273 36.5527 34.1875C36.4082 34.3477 36.2969 34.543 36.2188 34.7734C36.1445 35 36.1074 35.25 36.1074 35.5234C36.1074 35.8086 36.1484 36.0645 36.2305 36.291C36.3125 36.5176 36.4277 36.7109 36.5762 36.8711C36.7285 37.0273 36.9102 37.1484 37.1211 37.2344C37.332 37.3164 37.5664 37.3574 37.8242 37.3574C37.9492 37.3574 38.0801 37.3496 38.2168 37.334C38.3574 37.3145 38.4961 37.2891 38.6328 37.2578C38.7734 37.2227 38.9102 37.1836 39.043 37.1406C39.1797 37.0977 39.3066 37.0508 39.4238 37V38.2715ZM46.1152 38.4414C45.8574 38.5 45.5977 38.5469 45.3359 38.582C45.0742 38.6172 44.8262 38.6348 44.5918 38.6348C44.2012 38.6348 43.8633 38.5938 43.5781 38.5117C43.2969 38.4297 43.0625 38.3047 42.875 38.1367C42.6914 37.9688 42.5547 37.7559 42.4648 37.498C42.3789 37.2363 42.3359 36.9258 42.3359 36.5664V33.6602H40.7363V32.5469H42.3359V31.0234L43.8008 30.6426V32.5469H46.1152V33.6602H43.8008V36.4609C43.8008 36.8008 43.8789 37.0586 44.0352 37.2344C44.1914 37.4062 44.4531 37.4922 44.8203 37.4922C45.0547 37.4922 45.2832 37.4727 45.5059 37.4336C45.7285 37.3945 45.9316 37.3496 46.1152 37.2988V38.4414ZM51.3066 30.918C51.3066 31.0469 51.2832 31.168 51.2363 31.2812C51.1895 31.3945 51.123 31.4941 51.0371 31.5801C50.9551 31.6621 50.8574 31.7285 50.7441 31.7793C50.6309 31.8262 50.5078 31.8496 50.375 31.8496C50.2422 31.8496 50.1172 31.8262 50 31.7793C49.8867 31.7285 49.7871 31.6621 49.7012 31.5801C49.6191 31.4941 49.5547 31.3945 49.5078 31.2812C49.4609 31.168 49.4375 31.0469 49.4375 30.918C49.4375 30.7891 49.4609 30.668 49.5078 30.5547C49.5547 30.4414 49.6191 30.3418 49.7012 30.2559C49.7871 30.1699 49.8867 30.1035 50 30.0566C50.1172 30.0059 50.2422 29.9805 50.375 29.9805C50.5078 29.9805 50.6309 30.0059 50.7441 30.0566C50.8574 30.1035 50.9551 30.1699 51.0371 30.2559C51.123 30.3418 51.1895 30.4414 51.2363 30.5547C51.2832 30.668 51.3066 30.7891 51.3066 30.918ZM49.7246 33.6602H48.043V32.5469H51.1895V37.3867H52.9062V38.5H47.8379V37.3867H49.7246V33.6602ZM59.7617 35.4766C59.7617 35.9453 59.6953 36.375 59.5625 36.7656C59.4297 37.1523 59.2383 37.4844 58.9883 37.7617C58.7383 38.0391 58.4316 38.2539 58.0684 38.4062C57.7051 38.5586 57.291 38.6348 56.8262 38.6348C56.3848 38.6348 55.9902 38.5703 55.6426 38.4414C55.2949 38.3125 55 38.1211 54.7578 37.8672C54.5156 37.6094 54.3301 37.2891 54.2012 36.9062C54.0723 36.5195 54.0078 36.0703 54.0078 35.5586C54.0078 35.0859 54.0742 34.6562 54.207 34.2695C54.3438 33.8828 54.5371 33.5527 54.7871 33.2793C55.041 33.0059 55.3496 32.7949 55.7129 32.6465C56.0762 32.4941 56.4863 32.418 56.9434 32.418C57.3887 32.418 57.7852 32.4844 58.1328 32.6172C58.4805 32.7461 58.7754 32.9395 59.0176 33.1973C59.2598 33.4551 59.4434 33.7754 59.5684 34.1582C59.6973 34.5371 59.7617 34.9766 59.7617 35.4766ZM58.2734 35.5117C58.2734 34.8945 58.1562 34.4316 57.9219 34.123C57.6914 33.8105 57.3496 33.6543 56.8965 33.6543C56.6465 33.6543 56.4336 33.7031 56.2578 33.8008C56.082 33.8984 55.9375 34.0332 55.8242 34.2051C55.7109 34.373 55.627 34.5703 55.5723 34.7969C55.5215 35.0234 55.4961 35.2656 55.4961 35.5234C55.4961 36.1445 55.6211 36.6133 55.8711 36.9297C56.1211 37.2422 56.4629 37.3984 56.8965 37.3984C57.1348 37.3984 57.3418 37.3516 57.5176 37.2578C57.6934 37.1602 57.8359 37.0273 57.9453 36.8594C58.0547 36.6875 58.1367 36.4863 58.1914 36.2559C58.2461 36.0254 58.2734 35.7773 58.2734 35.5117ZM64.5488 38.5V34.6211C64.5488 33.9688 64.3066 33.6426 63.8223 33.6426C63.5801 33.6426 63.3477 33.7402 63.125 33.9355C62.9062 34.1309 62.6738 34.3965 62.4277 34.7324V38.5H60.998V32.5469H62.2344L62.2695 33.4258C62.3906 33.2734 62.5156 33.1348 62.6445 33.0098C62.7773 32.8848 62.9199 32.7793 63.0723 32.6934C63.2246 32.6035 63.3887 32.5352 63.5645 32.4883C63.7402 32.4414 63.9375 32.418 64.1562 32.418C64.4609 32.418 64.7266 32.4688 64.9531 32.5703C65.1797 32.668 65.3691 32.8086 65.5215 32.9922C65.6738 33.1719 65.7871 33.3906 65.8613 33.6484C65.9395 33.9023 65.9785 34.1875 65.9785 34.5039V38.5H64.5488Z"
@@ -122,65 +85,90 @@
 					/>
 				</svg>
 
+				<h4>Want more control?</h4>
+				<p>
+					Use the interactive
+					<a href="command:gitlens.showSettingsPage"
+						><code-icon icon="gear"></code-icon>&nbsp;GitLens Settings Editor</a
+					>
+					to customize GitLens to meet your needs
+				</p>
+
 				<h3>File Annotations</h3>
 				<p class="welcome__toolbar">
 					<span>On-demand whole file annotations to see authorship, recent changes, and a heatmap</span>
-					<svg width="179" height="36" viewBox="0 0 179 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<rect x="0.5" width="178" height="36" rx="4" fill="#120024" class="toolbar" />
-						<g opacity="0.4" clip-path="url(#clip0_108_72385)">
-							<path
-								d="M21.7747 17C22.0256 14.4733 24.1573 12.5 26.75 12.5C29.3427 12.5 31.4745 14.4733 31.7253 17H32.5V18H31.7253C31.4745 20.5267 29.3427 22.5 26.75 22.5C24.1573 22.5 22.0255 20.5267 21.7747 18H18.0642L20.5 20.4358L19.7929 21.1429L16.5 17.85V17.1429L19.7929 13.85L20.5 14.5571L18.0607 16.9964V17H21.7747ZM26.75 13.5C24.5409 13.5 22.75 15.2909 22.75 17.5C22.75 19.7091 24.5409 21.5 26.75 21.5C28.9591 21.5 30.75 19.7091 30.75 17.5C30.75 15.2909 28.9591 13.5 26.75 13.5Z"
-								fill="white"
-								class="toolbar-icon"
-							/>
+					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 144 16" width="144" height="16">
+						<g opacity=".4">
+							<mask
+								id="a"
+								width="16"
+								height="16"
+								x="0"
+								y="0"
+								maskUnits="userSpaceOnUse"
+								style="mask-type: luminance"
+							>
+								<path fill="#fff" d="M16 0H0v16h16V0Z" />
+							</mask>
+							<g mask="url(#a)">
+								<path
+									fill="#fff"
+									d="M5.275 7a5 5 0 0 1 9.95 0H16v1h-.775a5 5 0 0 1-9.95 0h-3.71L4 10.436l-.707.707L0 7.85v-.707L3.293 3.85 4 4.557l-2.44 2.44V7h3.715Zm4.975-3.5a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"
+								/>
+							</g>
 						</g>
-						<g opacity="0.4" clip-path="url(#clip1_108_72385)">
-							<path
-								d="M51 22.5C48.4073 22.5 46.2755 20.5267 46.0247 18H43.5V17H46.0247C46.2755 14.4733 48.4073 12.5 51 12.5C53.5927 12.5 55.7245 14.4733 55.9753 17H58.5V18H55.9753C55.7245 20.5267 53.5927 22.5 51 22.5ZM47 17.5C47 19.7091 48.7909 21.5 51 21.5C53.2091 21.5 55 19.7091 55 17.5C55 15.2909 53.2091 13.5 51 13.5C48.7909 13.5 47 15.2909 47 17.5Z"
-								fill="white"
-								class="toolbar-icon"
-							/>
+						<g opacity=".4">
+							<mask
+								id="b"
+								width="16"
+								height="16"
+								x="27"
+								y="0"
+								maskUnits="userSpaceOnUse"
+								style="mask-type: luminance"
+							>
+								<path fill="#fff" d="M43 0H27v16h16V0Z" />
+							</mask>
+							<g mask="url(#b)">
+								<path
+									fill="#fff"
+									d="M35.5 12.5A5 5 0 0 1 30.525 8H28V7h2.525a5 5 0 0 1 9.95 0H43v1h-2.525a5 5 0 0 1-4.975 4.5Zm-4-5a4 4 0 1 0 8 0 4 4 0 0 0-8 0Z"
+								/>
+							</g>
 						</g>
-						<g opacity="0.4" clip-path="url(#clip2_108_72385)">
-							<path
-								d="M79.2253 17C78.9744 14.4733 76.8427 12.5 74.25 12.5C71.6573 12.5 69.5256 14.4733 69.2747 17H68.5V18H69.2747C69.5256 20.5267 71.6573 22.5 74.25 22.5C76.8427 22.5 78.9745 20.5267 79.2253 18H82.9358L80.5 20.4358L81.2071 21.1429L84.5 17.85V17.1429L81.2071 13.85L80.5 14.5571L82.9393 16.9964V17H79.2253ZM74.25 13.5C76.4591 13.5 78.25 15.2909 78.25 17.5C78.25 19.7091 76.4591 21.5 74.25 21.5C72.0409 21.5 70.25 19.7091 70.25 17.5C70.25 15.2909 72.0409 13.5 74.25 13.5Z"
-								fill="white"
-								class="toolbar-icon"
-							/>
+						<g opacity=".4">
+							<mask
+								id="c"
+								width="16"
+								height="16"
+								x="54"
+								y="0"
+								maskUnits="userSpaceOnUse"
+								style="mask-type: luminance"
+							>
+								<path fill="#fff" d="M70 0H54v16h16V0Z" />
+							</mask>
+							<g mask="url(#c)">
+								<path
+									fill="#fff"
+									d="M64.725 7a5 5 0 0 0-9.95 0H54v1h.775a5 5 0 0 0 9.95 0h3.71L66 10.436l.707.707L70 7.85v-.707L66.707 3.85 66 4.557l2.44 2.44V7h-3.715ZM59.75 3.5a4 4 0 1 1 0 8 4 4 0 0 1 0-8Z"
+								/>
+							</g>
 						</g>
-						<circle cx="102.5" cy="18" r="8" fill="#F05133" />
-						<circle cx="102" cy="21.5" r="1.5" fill="#120024" />
-						<line x1="102" y1="21" x2="102" y2="15" stroke="#120024" />
-						<circle cx="105.25" cy="17.75" r="1.25" fill="#120024" />
-						<line x1="102.104" y1="14.6464" x2="105.109" y2="17.6516" stroke="#120024" />
-						<circle cx="102" cy="14.5" r="1.5" fill="#120024" />
-						<g opacity="0.4">
-							<path
-								d="M134.5 11H123.5L122.5 12V23L123.5 24H134.5L135.5 23V12L134.5 11ZM128.5 23H123.5V12H128.5V23ZM134.5 23H129.5V12H134.5V23Z"
-								fill="white"
-								class="toolbar-icon"
-							/>
-						</g>
-						<g opacity="0.4">
-							<path
-								d="M150.5 18C150.5 18.2652 150.395 18.5196 150.207 18.7071C150.02 18.8946 149.765 19 149.5 19C149.235 19 148.98 18.8946 148.793 18.7071C148.605 18.5196 148.5 18.2652 148.5 18C148.5 17.7348 148.605 17.4804 148.793 17.2929C148.98 17.1054 149.235 17 149.5 17C149.765 17 150.02 17.1054 150.207 17.2929C150.395 17.4804 150.5 17.7348 150.5 18ZM155.5 18C155.5 18.2652 155.395 18.5196 155.207 18.7071C155.02 18.8946 154.765 19 154.5 19C154.235 19 153.98 18.8946 153.793 18.7071C153.605 18.5196 153.5 18.2652 153.5 18C153.5 17.7348 153.605 17.4804 153.793 17.2929C153.98 17.1054 154.235 17 154.5 17C154.765 17 155.02 17.1054 155.207 17.2929C155.395 17.4804 155.5 17.7348 155.5 18ZM160.5 18C160.5 18.2652 160.395 18.5196 160.207 18.7071C160.02 18.8946 159.765 19 159.5 19C159.235 19 158.98 18.8946 158.793 18.7071C158.605 18.5196 158.5 18.2652 158.5 18C158.5 17.7348 158.605 17.4804 158.793 17.2929C158.98 17.1054 159.235 17 159.5 17C159.765 17 160.02 17.1054 160.207 17.2929C160.395 17.4804 160.5 17.7348 160.5 18Z"
-								fill="white"
-								class="toolbar-icon"
-							/>
-						</g>
-						<defs>
-							<clipPath id="clip0_108_72385">
-								<rect width="16" height="16" fill="white" transform="translate(16.5 10)" />
-							</clipPath>
-							<clipPath id="clip1_108_72385">
-								<rect width="16" height="16" fill="white" transform="translate(42.5 10)" />
-							</clipPath>
-							<clipPath id="clip2_108_72385">
-								<rect width="16" height="16" fill="white" transform="translate(68.5 10)" />
-							</clipPath>
-						</defs>
+						<path fill="#F05133" d="M89 16a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z" />
+						<path fill="#120024" d="M88.5 13a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" />
+						<path stroke="#120024" d="M88.5 11V5" />
+						<path fill="#120024" d="M91.75 9a1.25 1.25 0 1 0 0-2.5 1.25 1.25 0 0 0 0 2.5Z" />
+						<path stroke="#120024" d="m88.604 4.646 3.005 3.006" />
+						<path fill="#120024" d="M88.5 6a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" />
+						<path
+							fill="#fff"
+							d="M120 1.5h-11l-1 1v11l1 1h11l1-1v-11l-1-1Zm-6 12h-5v-11h5v11Zm6 0h-5v-11h5v11ZM134 8a.998.998 0 0 1-1 1 1 1 0 1 1 1-1Zm5 0a.998.998 0 0 1-1 1 1 1 0 1 1 1-1Zm5 0a.998.998 0 0 1-1 1 1 1 0 1 1 1-1Z"
+							opacity=".4"
+						/>
 					</svg>
 				</p>
+
 				<svg
 					class="editor welcome__illustration"
 					viewBox="0 0 488 89"
@@ -258,7 +246,15 @@
 						class="editor-selection"
 						mask="url(#path-16-inside-2_108_72399)"
 					/>
-					<line x1="451.75" y1="24" x2="451.75" y2="43" stroke="white" stroke-width="0.5" />
+					<line
+						x1="451.75"
+						y1="24"
+						x2="451.75"
+						y2="43"
+						stroke="white"
+						stroke-width="0.5"
+						class="editor-cursor"
+					/>
 					<path
 						d="M263.658 11.9336C263.486 11.8789 263.281 11.834 263.043 11.7988C262.809 11.7598 262.568 11.7402 262.322 11.7402C262.154 11.7402 261.998 11.7637 261.854 11.8105C261.709 11.8535 261.584 11.9238 261.479 12.0215C261.373 12.1191 261.289 12.2441 261.227 12.3965C261.168 12.5449 261.139 12.7266 261.139 12.9414V13.9023H263.477V15.0156H261.139V19H259.697V15.0156H257.969V13.9023H259.697V13C259.697 12.5781 259.758 12.2168 259.879 11.916C260.004 11.6113 260.178 11.3633 260.4 11.1719C260.627 10.9766 260.898 10.834 261.215 10.7441C261.531 10.6543 261.885 10.6094 262.275 10.6094C262.533 10.6094 262.777 10.627 263.008 10.6621C263.242 10.6934 263.459 10.7324 263.658 10.7793V11.9336ZM266.33 13.0469V16.9258C266.33 17.25 266.391 17.4961 266.512 17.6641C266.633 17.8281 266.816 17.9102 267.062 17.9102C267.301 17.9102 267.529 17.8125 267.748 17.6172C267.971 17.418 268.205 17.1504 268.451 16.8145V13.0469H269.881V19H268.645L268.609 18.1211C268.484 18.2734 268.357 18.4121 268.229 18.5371C268.1 18.6621 267.959 18.7695 267.807 18.8594C267.658 18.9453 267.494 19.0117 267.314 19.0586C267.139 19.1094 266.943 19.1348 266.729 19.1348C266.424 19.1348 266.156 19.0859 265.926 18.9883C265.699 18.8867 265.51 18.7441 265.357 18.5605C265.205 18.377 265.09 18.1582 265.012 17.9043C264.938 17.6465 264.9 17.3594 264.9 17.043V13.0469H266.33ZM275.061 19V15.1211C275.061 14.4688 274.818 14.1426 274.334 14.1426C274.092 14.1426 273.859 14.2402 273.637 14.4355C273.418 14.6309 273.186 14.8965 272.939 15.2324V19H271.51V13.0469H272.746L272.781 13.9258C272.902 13.7734 273.027 13.6348 273.156 13.5098C273.289 13.3848 273.432 13.2793 273.584 13.1934C273.736 13.1035 273.9 13.0352 274.076 12.9883C274.252 12.9414 274.449 12.918 274.668 12.918C274.973 12.918 275.238 12.9688 275.465 13.0703C275.691 13.168 275.881 13.3086 276.033 13.4922C276.186 13.6719 276.299 13.8906 276.373 14.1484C276.451 14.4023 276.49 14.6875 276.49 15.0039V19H275.061ZM282.924 18.7715C282.643 18.8848 282.352 18.9688 282.051 19.0234C281.75 19.0781 281.436 19.1055 281.107 19.1055C280.635 19.1055 280.211 19.041 279.836 18.9121C279.461 18.7832 279.143 18.5918 278.881 18.3379C278.619 18.084 278.418 17.7695 278.277 17.3945C278.141 17.0195 278.072 16.5859 278.072 16.0938C278.072 15.6172 278.146 15.1855 278.295 14.7988C278.447 14.4121 278.66 14.082 278.934 13.8086C279.207 13.5352 279.535 13.3242 279.918 13.1758C280.305 13.0273 280.734 12.9531 281.207 12.9531C281.594 12.9531 281.918 12.9746 282.18 13.0176C282.445 13.0566 282.684 13.1074 282.895 13.1699V14.5586C282.652 14.4375 282.389 14.3438 282.104 14.2773C281.822 14.2109 281.555 14.1777 281.301 14.1777C281.035 14.1777 280.797 14.2227 280.586 14.3125C280.375 14.4023 280.197 14.5273 280.053 14.6875C279.908 14.8477 279.797 15.043 279.719 15.2734C279.645 15.5 279.607 15.75 279.607 16.0234C279.607 16.3086 279.648 16.5645 279.73 16.791C279.812 17.0176 279.928 17.2109 280.076 17.3711C280.229 17.5273 280.41 17.6484 280.621 17.7344C280.832 17.8164 281.066 17.8574 281.324 17.8574C281.449 17.8574 281.58 17.8496 281.717 17.834C281.857 17.8145 281.996 17.7891 282.133 17.7578C282.273 17.7227 282.41 17.6836 282.543 17.6406C282.68 17.5977 282.807 17.5508 282.924 17.5V18.7715ZM289.615 18.9414C289.357 19 289.098 19.0469 288.836 19.082C288.574 19.1172 288.326 19.1348 288.092 19.1348C287.701 19.1348 287.363 19.0938 287.078 19.0117C286.797 18.9297 286.562 18.8047 286.375 18.6367C286.191 18.4688 286.055 18.2559 285.965 17.998C285.879 17.7363 285.836 17.4258 285.836 17.0664V14.1602H284.236V13.0469H285.836V11.5234L287.301 11.1426V13.0469H289.615V14.1602H287.301V16.9609C287.301 17.3008 287.379 17.5586 287.535 17.7344C287.691 17.9062 287.953 17.9922 288.32 17.9922C288.555 17.9922 288.783 17.9727 289.006 17.9336C289.229 17.8945 289.432 17.8496 289.615 17.7988V18.9414ZM294.807 11.418C294.807 11.5469 294.783 11.668 294.736 11.7812C294.689 11.8945 294.623 11.9941 294.537 12.0801C294.455 12.1621 294.357 12.2285 294.244 12.2793C294.131 12.3262 294.008 12.3496 293.875 12.3496C293.742 12.3496 293.617 12.3262 293.5 12.2793C293.387 12.2285 293.287 12.1621 293.201 12.0801C293.119 11.9941 293.055 11.8945 293.008 11.7812C292.961 11.668 292.938 11.5469 292.938 11.418C292.938 11.2891 292.961 11.168 293.008 11.0547C293.055 10.9414 293.119 10.8418 293.201 10.7559C293.287 10.6699 293.387 10.6035 293.5 10.5566C293.617 10.5059 293.742 10.4805 293.875 10.4805C294.008 10.4805 294.131 10.5059 294.244 10.5566C294.357 10.6035 294.455 10.6699 294.537 10.7559C294.623 10.8418 294.689 10.9414 294.736 11.0547C294.783 11.168 294.807 11.2891 294.807 11.418ZM293.225 14.1602H291.543V13.0469H294.689V17.8867H296.406V19H291.338V17.8867H293.225V14.1602ZM303.262 15.9766C303.262 16.4453 303.195 16.875 303.062 17.2656C302.93 17.6523 302.738 17.9844 302.488 18.2617C302.238 18.5391 301.932 18.7539 301.568 18.9062C301.205 19.0586 300.791 19.1348 300.326 19.1348C299.885 19.1348 299.49 19.0703 299.143 18.9414C298.795 18.8125 298.5 18.6211 298.258 18.3672C298.016 18.1094 297.83 17.7891 297.701 17.4062C297.572 17.0195 297.508 16.5703 297.508 16.0586C297.508 15.5859 297.574 15.1562 297.707 14.7695C297.844 14.3828 298.037 14.0527 298.287 13.7793C298.541 13.5059 298.85 13.2949 299.213 13.1465C299.576 12.9941 299.986 12.918 300.443 12.918C300.889 12.918 301.285 12.9844 301.633 13.1172C301.98 13.2461 302.275 13.4395 302.518 13.6973C302.76 13.9551 302.943 14.2754 303.068 14.6582C303.197 15.0371 303.262 15.4766 303.262 15.9766ZM301.773 16.0117C301.773 15.3945 301.656 14.9316 301.422 14.623C301.191 14.3105 300.85 14.1543 300.396 14.1543C300.146 14.1543 299.934 14.2031 299.758 14.3008C299.582 14.3984 299.438 14.5332 299.324 14.7051C299.211 14.873 299.127 15.0703 299.072 15.2969C299.021 15.5234 298.996 15.7656 298.996 16.0234C298.996 16.6445 299.121 17.1133 299.371 17.4297C299.621 17.7422 299.963 17.8984 300.396 17.8984C300.635 17.8984 300.842 17.8516 301.018 17.7578C301.193 17.6602 301.336 17.5273 301.445 17.3594C301.555 17.1875 301.637 16.9863 301.691 16.7559C301.746 16.5254 301.773 16.2773 301.773 16.0117ZM308.049 19V15.1211C308.049 14.4688 307.807 14.1426 307.322 14.1426C307.08 14.1426 306.848 14.2402 306.625 14.4355C306.406 14.6309 306.174 14.8965 305.928 15.2324V19H304.498V13.0469H305.734L305.77 13.9258C305.891 13.7734 306.016 13.6348 306.145 13.5098C306.277 13.3848 306.42 13.2793 306.572 13.1934C306.725 13.1035 306.889 13.0352 307.064 12.9883C307.24 12.9414 307.438 12.918 307.656 12.918C307.961 12.918 308.227 12.9688 308.453 13.0703C308.68 13.168 308.869 13.3086 309.021 13.4922C309.174 13.6719 309.287 13.8906 309.361 14.1484C309.439 14.4023 309.479 14.6875 309.479 15.0039V19H308.049Z"
 						fill="#3372B2"
@@ -292,73 +288,78 @@
 				<h3>Revision Navigation</h3>
 				<p class="welcome__toolbar">
 					<span>Effortlessly explore the history of a file to see how the code evolved over time</span>
-					<svg width="179" height="36" viewBox="0 0 179 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<rect x="0.5" width="178" height="36" rx="4" fill="#120024" class="toolbar" />
-						<g clip-path="url(#clip0_108_72369)">
+					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 144 18" width="144" height="18">
+						<mask
+							id="a"
+							width="16"
+							height="16"
+							x="0"
+							y="1"
+							maskUnits="userSpaceOnUse"
+							style="mask-type: luminance"
+						>
+							<path fill="#fff" d="M16 1H0v16h16V1Z" />
+						</mask>
+						<g mask="url(#a)">
 							<path
-								d="M21.7747 17C22.0256 14.4733 24.1573 12.5 26.75 12.5C29.3427 12.5 31.4745 14.4733 31.7253 17H32.5V18H31.7253C31.4745 20.5267 29.3427 22.5 26.75 22.5C24.1573 22.5 22.0255 20.5267 21.7747 18H18.0642L20.5 20.4358L19.7929 21.1429L16.5 17.85V17.1429L19.7929 13.85L20.5 14.5571L18.0607 16.9964V17H21.7747ZM26.75 13.5C24.5409 13.5 22.75 15.2909 22.75 17.5C22.75 19.7091 24.5409 21.5 26.75 21.5C28.9591 21.5 30.75 19.7091 30.75 17.5C30.75 15.2909 28.9591 13.5 26.75 13.5Z"
-								fill="white"
-								class="toolbar-icon"
+								fill="#fff"
+								d="M5.275 8a5 5 0 0 1 9.95 0H16v1h-.775a5 5 0 0 1-9.95 0h-3.71L4 11.436l-.707.707L0 8.85v-.707L3.293 4.85 4 5.557l-2.44 2.44V8h3.715Zm4.975-3.5a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"
 							/>
 						</g>
-						<g clip-path="url(#clip1_108_72369)">
+						<mask
+							id="b"
+							width="16"
+							height="16"
+							x="27"
+							y="1"
+							maskUnits="userSpaceOnUse"
+							style="mask-type: luminance"
+						>
+							<path fill="#fff" d="M43 1H27v16h16V1Z" />
+						</mask>
+						<g mask="url(#b)">
 							<path
-								d="M51 22.5C48.4073 22.5 46.2755 20.5267 46.0247 18H43.5V17H46.0247C46.2755 14.4733 48.4073 12.5 51 12.5C53.5927 12.5 55.7245 14.4733 55.9753 17H58.5V18H55.9753C55.7245 20.5267 53.5927 22.5 51 22.5ZM47 17.5C47 19.7091 48.7909 21.5 51 21.5C53.2091 21.5 55 19.7091 55 17.5C55 15.2909 53.2091 13.5 51 13.5C48.7909 13.5 47 15.2909 47 17.5Z"
-								fill="white"
-								class="toolbar-icon"
+								fill="#fff"
+								d="M35.5 13.5A5 5 0 0 1 30.525 9H28V8h2.525a5 5 0 0 1 9.95 0H43v1h-2.525a5 5 0 0 1-4.975 4.5Zm-4-5a4 4 0 1 0 8 0 4 4 0 0 0-8 0Z"
 							/>
 						</g>
-						<g clip-path="url(#clip2_108_72369)">
+						<mask
+							id="c"
+							width="16"
+							height="16"
+							x="54"
+							y="1"
+							maskUnits="userSpaceOnUse"
+							style="mask-type: luminance"
+						>
+							<path fill="#fff" d="M70 1H54v16h16V1Z" />
+						</mask>
+						<g mask="url(#c)">
 							<path
-								d="M79.2253 17C78.9744 14.4733 76.8427 12.5 74.25 12.5C71.6573 12.5 69.5256 14.4733 69.2747 17H68.5V18H69.2747C69.5256 20.5267 71.6573 22.5 74.25 22.5C76.8427 22.5 78.9745 20.5267 79.2253 18H82.9358L80.5 20.4358L81.2071 21.1429L84.5 17.85V17.1429L81.2071 13.85L80.5 14.5571L82.9393 16.9964V17H79.2253ZM74.25 13.5C76.4591 13.5 78.25 15.2909 78.25 17.5C78.25 19.7091 76.4591 21.5 74.25 21.5C72.0409 21.5 70.25 19.7091 70.25 17.5C70.25 15.2909 72.0409 13.5 74.25 13.5Z"
-								fill="white"
-								class="toolbar-icon"
+								fill="#fff"
+								d="M64.725 8a5 5 0 0 0-9.95 0H54v1h.775a5 5 0 0 0 9.95 0h3.71L66 11.436l.707.707L70 8.85v-.707L66.707 4.85 66 5.557l2.44 2.44V8h-3.715ZM59.75 4.5a4 4 0 1 1 0 8 4 4 0 0 1 0-8Z"
 							/>
 						</g>
-						<g opacity="0.4">
-							<circle cx="102.5" cy="18" r="6.5" stroke="white" />
-							<circle cx="102" cy="21.5" r="1.5" fill="white" />
-							<line x1="102" y1="21" x2="102" y2="15" stroke="white" />
-							<circle cx="105.25" cy="17.75" r="1.25" fill="white" />
-							<line x1="102.104" y1="14.6464" x2="105.109" y2="17.6516" stroke="white" />
-							<circle cx="102" cy="14.5" r="1.5" fill="white" />
+						<g opacity=".4">
+							<path stroke="#fff" d="M89 17a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z" />
+							<path fill="#fff" d="M88.385 15.154a1.846 1.846 0 1 0 0-3.693 1.846 1.846 0 0 0 0 3.693Z" />
+							<path stroke="#fff" d="M88.384 12.692V5.308" />
+							<path fill="#fff" d="M92.385 10.23a1.538 1.538 0 1 0 0-3.076 1.538 1.538 0 0 0 0 3.077Z" />
+							<path stroke="#fff" d="m88.513 4.872 3.698 3.7" />
+							<path fill="#fff" d="M88.385 6.538a1.846 1.846 0 1 0 0-3.692 1.846 1.846 0 0 0 0 3.692Z" />
 						</g>
-						<g opacity="0.4">
-							<path
-								d="M134.5 11H123.5L122.5 12V23L123.5 24H134.5L135.5 23V12L134.5 11ZM128.5 23H123.5V12H128.5V23ZM134.5 23H129.5V12H134.5V23Z"
-								fill="white"
-								class="toolbar-icon"
-							/>
-						</g>
-						<g opacity="0.4">
-							<path
-								d="M150.5 18C150.5 18.2652 150.395 18.5196 150.207 18.7071C150.02 18.8946 149.765 19 149.5 19C149.235 19 148.98 18.8946 148.793 18.7071C148.605 18.5196 148.5 18.2652 148.5 18C148.5 17.7348 148.605 17.4804 148.793 17.2929C148.98 17.1054 149.235 17 149.5 17C149.765 17 150.02 17.1054 150.207 17.2929C150.395 17.4804 150.5 17.7348 150.5 18ZM155.5 18C155.5 18.2652 155.395 18.5196 155.207 18.7071C155.02 18.8946 154.765 19 154.5 19C154.235 19 153.98 18.8946 153.793 18.7071C153.605 18.5196 153.5 18.2652 153.5 18C153.5 17.7348 153.605 17.4804 153.793 17.2929C153.98 17.1054 154.235 17 154.5 17C154.765 17 155.02 17.1054 155.207 17.2929C155.395 17.4804 155.5 17.7348 155.5 18ZM160.5 18C160.5 18.2652 160.395 18.5196 160.207 18.7071C160.02 18.8946 159.765 19 159.5 19C159.235 19 158.98 18.8946 158.793 18.7071C158.605 18.5196 158.5 18.2652 158.5 18C158.5 17.7348 158.605 17.4804 158.793 17.2929C158.98 17.1054 159.235 17 159.5 17C159.765 17 160.02 17.1054 160.207 17.2929C160.395 17.4804 160.5 17.7348 160.5 18Z"
-								fill="white"
-								class="toolbar-icon"
-							/>
-						</g>
-						<defs>
-							<clipPath id="clip0_108_72369">
-								<rect width="16" height="16" fill="white" transform="translate(16.5 10)" />
-							</clipPath>
-							<clipPath id="clip1_108_72369">
-								<rect width="16" height="16" fill="white" transform="translate(42.5 10)" />
-							</clipPath>
-							<clipPath id="clip2_108_72369">
-								<rect width="16" height="16" fill="white" transform="translate(68.5 10)" />
-							</clipPath>
-						</defs>
+						<path
+							fill="#fff"
+							d="M120 2.5h-11l-1 1v11l1 1h11l1-1v-11l-1-1Zm-6 12h-5v-11h5v11Zm6 0h-5v-11h5v11ZM134 9a.998.998 0 0 1-1 1 1 1 0 1 1 1-1Zm5 0a.998.998 0 0 1-1 1 1 1 0 1 1 1-1Zm5 0a.998.998 0 0 1-1 1 1 1 0 1 1 1-1Z"
+							opacity=".4"
+						/>
 					</svg>
 				</p>
 
 				<h3>✨ Commit Graph</h3>
 				<p>
-					The
-					<a href="command:gitlens.openWalkthrough?%22gitlens.plus%7Cgitlens.plus.commitGraph%22"
-						>Commit Graph</a
-					>
-					gives you visual transparency into the stability of your git repository.<br />
-					✨ Requires a paid account for access on privately hosted repos.
+					The <a href="command:gitlens.showGraph">Commit Graph</a> helps you easily visualize and keep track
+					of all work in progress<br />
 				</p>
 
 				<img
@@ -366,22 +367,31 @@
 					src="#{webroot}/media/plus-commit-graph-illustrated.webp"
 					alt="Illustration of the Commit Graph"
 				/>
+				<p>✨ Requires a paid subscription for use on privately hosted repos</p>
 
 				<h3>Sidebar Views</h3>
 				<p>Powerful views into Git that don't come with VS Code</p>
 				<nav class="welcome__views-nav" aria-label="Sidebar view links">
-					<a href="#"><code-icon icon="git-commit"></code-icon>Commit Details</a>
-					<a href="#"><code-icon icon="git-merge"></code-icon>Branches</a>
-					<a href="#"><code-icon icon="search"></code-icon>Search &amp; Compare</a>
-					<a href="#"><code-icon icon="git-commit"></code-icon>Commits</a>
-					<a href="#"><code-icon icon="cloud"></code-icon>Remotes</a>
-					<a href="#"><code-icon icon="organization"></code-icon>Contributors</a>
-					<a href="#"><code-icon icon="history"></code-icon>File History</a>
-					<a href="#"><code-icon icon="inbox"></code-icon>Stashes</a>
-					<a href="#"><code-icon icon="folder"></code-icon>Repositories</a>
-					<a href="#"><code-icon icon="history"></code-icon>Line History</a>
-					<a href="#"><code-icon icon="tag"></code-icon>Tags</a>
-					<a href="#"><code-icon icon="folder-opened"></code-icon>Worktrees ✨</a>
+					<a href="command:gitlens.showCommitDetailsView"
+						><code-icon icon="git-commit"></code-icon>Commit Details</a
+					>
+					<a href="command:gitlens.showBranchesView"><code-icon icon="git-merge"></code-icon>Branches</a>
+					<a href="command:gitlens.showSearchAndCompareView"
+						><code-icon icon="search"></code-icon>Search &amp; Compare</a
+					>
+					<a href="command:gitlens.showCommitsView"><code-icon icon="git-commit"></code-icon>Commits</a>
+					<a href="command:gitlens.showRemotesView"><code-icon icon="cloud"></code-icon>Remotes</a>
+					<a href="command:gitlens.showContributorsView"
+						><code-icon icon="organization"></code-icon>Contributors</a
+					>
+					<a href="command:gitlens.showFileHistoryView"><code-icon icon="history"></code-icon>File History</a>
+					<a href="command:gitlens.showStashesView"><code-icon icon="inbox"></code-icon>Stashes</a>
+					<a href="command:gitlens.showRepositoriesView"><code-icon icon="folder"></code-icon>Repositories</a>
+					<a href="command:gitlens.showLineHistoryView"><code-icon icon="history"></code-icon>Line History</a>
+					<a href="command:gitlens.showTagsView"><code-icon icon="tag"></code-icon>Tags</a>
+					<a href="command:gitlens.showWorktreesView"
+						><code-icon icon="folder-opened"></code-icon>Worktrees ✨</a
+					>
 				</nav>
 			</section>
 			<section class="welcome__section">
@@ -389,10 +399,10 @@
 				<p class="t-desc">
 					<strong>Powerful, additional features</strong> that enhance your GitLens experience
 				</p>
-				<ul>
-					<li><strong>Completely free</strong> for use on local or publicly hosted repos</li>
-					<li>Paid subscription for <strong>privately hosted repos only</strong></li>
-				</ul>
+				<p>
+					<strong>Completely free</strong> for use on local or publicly hosted repos, while a paid
+					subscription is required for <strong>privately hosted repos</strong>
+				</p>
 				<nav>
 					<gk-button data-command="command:gitlens.plus.learn">GitLens+ Walkthrough</gk-button>
 					<gk-button data-command="command:gitlens.plus.startPreviewTrial" appearance="secondary"
@@ -401,15 +411,12 @@
 				</nav>
 
 				<div class="welcome__plus-cards">
-					<gk-card
-						tabindex="0"
-						data-command="command:gitlens.openWalkthrough?%22gitlens.plus%7Cgitlens.plus.commitGraph%22"
-					>
+					<gk-card tabindex="0" href="command:gitlens.showGraph">
 						<h3 slot="header">✨ Commit Graph</h3>
 						<p>Helps you easily visualize and keep track of all work in progress.</p>
 					</gk-card>
 
-					<gk-card tabindex="0" data-command="command:gitlens.showFocusPage">
+					<gk-card tabindex="0" href="command:gitlens.showFocusPage">
 						<h3 slot="header">✨ Focus View</h3>
 						<p>
 							Provides you with a comprehensive list of all your most important work across your connected
@@ -417,10 +424,7 @@
 						</p>
 					</gk-card>
 
-					<gk-card
-						tabindex="0"
-						data-command="command:gitlens.openWalkthrough?%22gitlens.plus%7Cgitlens.plus.visualFileHistory%22"
-					>
+					<gk-card tabindex="0" href="gitlens.showTimelineView">
 						<h3 slot="header">✨ Visual File History</h3>
 						<p>
 							Allows you to quickly see the evolution of a file, including when changes were made, how
@@ -428,10 +432,7 @@
 						</p>
 					</gk-card>
 
-					<gk-card
-						tabindex="0"
-						data-command="command:gitlens.openWalkthrough?%22gitlens.plus%7Cgitlens.plus.worktrees%22"
-					>
+					<gk-card tabindex="0" href="command:gitlens.showWorktreesView">
 						<h3 slot="header">✨ Worktrees</h3>
 						<p>
 							Helps you multitask by minimizing the context switching between branches, allowing you to
@@ -441,10 +442,13 @@
 
 					<gk-card
 						tabindex="0"
-						data-command="command:gitlens.openWalkthrough?%22gitlens.plus%7Cgitlens.plus.worktrees%22"
+						href="command:gitlens.openWalkthrough?%22gitlens.plus%7Cgitlens.plus.richIntegrations%22"
 					>
 						<h3 slot="header">✨ Enterprise Integrations</h3>
-						<p>Provides issue and pull request auto-linking with many Git hosting services.</p>
+						<p>
+							Provides rich issue and pull request integrations with GitHub Enterprise and GitLab
+							Self-Managed Git hosts.
+						</p>
 					</gk-card>
 				</div>
 			</section>
@@ -457,6 +461,33 @@
 			</section> -->
 			<section class="welcome__section">
 				<h2>Resources</h2>
+				<style nonce="#{cspNonce}">
+					.video-button {
+						--video-banner-bg: url(#{webroot}/media/getting-started.webp);
+					}
+					.vscode-high-contrast .video-button,
+					.vscode-dark .video-button {
+						--video-banner-play: url(#{webroot}/media/play-button.webp);
+					}
+					.vscode-high-contrast-light .video-button,
+					.vscode-light .video-button {
+						--video-banner-play: url(#{webroot}/media/play-button-dark.webp);
+					}
+				</style>
+				<nav class="welcome__starting-nav" aria-label="Getting started links">
+					<a class="video-button" href="https://www.youtube.com/watch?v=UQPb73Zz9qk"
+						><span>Get Started</span> <small>Tutorial Video</small></a
+					>
+					<div>
+						<gk-button data-command="command:gitlens.getStarted">Get Started Walkthrough</gk-button>
+					</div>
+					<div>
+						<gk-button appearance="secondary" data-command="command:gitlens.showSettingsPage"
+							>Tips &amp; Tricks</gk-button
+						>
+					</div>
+				</nav>
+
 				<nav class="welcome__resources-nav" aria-label="Help and Resources">
 					<a href="https://help.gitkraken.com/gitlens/gitlens-home"
 						><code-icon icon="question"></code-icon>Help</a

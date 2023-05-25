@@ -1,0 +1,393 @@
+/*global*/
+import './account.scss';
+import { provideVSCodeDesignSystem, vsCodeButton } from '@vscode/webview-ui-toolkit';
+import type { Disposable } from 'vscode';
+import type { State } from '../../../../plus/webviews/account/protocol';
+import {
+	CompleteStepCommandType,
+	DidChangeConfigurationType,
+	DidChangeLayoutType,
+	DidChangeRepositoriesType,
+	DidChangeSubscriptionNotificationType,
+	DismissBannerCommandType,
+	DismissSectionCommandType,
+	DismissStatusCommandType,
+} from '../../../../plus/webviews/account/protocol';
+import { getSubscriptionTimeRemaining, SubscriptionState } from '../../../../subscription';
+import type { IpcMessage } from '../../../protocol';
+import { ExecuteCommandType, onIpc } from '../../../protocol';
+import { App } from '../../shared/appBase';
+import { DOM } from '../../shared/dom';
+import type { CardSection } from './components/card-section';
+import type { HeaderCard } from './components/header-card';
+import type { PlusBanner } from './components/plus-banner';
+import type { SteppedSection } from './components/stepped-section';
+import '../../shared/components/code-icon';
+import '../../shared/components/overlays/pop-over';
+import './components/card-section';
+import './components/header-card';
+import './components/plus-banner';
+import './components/plus-content';
+import './components/stepped-section';
+
+export class AccountApp extends App<State> {
+	private $steps!: SteppedSection[];
+	private $cards!: CardSection[];
+
+	constructor() {
+		super('AccountApp');
+	}
+
+	protected override onInitialize() {
+		provideVSCodeDesignSystem().register(vsCodeButton());
+
+		this.$steps = [...document.querySelectorAll<SteppedSection>('stepped-section[id]')];
+		this.$cards = [...document.querySelectorAll<CardSection>('card-section[id]')];
+
+		this.state = this.getState() ?? this.state;
+		this.updateState();
+	}
+
+	protected override onBind(): Disposable[] {
+		const disposables = super.onBind?.() ?? [];
+
+		disposables.push(
+			DOM.on('[data-action]', 'click', (e, target: HTMLElement) => this.onDataActionClicked(e, target)),
+		);
+		disposables.push(
+			DOM.on<PlusBanner, string>('plus-banner', 'action', (e, target: HTMLElement) =>
+				this.onPlusActionClicked(e, target),
+			),
+		);
+		disposables.push(
+			DOM.on<SteppedSection, boolean>('stepped-section', 'complete', (e, target: HTMLElement) =>
+				this.onStepComplete(e, target),
+			),
+		);
+		disposables.push(
+			DOM.on<CardSection, undefined>('card-section', 'dismiss', (e, target: HTMLElement) =>
+				this.onCardDismissed(e, target),
+			),
+		);
+		disposables.push(
+			DOM.on<HeaderCard, undefined>('header-card', 'dismiss-status', (e, target: HTMLElement) =>
+				this.onStatusDismissed(e, target),
+			),
+		);
+		disposables.push(
+			DOM.on('[data-banner-dismiss]', 'click', (e, target: HTMLElement) => this.onBannerDismissed(e, target)),
+		);
+
+		return disposables;
+	}
+
+	protected override onMessageReceived(e: MessageEvent) {
+		const msg = e.data as IpcMessage;
+
+		switch (msg.method) {
+			case DidChangeSubscriptionNotificationType.method:
+				this.log(`onMessageReceived(${msg.id}): name=${msg.method}`);
+
+				onIpc(DidChangeSubscriptionNotificationType, msg, params => {
+					this.state.subscription = params.subscription;
+					this.state.completedActions = params.completedActions;
+					this.state.avatar = params.avatar;
+					this.state.pinStatus = params.pinStatus;
+					this.setState(this.state);
+					this.updateState();
+				});
+				break;
+			case DidChangeRepositoriesType.method:
+				this.log(`onMessageReceived(${msg.id}): name=${msg.method}`);
+
+				onIpc(DidChangeRepositoriesType, msg, params => {
+					this.state.repositories = { ...params };
+					this.setState(this.state);
+					this.updateNoRepo();
+				});
+				break;
+			case DidChangeConfigurationType.method:
+				this.log(`onMessageReceived(${msg.id}): name=${msg.method}`);
+
+				onIpc(DidChangeConfigurationType, msg, params => {
+					this.state.plusEnabled = params.plusEnabled;
+					this.setState(this.state);
+					this.updatePlusContent();
+				});
+				break;
+			case DidChangeLayoutType.method:
+				this.log(`onMessageReceived(${msg.id}): name=${msg.method}`);
+
+				onIpc(DidChangeLayoutType, msg, params => {
+					this.state.layout = params.layout;
+					this.setState(this.state);
+					this.updateLayout();
+				});
+				break;
+
+			default:
+				super.onMessageReceived?.(e);
+				break;
+		}
+	}
+
+	private onStepComplete(e: CustomEvent<boolean>, target: HTMLElement) {
+		const id = target.id;
+		const isComplete = e.detail ?? false;
+		this.state.completedSteps = toggleArrayItem(this.state.completedSteps, id, isComplete);
+		this.sendCommand(CompleteStepCommandType, { id: id, completed: isComplete });
+		this.updateState();
+	}
+
+	private onCardDismissed(e: CustomEvent<undefined>, target: HTMLElement) {
+		const id = target.id;
+		this.state.dismissedSections = toggleArrayItem(this.state.dismissedSections, id);
+		this.sendCommand(DismissSectionCommandType, { id: id });
+		this.updateState();
+	}
+
+	private onStatusDismissed(_e: CustomEvent<undefined>, _target: HTMLElement) {
+		this.state.pinStatus = false;
+		this.sendCommand(DismissStatusCommandType, undefined);
+		this.updateHeader();
+	}
+
+	private onBannerDismissed(_e: MouseEvent, target: HTMLElement) {
+		const key = target.getAttribute('data-banner-dismiss');
+		if (key == null || this.state.dismissedBanners?.includes(key)) {
+			return;
+		}
+		this.state.dismissedBanners = this.state.dismissedBanners ?? [];
+		this.state.dismissedBanners.push(key);
+		this.sendCommand(DismissBannerCommandType, { id: key });
+		this.updateBanners();
+	}
+
+	private onDataActionClicked(_e: MouseEvent, target: HTMLElement) {
+		const action = target.dataset.action;
+		this.onActionClickedCore(action);
+	}
+
+	private onPlusActionClicked(e: CustomEvent<string>, _target: HTMLElement) {
+		this.onActionClickedCore(e.detail);
+	}
+
+	private onActionClickedCore(action?: string) {
+		if (action?.startsWith('command:')) {
+			this.sendCommand(ExecuteCommandType, { command: action.slice(8) });
+		}
+	}
+
+	private getDaysRemaining() {
+		if (
+			![SubscriptionState.FreeInPreviewTrial, SubscriptionState.FreePlusInTrial].includes(
+				this.state.subscription.state,
+			)
+		) {
+			return 0;
+		}
+
+		return getSubscriptionTimeRemaining(this.state.subscription, 'days') ?? 0;
+	}
+
+	private forceShowPlus() {
+		return [
+			SubscriptionState.FreePreviewTrialExpired,
+			SubscriptionState.FreePlusTrialExpired,
+			SubscriptionState.VerificationRequired,
+		].includes(this.state.subscription.state);
+	}
+
+	private updateHeader(days = this.getDaysRemaining(), forceShowPlus = this.forceShowPlus()) {
+		const { subscription, completedSteps, avatar, pinStatus } = this.state;
+
+		const $headerContent = document.getElementById('header-card') as HeaderCard;
+		if ($headerContent) {
+			if (avatar) {
+				$headerContent.setAttribute('image', avatar);
+			}
+			$headerContent.setAttribute('name', subscription.account?.name ?? '');
+
+			const steps = this.$steps?.length ?? 0;
+			let completed = completedSteps?.length ?? 0;
+			if (steps > 0 && completed > 0) {
+				const stepIds = this.$steps.map(el => el.id);
+				const availableCompleted = completedSteps!.filter(name => stepIds.includes(name));
+				completed = availableCompleted.length;
+
+				if (forceShowPlus && availableCompleted.includes('plus')) {
+					completed -= 1;
+				}
+			}
+
+			$headerContent.setAttribute('steps', steps.toString());
+			$headerContent.setAttribute('completed', completed.toString());
+			$headerContent.setAttribute('state', subscription.state.toString());
+			$headerContent.setAttribute('plan', subscription.plan.effective.name);
+			$headerContent.setAttribute('days', days.toString());
+			$headerContent.pinStatus = pinStatus;
+		}
+	}
+
+	private updateBanners() {
+		const $banners = [...document.querySelectorAll('[data-banner]')];
+		if (!$banners.length) {
+			return;
+		}
+
+		const { dismissedBanners } = this.state;
+		$banners.forEach($el => {
+			const key = $el.getAttribute('data-banner');
+			if (key !== null && dismissedBanners?.includes(key)) {
+				$el.setAttribute('hidden', 'true');
+			} else {
+				$el.removeAttribute('hidden');
+			}
+		});
+	}
+
+	private updateNoRepo() {
+		const {
+			repositories: { openCount, hasUnsafe, trusted },
+		} = this.state;
+
+		if (!trusted) {
+			setElementVisibility('untrusted-alert', true);
+			setElementVisibility('no-repo', false);
+			setElementVisibility('no-repo-alert', false);
+			setElementVisibility('unsafe-repo-alert', false);
+
+			return;
+		}
+
+		setElementVisibility('untrusted-alert', false);
+
+		const noRepos = openCount === 0;
+
+		setElementVisibility('no-repo', noRepos);
+		setElementVisibility('no-repo-alert', noRepos && !hasUnsafe);
+		setElementVisibility('unsafe-repo-alert', hasUnsafe);
+	}
+
+	private updateLayout() {
+		const { layout } = this.state;
+
+		const $els = [...document.querySelectorAll('[data-gitlens-layout]')];
+		$els.forEach(el => {
+			const attr = el.getAttribute('data-gitlens-layout');
+			el.classList.toggle('is-active', attr === layout);
+		});
+	}
+
+	private updatePlusContent(days = this.getDaysRemaining()) {
+		const { subscription, visibility, plusEnabled } = this.state;
+
+		let $plusContent = document.getElementById('plus-banner');
+		if ($plusContent) {
+			$plusContent.setAttribute('days', days.toString());
+			$plusContent.setAttribute('state', subscription.state.toString());
+			$plusContent.setAttribute('visibility', visibility);
+			$plusContent.setAttribute('plan', subscription.plan.effective.name);
+			$plusContent.setAttribute('plus', plusEnabled.toString());
+			($plusContent as PlusBanner).hasRepositories = this.state.repositories.count > 0;
+		}
+
+		$plusContent = document.getElementById('plus-content');
+		if ($plusContent) {
+			$plusContent.setAttribute('days', days.toString());
+			$plusContent.setAttribute('state', subscription.state.toString());
+			$plusContent.setAttribute('visibility', visibility);
+			$plusContent.setAttribute('plan', subscription.plan.effective.name);
+		}
+	}
+
+	private updateSteps(forceShowPlus = this.forceShowPlus()) {
+		if (
+			this.$steps == null ||
+			this.$steps.length === 0 ||
+			this.state.completedSteps == null ||
+			this.state.completedSteps.length === 0
+		) {
+			return;
+		}
+
+		this.$steps.forEach(el => {
+			el.setAttribute(
+				'completed',
+				(el.id === 'plus' && forceShowPlus) || this.state.completedSteps?.includes(el.id) !== true
+					? 'false'
+					: 'true',
+			);
+		});
+	}
+
+	private updateSections() {
+		if (
+			this.$cards == null ||
+			this.$cards.length === 0 ||
+			this.state.dismissedSections == null ||
+			this.state.dismissedSections.length === 0
+		) {
+			return;
+		}
+
+		this.state.dismissedSections.forEach(id => {
+			const found = this.$cards.findIndex(el => el.id === id);
+			if (found > -1) {
+				this.$cards[found].remove();
+				this.$cards.splice(found, 1);
+			}
+		});
+	}
+
+	private updateState() {
+		const { completedSteps, dismissedSections } = this.state;
+
+		this.updateNoRepo();
+		this.updateLayout();
+
+		const showRestoreWelcome = completedSteps?.length || dismissedSections?.length;
+		document.getElementById('restore-welcome')?.classList.toggle('hide', !showRestoreWelcome);
+
+		const forceShowPlus = this.forceShowPlus();
+		const days = this.getDaysRemaining();
+		this.updateHeader(days, forceShowPlus);
+		this.updatePlusContent(days);
+
+		this.updateSteps(forceShowPlus);
+
+		this.updateSections();
+		this.updateBanners();
+	}
+}
+
+function setElementVisibility(elementOrId: string | HTMLElement | null | undefined, visible: boolean) {
+	let el;
+	if (typeof elementOrId === 'string') {
+		el = document.getElementById(elementOrId);
+	} else {
+		el = elementOrId;
+	}
+	if (el == null) return;
+
+	if (visible) {
+		el.setAttribute('aria-hidden', 'false');
+		el.removeAttribute('hidden');
+	} else {
+		el.setAttribute('aria-hidden', 'true');
+		el?.setAttribute('hidden', 'true');
+	}
+}
+
+function toggleArrayItem(list: string[] = [], item: string, add = true) {
+	const hasStep = list.includes(item);
+	if (!hasStep && add) {
+		list.push(item);
+	} else if (hasStep && !add) {
+		list.splice(list.indexOf(item), 1);
+	}
+
+	return list;
+}
+
+new AccountApp();

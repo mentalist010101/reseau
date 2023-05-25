@@ -141,7 +141,7 @@ body {
 	&__main {
 		flex: 1;
 		overflow: auto;
-		padding: 0.8rem 2rem 0.4rem;
+		padding: 2rem 2rem 0.4rem;
 
 		background: linear-gradient(var(--color-view-background) 33%, var(--color-view-background)),
 			linear-gradient(var(--color-view-background), var(--color-view-background) 66%) 0 100%,
@@ -546,7 +546,7 @@ vscode-button {
 	}
 }
 
-@import '../shared/codicons';
+@import '../../shared/codicons';
 
 // .codicon {
 // 	position: relative;
@@ -644,35 +644,5 @@ vscode-button {
 @media (min-width: 281px) {
 	.only-small {
 		display: none;
-	}
-}
-
-.nav-list {
-	display: flex;
-	flex-direction: column;
-	gap: 0.8rem;
-
-	&__item {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		gap: 0.8rem;
-		color: inherit;
-
-		&:hover {
-			text-decoration: none;
-		}
-	}
-
-	&__icon {
-		opacity: 0.5;
-	}
-
-	&__label {
-		font-weight: 600;
-	}
-
-	&__item:hover &__label {
-		text-decoration: underline;
 	}
 }

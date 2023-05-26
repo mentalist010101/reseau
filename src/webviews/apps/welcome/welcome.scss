@@ -341,23 +341,21 @@ gk-card p {
 .editor {
 	border: 0.1rem solid var(--vscode-editorWidget-border);
 
+	* {
+		user-select: none;
+	}
+
+	&-line text {
+		font-family: var(--vscode-editor-font-family);
+		font-size: var(--vscode-editor-font-size);
+		font-weight: var(--vscode-editor-font-weight);
+	}
+
 	&-cursor {
-		stroke: var(--vscode-editorCursor-foreground);
+		fill: var(--vscode-editorCursor-foreground);
 	}
 
-	&-window {
-		fill: var(--color-background);
-	}
-
-	&-git-codelens {
-		fill: var(--vscode-editorCodeLens-foreground);
-
-		&.is-disabled {
-			opacity: 0;
-		}
-	}
-
-	&-inline-blame {
+	&-blame {
 		fill: var(--vscode-gitlens-trailingLineForegroundColor);
 
 		&.is-disabled {
@@ -365,39 +363,81 @@ gk-card p {
 		}
 	}
 
+	&-codelens text {
+		font-family: var(--vscode-font-family);
+		font-size: var(--vscode-font-size);
+		font-weight: var(--vscode-font-weight);
+
+		fill: var(--vscode-editorCodeLens-foreground);
+
+		tspan {
+			font-size: 0.8em;
+		}
+
+		&.is-disabled {
+			opacity: 0;
+		}
+	}
+
+	&-heatmap {
+		stroke: #7162db;
+	}
+
+	&-punctuation {
+		fill: var(--vscode-editor-foreground);
+	}
+
 	&-function-declaration {
-		// fill: var(--vscode-debugView-valueChangedHighlight);
 		fill: var(--vscode-symbolIcon-functionForeground);
-		// fill: var(--vscode-editorBracketHighlight-foreground1);
 	}
 
 	&-function-name {
-		// fill: var(--vscode-editorBracketHighlight-foreground1);
 		fill: var(--vscode-symbolIcon-colorForeground);
 	}
 
 	&-function-argument {
-		fill: var(--vscode-symbolIcon-fieldForeground);
+		fill: var(--vscode-symbolIcon-variableForeground);
 	}
 
 	&-function-argument-type {
-		fill: var(--vscode-symbolIcon-interfaceForeground);
+		fill: var(--vscode-symbolIcon-typeParameterForeground);
 	}
 
 	&-function-return {
 		fill: var(--vscode-debugTokenExpression-name);
 	}
 
-	&-line-numbers {
+	&-line-current {
+		fill: var(--vscode-editor-lineHighlightBackground);
+		stroke: var(--vscode-editor-lineHighlightBorder);
+		stroke-width: 0.1rem;
+		fill-opacity: 0.8;
+	}
+
+	&-line-number {
 		fill: var(--vscode-editorLineNumber-foreground);
 	}
 
-	&-selection {
-		fill: var(--vscode-editor-selectionBackground);
+	&-line-number-active {
+		fill: var(--vscode-editorLineNumber-activeForeground);
+	}
+
+	&-gutter {
+		fill: var(--vscode-gitlens-gutterBackgroundColor);
+	}
+
+	&-gutter-avatar {
+		circle {
+			fill: var(--vscode-editorInfo-foreground);
+		}
+		text {
+			fill: var(--vscode-gitlens-gutterForegroundColor);
+			font-size: 0.75rem;
+		}
 	}
 
 	&-gutter-text {
-		fill: var(--vscode-symbolIcon-colorForeground);
+		fill: var(--vscode-gitlens-gutterForegroundColor);
 	}
 }
 
@@ -405,10 +445,61 @@ gk-card p {
 	fill: var(--vscode-menu-background);
 
 	&-icon {
-		fill: var(--vscode-menu-foreground);
+		fill: var(--vscode-icon-foreground);
 
-		&-inactive {
+		&-annotations {
+			path:first-child {
+				fill: #f05133;
+				stroke: none;
+			}
+
+			path:last-child {
+				fill: var(--vscode-menu-background);
+			}
+
+			body[data-feature-annotations='off'] &,
+			&.inactive {
+				path:first-child {
+					fill: none;
+					stroke: var(--vscode-icon-foreground);
+				}
+
+				path:last-child {
+					fill: var(--vscode-icon-foreground);
+				}
+			}
+		}
+
+		&.inactive {
 			opacity: 0.6;
 		}
+	}
+}
+
+[data-action] {
+	cursor: pointer;
+}
+
+body[data-feature-annotations='off'] {
+	[data-feature-annotations='on'] {
+		display: none;
+	}
+}
+
+body:not([data-feature-annotations='off']) {
+	[data-feature-annotations='off'] {
+		display: none;
+	}
+}
+
+body[data-feature-blame='off'] {
+	[data-feature-blame='on'] {
+		opacity: 0;
+	}
+}
+
+body[data-feature-codelens='off'] {
+	[data-feature-codelens='on'] {
+		opacity: 0;
 	}
 }

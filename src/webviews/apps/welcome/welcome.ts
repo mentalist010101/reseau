@@ -28,6 +28,12 @@ export class WelcomeApp extends App<State> {
 		disposables.push(
 			DOM.on('[data-command]', 'click', (e, target: HTMLElement) => this.onDataCommandClicked(e, target)),
 			DOM.on('[data-feature]', 'change', (e, target: HTMLInputElement) => this.onFeatureToggled(e, target)),
+			DOM.on('[data-action]', 'click', (e, target: HTMLElement) => {
+				const action = target.dataset.action;
+				if (action === 'toggle-annotations') {
+					this.toggleFeatureState('annotations');
+				}
+			}),
 		);
 
 		return disposables;
@@ -56,7 +62,10 @@ export class WelcomeApp extends App<State> {
 		const feature = target.dataset.feature;
 		const enabled = (target as HTMLInputElement).checked;
 
-		const type = feature === 'git-codelens' ? 'codeLens' : 'currentLine';
+		const state = document.body.getAttribute(`data-feature-${feature}`);
+		document.body.setAttribute(`data-feature-${feature}`, state === 'off' ? 'on' : 'off');
+
+		const type = feature === 'codelens' ? 'codeLens' : 'currentLine';
 		this.state.config[type].enabled = enabled;
 		this.sendCommand(UpdateConfigurationCommandType, { type: type, value: enabled });
 		this.updateToggledFeatures();
@@ -75,20 +84,42 @@ export class WelcomeApp extends App<State> {
 	private updateToggledFeatures() {
 		const { config } = this.state;
 
-		[
-			{ id: 'git-codelens', enabled: config.codeLens.enabled ?? false },
-			{ id: 'inline-blame', enabled: config.currentLine.enabled ?? false },
-		].forEach(({ id, enabled }) => {
-			[...document.querySelectorAll<HTMLElement>(`[data-feature="${id}"]`)].forEach((el: HTMLElement) => {
-				if ((el as HTMLInputElement).type === 'checkbox') {
-					(el as HTMLInputElement).checked = enabled;
-				} else {
-					el.classList.toggle('is-disabled', !enabled);
-				}
-			});
-		});
+		this.setFeatureState('blame', config.currentLine.enabled ?? false);
+		this.setFeatureState('codelens', config.codeLens.enabled ?? false);
+
+		// [
+		// 	{ id: 'git-codelens', enabled: config.codeLens.enabled ?? false },
+		// 	{ id: 'inline-blame', enabled: config.currentLine.enabled ?? false },
+		// ].forEach(({ id, enabled }) => {
+		// 	[...document.querySelectorAll<HTMLElement>(`[data-feature="${id}"]`)].forEach((el: HTMLElement) => {
+		// 		if ((el as HTMLInputElement).type === 'checkbox') {
+		// 			(el as HTMLInputElement).checked = enabled;
+		// 		} else {
+		// 			el.classList.toggle('is-disabled', !enabled);
+		// 		}
+		// 	});
+		// });
+	}
+
+	private setFeatureState(feature: string, on: boolean) {
+		document.body.setAttribute(`data-feature-${feature}`, on ? 'on' : 'off');
+	}
+
+	private toggleFeatureState(feature: string) {
+		const state = document.body.getAttribute(`data-feature-${feature}`);
+		this.setFeatureState(feature, state === 'off');
 	}
 }
 
 new WelcomeApp();
 // requestAnimationFrame(() => new Snow());
+
+function gitlens(code: string) {
+	return supercharged(code);
+}
+
+gitlens('');
+
+function supercharged(code: string) {
+	return code;
+}

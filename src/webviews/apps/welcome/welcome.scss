@@ -251,6 +251,15 @@ gk-card p {
 		max-width: 69.2rem;
 		width: 100%;
 		height: auto;
+
+		&--graph {
+			object-fit: cover;
+			object-position: top;
+			aspect-ratio: 3.6;
+			border-radius: 0.9rem;
+			// box-shadow: 0 0 0 0.1rem #444444;
+			border: 0.1rem solid var(--vscode-editorWidget-border);
+		}
 	}
 
 	&__plus-cards {
@@ -450,6 +459,16 @@ gk-card p {
 	&-gutter-text {
 		fill: var(--vscode-gitlens-gutterForegroundColor);
 	}
+
+	&-removed-line {
+		fill: var(--vscode-diffEditor-removedLineBackground);
+	}
+	&-added-line {
+		fill: var(--vscode-diffEditor-insertedLineBackground);
+	}
+	&-added-text {
+		fill: var(--vscode-diffEditor-insertedTextBackground);
+	}
 }
 
 .toolbar {
@@ -481,6 +500,15 @@ gk-card p {
 			}
 		}
 
+		&-accent {
+			fill: var(--color-foreground);
+			opacity: 0.2;
+		}
+
+		&.active {
+			fill: var(--color-foreground);
+		}
+
 		&.inactive {
 			opacity: 0.6;
 		}
@@ -489,18 +517,6 @@ gk-card p {
 
 [data-action] {
 	cursor: pointer;
-}
-
-body[data-feature-annotations='off'] {
-	[data-feature-annotations='on'] {
-		display: none;
-	}
-}
-
-body:not([data-feature-annotations='off']) {
-	[data-feature-annotations='off'] {
-		display: none;
-	}
 }
 
 body[data-feature-blame='off'] {
@@ -512,5 +528,14 @@ body[data-feature-blame='off'] {
 body[data-feature-codelens='off'] {
 	[data-feature-codelens='on'] {
 		opacity: 0;
+	}
+}
+
+body[data-feature-annotations='off'] {
+	.editor-blame-block {
+		display: none;
+	}
+	.editor-code-block {
+		transform: translateX(-242px);
 	}
 }

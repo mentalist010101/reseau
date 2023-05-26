@@ -15,16 +15,29 @@
 		<header class="welcome__header">
 			<h1 class="welcome__brand"><gitlens-logo></gitlens-logo> <small>Git Supercharged</small></h1>
 			<p class="welcome__release">
-				<span>Version <span id="version"></span></span>
-				<a href="https://help.gitkraken.com/gitlens/gitlens-release-notes-current">Release notes</a>
+				<span
+					>Version
+					<a
+						id="version"
+						href="https://github.com/gitkraken/vscode-gitlens/blob/main/CHANGELOG.md"
+						title="Open CHANGELOG"
+						aria-label="Open CHANGELOG"
+					></a
+				></span>
+				<a
+					href="https://help.gitkraken.com/gitlens/gitlens-release-notes-current"
+					title="Open Release Notes"
+					aria-label="Open Release Notes"
+					>Release notes</a
+				>
 			</p>
 		</header>
 		<main class="welcome__main">
 			<section class="welcome__section">
 				<p class="t-feature">
-					GitLens <strong>supercharges</strong> Git within VS Code and unlocks
-					<strong>untapped knowledge</strong> within each repository to help you
-					<strong>better understand code</strong>
+					Supercharge Git and unlock <strong>untapped knowledge</strong> within your repository to better
+					<strong>understand</strong>, <strong>evolve</strong>, and <strong>review</strong> code. Focus,
+					collaborate, accelerate.
 				</p>
 			</section>
 			<section class="welcome__section">
@@ -285,25 +298,62 @@
 				<h3>Sidebar Views</h3>
 				<p>Powerful views into Git that don't come with VS Code</p>
 				<nav class="welcome__views-nav" aria-label="Sidebar view links">
-					<a href="command:gitlens.showCommitDetailsView"
-						><code-icon icon="git-commit"></code-icon>Commit Details</a
+					<a
+						href="command:gitlens.showCommitDetailsView"
+						title="Show Commit Details view"
+						aria-label="Show Commit Details view"
+						><code-icon icon="git-commit" size="24"></code-icon>Commit Details</a
 					>
-					<a href="command:gitlens.showBranchesView"><code-icon icon="git-merge"></code-icon>Branches</a>
-					<a href="command:gitlens.showSearchAndCompareView"
-						><code-icon icon="search"></code-icon>Search &amp; Compare</a
+					<a
+						href="command:gitlens.showBranchesView"
+						title="Show Branches view"
+						aria-label="Show Branches view"
+						><code-icon icon="git-merge" size="24"></code-icon>Branches</a
 					>
-					<a href="command:gitlens.showCommitsView"><code-icon icon="git-commit"></code-icon>Commits</a>
-					<a href="command:gitlens.showRemotesView"><code-icon icon="cloud"></code-icon>Remotes</a>
+					<a
+						href="command:gitlens.showSearchAndCompareView"
+						title="Show Search &amp; Compare view"
+						aria-label="Show Search &amp; Compare view"
+						><code-icon icon="search" size="24"></code-icon>Search &amp; Compare</a
+					>
+					<a href="command:gitlens.showCommitsView" title="Show Commits view" aria-label="Show Commits view"
+						><code-icon icon="git-commit" size="24"></code-icon>Commits</a
+					>
+					<a href="command:gitlens.showRemotesView" title="Show Remotes view" aria-label="Show Remotes view"
+						><code-icon icon="cloud" size="24"></code-icon>Remotes</a
+					>
 					<a href="command:gitlens.showContributorsView"
-						><code-icon icon="organization"></code-icon>Contributors</a
+						><code-icon icon="organization" size="24"></code-icon>Contributors</a
 					>
-					<a href="command:gitlens.showFileHistoryView"><code-icon icon="history"></code-icon>File History</a>
-					<a href="command:gitlens.showStashesView"><code-icon icon="inbox"></code-icon>Stashes</a>
-					<a href="command:gitlens.showRepositoriesView"><code-icon icon="folder"></code-icon>Repositories</a>
-					<a href="command:gitlens.showLineHistoryView"><code-icon icon="history"></code-icon>Line History</a>
-					<a href="command:gitlens.showTagsView"><code-icon icon="tag"></code-icon>Tags</a>
-					<a href="command:gitlens.showWorktreesView"
-						><code-icon icon="folder-opened"></code-icon>Worktrees ✨</a
+					<a
+						href="command:gitlens.showFileHistoryView"
+						title="Show File History view"
+						aria-label="Show File History view"
+						><code-icon icon="history" size="24"></code-icon>File History</a
+					>
+					<a href="command:gitlens.showStashesView" title="Show Stashes view" aria-label="Show Stashes view"
+						><code-icon icon="inbox" size="24"></code-icon>Stashes</a
+					>
+					<a
+						href="command:gitlens.showRepositoriesView"
+						title="Show Repositories view"
+						aria-label="Show Repositories view"
+						><code-icon icon="folder" size="24"></code-icon>Repositories</a
+					>
+					<a
+						href="command:gitlens.showLineHistoryView"
+						title="Show Line History view"
+						aria-label="Show Line History view"
+						><code-icon icon="history" size="24"></code-icon>Line History</a
+					>
+					<a href="command:gitlens.showTagsView" title="Show Tags view" aria-label="Show Tags view"
+						><code-icon icon="tag" size="24"></code-icon>Tags</a
+					>
+					<a
+						href="command:gitlens.showWorktreesView"
+						title="Show Worktrees view"
+						aria-label="Show Worktrees view"
+						><code-icon icon="folder-opened" size="24"></code-icon>Worktrees ✨</a
 					>
 				</nav>
 			</section>
@@ -374,6 +424,11 @@
 			</section> -->
 			<section class="welcome__section">
 				<h2>Get Started</h2>
+				<p>
+					GitLens is <strong>powerful</strong>, <strong>feature rich</strong>, and highly
+					<strong>customizable</strong> to meet your needs. Check out our tutorial video and walkthrough to
+					get started.
+				</p>
 				<style nonce="#{cspNonce}">
 					.video-button {
 						--video-banner-bg: url(#{webroot}/media/getting-started.webp);
@@ -404,21 +459,31 @@
 
 				<h2>Resources</h2>
 				<nav class="welcome__resources-nav" aria-label="Help and Resources">
-					<a href="https://help.gitkraken.com/gitlens/gitlens-home"
+					<a
+						href="https://help.gitkraken.com/gitlens/gitlens-home"
+						aria-label="Help Center"
+						title="Help Center"
 						><code-icon icon="question"></code-icon>Help</a
 					>
-					<a href="https://github.com/gitkraken/vscode-gitlens/issues"
+					<a href="https://github.com/gitkraken/vscode-gitlens/issues" aria-label="Feedback" title="Feedback"
 						><code-icon icon="feedback"></code-icon>Issues</a
 					>
-					<a href="https://github.com/gitkraken/vscode-gitlens/discussions"
+					<a
+						href="https://github.com/gitkraken/vscode-gitlens/discussions"
+						aria-label="GitHub Discussions"
+						title="GitHub Discussions"
 						><code-icon icon="comment-discussion"></code-icon>Discussions</a
 					>
-					<a href="https://github.com/gitkraken/vscode-gitlens"
+					<a href="https://github.com/gitkraken/vscode-gitlens" aria-label="GitHub Repo" title="GitHub Repo"
 						><code-icon icon="github"></code-icon>GitHub</a
 					>
-					<a href="https://twitter.com/gitlens"><code-icon icon="twitter"></code-icon>Twitter</a>
+					<a href="https://twitter.com/gitlens" aria-label="@gitlens on Twitter" title="@gitlens on Twitter"
+						><code-icon icon="twitter"></code-icon>Twitter</a
+					>
 					<a
 						href="https://gitkraken.com/gitlens?utm_source=gitlens-extension&utm_medium=in-app-links&utm_campaign=gitlens-logo-links"
+						aria-label="GitLens Website"
+						title="GitLens Website"
 						><code-icon icon="globe"></code-icon>Website</a
 					>
 				</nav>

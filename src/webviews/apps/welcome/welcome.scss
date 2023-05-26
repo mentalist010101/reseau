@@ -175,6 +175,11 @@ gk-card p {
 .welcome {
 	padding: var(--gitlens-gutter-width);
 
+	#version {
+		color: var(--color-foreground);
+		font-weight: 600;
+	}
+
 	&__header {
 		display: flex;
 		flex-direction: row;
@@ -190,10 +195,11 @@ gk-card p {
 
 		small {
 			display: inline-block;
-			font-size: 1.3rem;
-			font-weight: normal;
+			font-size: 1.6rem;
+			font-weight: 200;
 			color: var(--color-foreground--50);
 			transform: translateY(0.3rem);
+			margin-left: 1rem;
 		}
 	}
 
@@ -274,16 +280,21 @@ gk-card p {
 	&__views-nav {
 		display: grid;
 		grid-template-columns: 1fr 1fr 1fr;
-		gap: 0.8rem 2.8rem;
+		gap: 0.8rem 5rem;
 		width: min-content;
 
 		> * {
 			white-space: nowrap;
 		}
 
+		a {
+			color: var(--color-foreground);
+		}
 		code-icon {
-			margin-right: 0.8rem;
+			margin-right: 1rem;
 			color: var(--color-foreground--50);
+			transform: translateY(-0.2rem);
+			vertical-align: middle;
 		}
 	}
 

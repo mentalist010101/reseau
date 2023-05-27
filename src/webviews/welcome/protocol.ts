@@ -4,7 +4,10 @@ import { IpcCommandType } from '../protocol';
 export interface State {
 	timestamp: number;
 	version: string;
-	config: Config;
+	config: {
+		codeLens: Config['codeLens']['enabled'];
+		currentLine: Config['currentLine']['enabled'];
+	};
 	customSettings?: Record<string, boolean>;
 }
 

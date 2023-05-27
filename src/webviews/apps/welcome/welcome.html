@@ -36,7 +36,7 @@
 			<section class="welcome__section">
 				<p class="t-feature">
 					Supercharge Git and unlock <strong>untapped knowledge</strong> within your repository to better
-					<strong>understand</strong>, <strong>evolve</strong>, and <strong>review</strong> code. Focus,
+					<strong>understand</strong>, <strong>write</strong>, and <strong>review</strong> code. Focus,
 					collaborate, accelerate.
 				</p>
 			</section>
@@ -87,10 +87,13 @@
 				<h4>Want more control?</h4>
 				<p>
 					Use the interactive
-					<a href="command:gitlens.showSettingsPage"
-						><code-icon icon="gear"></code-icon>&nbsp;GitLens Settings Editor</a
+					<a
+						href="command:gitlens.showSettingsPage"
+						title="Open GitLens Settings"
+						aria-label="Open GitLens Settings"
+						><code-icon icon="gear"></code-icon>&nbsp;GitLens Settings</a
 					>
-					to customize GitLens to meet your needs
+					editor to customize GitLens to meet your needs
 				</p>
 
 				<h3>File Annotations</h3>
@@ -124,7 +127,7 @@
 							/>
 						</g>
 						<rect
-							data-action="toggle-annotations"
+							data-feature="annotations"
 							x="80"
 							y="0"
 							width="16"
@@ -162,14 +165,14 @@
 					</g>
 					<g class="editor-blame-block">
 						<rect class="editor-gutter" x="28" y="0" width="242" height="100%"></rect>
-						<g class="editor-gutter-avatar">
-							<circle cx="42" cy="9" r="7"></circle>
-							<text x="42" y="11.5" text-anchor="middle">EA</text>
-						</g>
 						<g class="editor-line">
+							<g class="editor-gutter-avatar">
+								<circle cx="42" cy="9" r="7"></circle>
+								<text x="42" y="11.5" text-anchor="middle">EA</text>
+							</g>
 							<text y="14">
 								<tspan x="58" class="editor-gutter-text">Hello GitLens</tspan>
-								<tspan x="274" dx="-6" text-anchor="end" class="editor-gutter-text">6 years ago</tspan>
+								<tspan x="274" dx="-12" text-anchor="end" class="editor-gutter-text">6 yrs ago</tspan>
 							</text>
 							<g class="editor-gutter-avatar">
 								<circle cx="42" cy="31" r="7"></circle>
@@ -177,7 +180,7 @@
 							</g>
 							<text y="36">
 								<tspan x="58" class="editor-gutter-text">Supercharged</tspan>
-								<tspan x="274" dx="-6" text-anchor="end" class="editor-gutter-text">5 years ago</tspan>
+								<tspan x="274" dx="-12" text-anchor="end" class="editor-gutter-text">5 yrs ago</tspan>
 							</text>
 						</g>
 						<line class="editor-heatmap" x1="270" y1="0" x2="270" y2="100%" />
@@ -194,10 +197,6 @@
 								<tspan dx="-6" class="editor-punctuation">)</tspan>
 								<tspan class="editor-punctuation">{</tspan>
 							</text>
-							<g class="editor-gutter-avatar">
-								<circle cx="42" cy="31" r="7"></circle>
-								<text x="42" y="33.5" text-anchor="middle">EA</text>
-							</g>
 							<text y="36">
 								<tspan x="278" dx="24" class="editor-function-return">return</tspan>
 								<tspan class="editor-function-name">supercharged</tspan>
@@ -262,10 +261,17 @@
 					fill="none"
 					xmlns="http://www.w3.org/2000/svg"
 				>
+					<defs>
+						<clipPath id="left-clip">
+							<rect x="0" y="0" width="279" height="100%"></rect>
+						</clipPath>
+					</defs>
+
 					<rect class="editor-removed-line" x="28" y="21" width="251" height="21"></rect>
 					<rect class="editor-added-line" x="311" y="21" width="309" height="21"></rect>
-					<rect class="editor-added-text" x="433" y="21" width="38" height="21"></rect>
-					<g class="editor-line">
+					<!-- <rect class="editor-added-text" x="433" y="21" width="38" height="21"></rect> -->
+					<rect class="editor-line-current" x="0" y="21" width="calc(100% - 1px)" height="21"></rect>
+					<g class="editor-line editor-line-left" style="clip-path: url(#left-clip)">
 						<text y="14">
 							<tspan x="7" class="editor-line-number">12</tspan>
 							<tspan x="40" class="editor-function-declaration">function</tspan>
@@ -276,6 +282,19 @@
 							<tspan class="editor-function-argument-type">string</tspan>
 							<tspan dx="-6" class="editor-punctuation">)</tspan>
 							<tspan class="editor-punctuation">{</tspan>
+						</text>
+						<text y="36">
+							<tspan x="7" class="editor-line-number">13</tspan>
+							<tspan x="40" dx="24" class="editor-function-return">return</tspan>
+							<tspan class="editor-function-name">supercharged</tspan>
+							<tspan dx="-6" class="editor-punctuation">(</tspan>
+							<tspan dx="-6" class="editor-function-argument">code</tspan>
+							<tspan dx="-6" class="editor-punctuation">)</tspan>
+							<tspan dx="-6" class="editor-punctuation">;</tspan>
+						</text>
+					</g>
+					<g class="editor-line editor-line-right">
+						<text y="14">
 							<tspan x="290" class="editor-line-number">12</tspan>
 							<tspan x="323" class="editor-function-declaration">function</tspan>
 							<tspan class="editor-function-name">gitlens</tspan>
@@ -286,18 +305,14 @@
 							<tspan dx="-6" class="editor-punctuation">)</tspan>
 							<tspan class="editor-punctuation">{</tspan>
 						</text>
-						<rect class="editor-line-current" x="0" y="21" width="calc(100% - 1px)" height="21"></rect>
 						<text y="36">
-							<tspan x="7" class="editor-line-number">13</tspan>
-							<tspan x="40" dx="24" class="editor-function-return">return</tspan>
-							<tspan class="editor-function-name">supercharged</tspan>
-							<tspan dx="-6" class="editor-punctuation">(</tspan>
-							<tspan dx="-6" class="editor-function-argument">code</tspan>
-							<tspan dx="-6" class="editor-punctuation">)</tspan>
-							<tspan dx="-6" class="editor-punctuation">;</tspan>
 							<tspan x="290" class="editor-line-number">13</tspan>
 							<tspan x="323" dx="24" class="editor-function-return">return</tspan>
-							<tspan class="editor-function-name">superDuperCharged</tspan>
+							<tspan class="editor-function-name">
+								<tspan>super</tspan>
+								<tspan dx="-6" class="editor-added-text">DuperC</tspan>
+								<tspan dx="-6">harged</tspan>
+							</tspan>
 							<tspan dx="-6" class="editor-punctuation">(</tspan>
 							<tspan dx="-6" class="editor-function-argument">code</tspan>
 							<tspan dx="-6" class="editor-punctuation">)</tspan>
@@ -305,7 +320,7 @@
 							<tspan dx="-6" class="editor-cursor">|</tspan>
 						</text>
 					</g>
-					<line class="editor-heatmap" x1="280" y1="0" x2="280" y2="65" />
+					<line class="editor-splitter" x1="280" y1="0" x2="280" y2="100%" />
 				</svg>
 
 				<h3>Sidebar Views</h3>
@@ -315,58 +330,64 @@
 						href="command:gitlens.showCommitDetailsView"
 						title="Show Commit Details view"
 						aria-label="Show Commit Details view"
-						><code-icon icon="git-commit" size="24"></code-icon>Commit Details</a
+						><code-icon icon="gl-commit-view" size="24"></code-icon>Commit Details</a
 					>
 					<a
 						href="command:gitlens.showBranchesView"
 						title="Show Branches view"
 						aria-label="Show Branches view"
-						><code-icon icon="git-merge" size="24"></code-icon>Branches</a
+						><code-icon icon="gl-branches-view" size="24"></code-icon>Branches</a
 					>
 					<a
 						href="command:gitlens.showSearchAndCompareView"
 						title="Show Search &amp; Compare view"
 						aria-label="Show Search &amp; Compare view"
-						><code-icon icon="search" size="24"></code-icon>Search &amp; Compare</a
+						><code-icon icon="gl-search-view" size="24"></code-icon>Search &amp; Compare</a
 					>
 					<a href="command:gitlens.showCommitsView" title="Show Commits view" aria-label="Show Commits view"
-						><code-icon icon="git-commit" size="24"></code-icon>Commits</a
+						><code-icon icon="gl-commits-view" size="24"></code-icon>Commits</a
 					>
 					<a href="command:gitlens.showRemotesView" title="Show Remotes view" aria-label="Show Remotes view"
-						><code-icon icon="cloud" size="24"></code-icon>Remotes</a
+						><code-icon icon="gl-remotes-view" size="24"></code-icon>Remotes</a
 					>
 					<a href="command:gitlens.showContributorsView"
-						><code-icon icon="organization" size="24"></code-icon>Contributors</a
+						><code-icon icon="gl-contributors-view" size="24"></code-icon>Contributors</a
 					>
 					<a
 						href="command:gitlens.showFileHistoryView"
 						title="Show File History view"
 						aria-label="Show File History view"
-						><code-icon icon="history" size="24"></code-icon>File History</a
+						><code-icon icon="gl-history-view" size="24"></code-icon>File History</a
 					>
 					<a href="command:gitlens.showStashesView" title="Show Stashes view" aria-label="Show Stashes view"
-						><code-icon icon="inbox" size="24"></code-icon>Stashes</a
+						><code-icon icon="gl-stashes-view" size="24"></code-icon>Stashes</a
 					>
 					<a
 						href="command:gitlens.showRepositoriesView"
 						title="Show Repositories view"
 						aria-label="Show Repositories view"
-						><code-icon icon="folder" size="24"></code-icon>Repositories</a
+						><code-icon icon="gl-repositories-view" size="24"></code-icon>Repositories</a
 					>
 					<a
 						href="command:gitlens.showLineHistoryView"
 						title="Show Line History view"
 						aria-label="Show Line History view"
-						><code-icon icon="history" size="24"></code-icon>Line History</a
+						><code-icon icon="gl-history-view" size="24"></code-icon>Line History</a
 					>
 					<a href="command:gitlens.showTagsView" title="Show Tags view" aria-label="Show Tags view"
-						><code-icon icon="tag" size="24"></code-icon>Tags</a
+						><code-icon icon="gl-tags-view" size="24"></code-icon>Tags</a
 					>
 					<a
 						href="command:gitlens.showWorktreesView"
 						title="Show Worktrees view"
 						aria-label="Show Worktrees view"
-						><code-icon icon="folder-opened" size="24"></code-icon>Worktrees ✨</a
+						><code-icon icon="gl-worktrees-view" size="24"></code-icon>Worktrees ✨</a
+					>
+					<a
+						href="command:gitlens.showTimelineView"
+						title="Show Visual File History view"
+						aria-label="Show Visual File History view"
+						><code-icon icon="graph-scatter" size="24"></code-icon>Visual File History ✨</a
 					>
 				</nav>
 
@@ -458,30 +479,103 @@
 				<style nonce="#{cspNonce}">
 					.video-button {
 						--video-banner-bg: url(#{webroot}/media/getting-started.webp);
-						height: 70px;
-					}
-					.vscode-high-contrast .video-button,
-					.vscode-dark .video-button {
-						--video-banner-play: url(#{webroot}/media/play-button.webp);
-					}
-					.vscode-high-contrast-light .video-button,
-					.vscode-light .video-button {
-						--video-banner-play: url(#{webroot}/media/play-button-dark.webp);
 					}
 				</style>
+				<h2>Tutorial Video</h2>
 				<nav class="welcome__starting-nav" aria-label="Getting started links">
-					<a class="video-button" href="https://www.youtube.com/watch?v=UQPb73Zz9qk"
-						><span>Tutorial Video</span></a
-					>
+					<a class="video-button" href="https://www.youtube.com/watch?v=UQPb73Zz9qk">
+						<svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path
+								d="M13.8626 11.0319C14.3464 10.5343 24.5 16.0074 24.5 17.5C24.5 18.9926 14.346 24.4657 13.8627 23.9681C13.3794 23.4706 13.3788 11.5294 13.8626 11.0319Z"
+								fill="currentColor"
+							/>
+							<path
+								d="M34 18C34 26.8366 26.8366 34 18 34C9.16344 34 2 26.8366 2 18C2 9.16344 9.16344 2 18 2C26.8366 2 34 9.16344 34 18Z"
+								stroke="currentColor"
+							/>
+						</svg>
+					</a>
 				</nav>
 				<p>
-					<gk-button data-command="command:gitlens.getStarted">Get Started Walkthrough</gk-button>
+					<gk-button href="command:gitlens.getStarted">Get Started Walkthrough</gk-button>
 				</p>
-				<p>
-					<gk-button appearance="secondary" data-command="command:gitlens.showSettingsPage"
+				<!-- <p>
+					<gk-button appearance="secondary"
 						>Tips &amp; Tricks</gk-button
 					>
-				</p>
+				</p> -->
+
+				<h2>Quick Links</h2>
+				<nav class="welcome__resources-nav">
+					<a
+						class="nav-list__item"
+						href="command:workbench.view.extension.gitlens"
+						title="Show GitLens Side Bar"
+						aria-label="Show GitLens Side Bar"
+						><code-icon class="nav-list__icon" icon="gl-gitlens"></code-icon
+						><span class="nav-list__label">GitLens</span></a
+					>
+					<a
+						class="nav-list__item"
+						href="command:workbench.view.extension.gitlensInspect"
+						title="Show GitLens Inspect Side Bar"
+						aria-label="Show GitLens Inspect Side Bar"
+						><code-icon class="nav-list__icon" icon="gl-gitlens-inspect"></code-icon
+						><span class="nav-list__label">GitLens Inspect</span></a
+					>
+					<a
+						class="nav-list__item"
+						href="command:workbench.view.scm"
+						title="Show Source Control Side Bar"
+						aria-label="Show GitLens Side Bar"
+						><code-icon class="nav-list__icon" icon="source-control"></code-icon
+						><span class="nav-list__label">Source Control</span></a
+					>
+				</nav>
+				<nav class="welcome__resources-nav">
+					<a
+						class="nav-list__item"
+						href="command:gitlens.showGraph"
+						title="Show Commit Graph"
+						aria-label="Show Commit Graph"
+						><code-icon class="nav-list__icon" icon="gl-graph"></code-icon
+						><span class="nav-list__label">Commit Graph ✨</span></a
+					>
+					<a
+						class="nav-list__item"
+						href="command:gitlens.showCommitDetailsView"
+						title="Show Commit Details view"
+						aria-label="Show Commit Details view"
+						><code-icon class="nav-list__icon" icon="gl-commit-view"></code-icon
+						><span class="nav-list__label">Commit Details view</span></a
+					>
+					<a
+						class="nav-list__item"
+						href="command:gitlens.showFocusPage"
+						title="Open Focus"
+						aria-label="Open Focus"
+						><code-icon class="nav-list__icon" icon="target"></code-icon
+						><span class="nav-list__label">Focus ✨</span></a
+					>
+					<a
+						class="nav-list__item"
+						href="command:gitlens.showTimelineView"
+						title="Show Visual File History view"
+						aria-label="Show Visual File History view"
+						><code-icon class="nav-list__icon" icon="graph-scatter"></code-icon
+						><span class="nav-list__label">Visual File History ✨</span></a
+					>
+				</nav>
+				<nav class="welcome__resources-nav">
+					<a
+						class="nav-list__item"
+						href="command:gitlens.showSettingsPage"
+						title="Open GitLens Settings"
+						aria-label="Open GitLens Settings"
+						><code-icon class="nav-list__icon" icon="gear"></code-icon
+						><span class="nav-list__label">GitLens Settings</span></a
+					>
+				</nav>
 
 				<h2>Resources</h2>
 				<nav class="welcome__resources-nav" aria-label="Help and Resources">
@@ -521,6 +615,13 @@
 				font-family: 'codicon';
 				font-display: block;
 				src: url('#{webroot}/codicon.ttf?0e5b0adf625a37fbcd638d31f0fe72aa') format('truetype');
+			}
+		</style>
+		<style nonce="#{cspNonce}">
+			@font-face {
+				font-family: 'glicons';
+				font-display: block;
+				src: url('#{root}/dist/glicons.woff2?ab6c9110fb0444acd9ba719c4c55fa68') format('woff2');
 			}
 		</style>
 	</body>

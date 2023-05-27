@@ -23,7 +23,10 @@ export class WelcomeWebviewProvider implements WebviewProvider<State> {
 			timestamp: Date.now(),
 			version: this.container.version,
 			// Make sure to get the raw config, not from the container which has the modes mixed in
-			config: configuration.getAll(true),
+			config: {
+				codeLens: configuration.get('codeLens.enabled'),
+				currentLine: configuration.get('currentLine.enabled'),
+			},
 		};
 	}
 

@@ -1490,8 +1490,90 @@ const styles = css`
 	:host([icon='target']):before {
 		content: '\\ebf8';
 	}
+
 	:host([icon^='gl-']) {
 		font-family: 'glicons';
+	}
+	:host([icon='gl-commit-horizontal']):before {
+		content: '\\f101';
+	}
+	:host([icon='gl-graph']):before {
+		content: '\\f102';
+	}
+	:host([icon='gl-next-commit']):before {
+		content: '\\f103';
+	}
+	:host([icon='gl-prev-commit-menu']):before {
+		content: '\\f104';
+	}
+	:host([icon='gl-prev-commit']):before {
+		content: '\\f105';
+	}
+	:host([icon='gl-compare-ref-working']):before {
+		content: '\\f106';
+	}
+	:host([icon='gl-branches-view']):before {
+		content: '\\f107';
+	}
+	:host([icon='gl-commit-view']):before {
+		content: '\\f108';
+	}
+	:host([icon='gl-commits-view']):before {
+		content: '\\f109';
+	}
+	:host([icon='gl-compare-view']):before {
+		content: '\\f10a';
+	}
+	:host([icon='gl-contributors-view']):before {
+		content: '\\f10b';
+	}
+	:host([icon='gl-history-view']):before {
+		content: '\\f10c';
+	}
+	:host([icon='gl-remotes-view']):before {
+		content: '\\f10d';
+	}
+	:host([icon='gl-repositories-view']):before {
+		content: '\\f10e';
+	}
+	:host([icon='gl-search-view']):before {
+		content: '\\f10f';
+	}
+	:host([icon='gl-stashes-view']):before {
+		content: '\\f110';
+	}
+	:host([icon='gl-tags-view']):before {
+		content: '\\f111';
+	}
+	:host([icon='gl-worktrees-view']):before {
+		content: '\\f112';
+	}
+	:host([icon='gl-gitlens']):before {
+		content: '\\f113';
+	}
+	:host([icon='gl-stash-pop']):before {
+		content: '\\f114';
+	}
+	:host([icon='gl-stash-save']):before {
+		content: '\\f115';
+	}
+	:host([icon='gl-unplug']):before {
+		content: '\\f116';
+	}
+	:host([icon='gl-open-revision']):before {
+		content: '\\f117';
+	}
+	:host([icon='gl-switch']):before {
+		content: '\\f118';
+	}
+	:host([icon='gl-expand']):before {
+		content: '\\f119';
+	}
+	:host([icon='gl-list-auto']):before {
+		content: '\\f11a';
+	}
+	:host([icon='gl-arrow-up-force']):before {
+		content: '\\f11b';
 	}
 	:host([icon='gl-pinned-filled']):before {
 		content: '\\f11c';
@@ -1499,20 +1581,29 @@ const styles = css`
 		position: relative;
 		left: 1px;
 	}
-	:host([icon='gl-graph']):before {
-		content: '\\f102';
-	}
-	:host([icon='gl-list-auto']):before {
-		content: '\\f11a';
-	}
 	:host([icon='gl-clock']):before {
 		content: '\\f11d';
 	}
-	:host([icon='gl-worktrees-view']):before {
-		content: '\\f112';
+	:host([icon='gl-provider-azdo']):before {
+		content: '\\f11e';
 	}
-	:host([icon='gl-switch']):before {
-		content: '\\f118';
+	:host([icon='gl-provider-bitbucket']):before {
+		content: '\\f11f';
+	}
+	:host([icon='gl-provider-gerrit']):before {
+		content: '\\f120';
+	}
+	:host([icon='gl-provider-gitea']):before {
+		content: '\\f121';
+	}
+	:host([icon='gl-provider-github']):before {
+		content: '\\f122';
+	}
+	:host([icon='gl-provider-gitlab']):before {
+		content: '\\f123';
+	}
+	:host([icon='gl-gitlens-inspect']):before {
+		content: '\\f124';
 	}
 
 	@keyframes codicon-spin {

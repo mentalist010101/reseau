@@ -1,7 +1,6 @@
 /*global*/
 import './welcome.scss';
 import type { Disposable } from 'vscode';
-import { ExecuteCommandType } from '../../protocol';
 import type { State } from '../../welcome/protocol';
 import { UpdateConfigurationCommandType } from '../../welcome/protocol';
 import { App } from '../shared/appBase';
@@ -23,57 +22,45 @@ export class WelcomeApp extends App<State> {
 	}
 
 	protected override onBind(): Disposable[] {
-		const disposables = super.onBind?.() ?? [];
-
-		disposables.push(
-			DOM.on('[data-command]', 'click', (e, target: HTMLElement) => this.onDataCommandClicked(e, target)),
+		const disposables = [
+			...(super.onBind?.() ?? []),
 			DOM.on('[data-feature]', 'change', (e, target: HTMLInputElement) => this.onFeatureToggled(e, target)),
-			DOM.on('[data-action]', 'click', (e, target: HTMLElement) => {
-				const action = target.dataset.action;
-				if (action === 'toggle-annotations') {
-					this.toggleFeatureState('annotations');
-				}
-			}),
-		);
-
+			DOM.on('[data-feature]', 'click', (e, target: HTMLElement) => this.onFeatureToggled(e, target)),
+		];
 		return disposables;
 	}
 
-	private onDataCommandClicked(_e: MouseEvent, target: HTMLElement) {
-		console.log(target);
-		const action = target.dataset.command;
-		this.onActionClickedCore(action);
-	}
-
-	private onActionClickedCore(action?: string) {
-		if (action?.startsWith('command:')) {
-			let commandName = action.slice(8);
-			const args = [];
-			if (commandName.includes('?')) {
-				const [name, argsRaw] = decodeURIComponent(commandName).split('?');
-				commandName = name;
-				args.push(...argsRaw.substring(1, argsRaw.length - 1).split('|'));
-			}
-			this.sendCommand(ExecuteCommandType, { command: commandName, args: args as [] });
-		}
-	}
-
-	private onFeatureToggled(_e: Event, target: HTMLElement) {
+	private onFeatureToggled(e: Event, target: HTMLElement) {
 		const feature = target.dataset.feature;
+		if (!feature) return;
+
+		if (e.type !== 'change') {
+			this.toggleFeatureState(feature);
+
+			return;
+		}
+
+		let type: keyof State['config'];
+		switch (feature) {
+			case 'blame':
+				type = 'currentLine';
+				break;
+			case 'codelens':
+				type = 'codeLens';
+				break;
+			default:
+				return;
+		}
+
 		const enabled = (target as HTMLInputElement).checked;
-
-		const state = document.body.getAttribute(`data-feature-${feature}`);
-		document.body.setAttribute(`data-feature-${feature}`, state === 'off' ? 'on' : 'off');
-
-		const type = feature === 'codelens' ? 'codeLens' : 'currentLine';
-		this.state.config[type].enabled = enabled;
+		this.state.config[type] = enabled;
 		this.sendCommand(UpdateConfigurationCommandType, { type: type, value: enabled });
-		this.updateToggledFeatures();
+		this.updateFeatures();
 	}
 
 	private updateState() {
 		this.updateVersion();
-		this.updateToggledFeatures();
+		this.updateFeatures();
 	}
 
 	private updateVersion() {
@@ -81,24 +68,11 @@ export class WelcomeApp extends App<State> {
 		document.getElementById('version')!.textContent = version;
 	}
 
-	private updateToggledFeatures() {
+	private updateFeatures() {
 		const { config } = this.state;
 
-		this.setFeatureState('blame', config.currentLine.enabled ?? false);
-		this.setFeatureState('codelens', config.codeLens.enabled ?? false);
-
-		// [
-		// 	{ id: 'git-codelens', enabled: config.codeLens.enabled ?? false },
-		// 	{ id: 'inline-blame', enabled: config.currentLine.enabled ?? false },
-		// ].forEach(({ id, enabled }) => {
-		// 	[...document.querySelectorAll<HTMLElement>(`[data-feature="${id}"]`)].forEach((el: HTMLElement) => {
-		// 		if ((el as HTMLInputElement).type === 'checkbox') {
-		// 			(el as HTMLInputElement).checked = enabled;
-		// 		} else {
-		// 			el.classList.toggle('is-disabled', !enabled);
-		// 		}
-		// 	});
-		// });
+		this.setFeatureState('blame', config.currentLine ?? false);
+		this.setFeatureState('codelens', config.codeLens ?? false);
 	}
 
 	private setFeatureState(feature: string, on: boolean) {

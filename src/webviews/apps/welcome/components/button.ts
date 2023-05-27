@@ -15,7 +15,6 @@ export class GKButton extends LitElement {
 
 				display: inline-block;
 				border: none;
-				padding: 0.4rem 1.1rem;
 				font-family: inherit;
 				font-size: inherit;
 				line-height: 1.694;
@@ -27,6 +26,19 @@ export class GKButton extends LitElement {
 				cursor: pointer;
 				border-radius: var(--gk-action-radius);
 			}
+
+			:host(:not([href])) {
+				padding: 0.4rem 1.1rem;
+			}
+
+			:host([href]) > a {
+				display: inline-block;
+				padding: 0.4rem 1.1rem;
+
+				color: inherit;
+				text-decoration: none;
+			}
+
 			:host(:hover) {
 				background: var(--button-hover-background);
 			}
@@ -65,6 +77,7 @@ export class GKButton extends LitElement {
 	override tabIndex = 0;
 
 	override render() {
-		return html`<slot></slot>`;
+		const main = html`<slot></slot>`;
+		return this.href != null ? html`<a href=${this.href}>${main}</a>` : main;
 	}
 }

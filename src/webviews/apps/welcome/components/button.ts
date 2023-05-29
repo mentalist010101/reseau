@@ -12,6 +12,8 @@ export class GKButton extends LitElement {
 				--button-foreground: var(--vscode-button-foreground);
 				--button-background: var(--vscode-button-background);
 				--button-hover-background: var(--vscode-button-hoverBackground);
+				--button-padding: 0.4rem 1.1rem;
+				--button-border: var(--vscode-button-border, transparent);
 
 				display: inline-block;
 				border: none;
@@ -24,19 +26,23 @@ export class GKButton extends LitElement {
 				background: var(--button-background);
 				color: var(--button-foreground);
 				cursor: pointer;
+				border: 1px solid var(--button-border);
 				border-radius: var(--gk-action-radius);
 			}
 
 			:host(:not([href])) {
-				padding: 0.4rem 1.1rem;
+				padding: var(--button-padding);
 			}
 
 			:host([href]) > a {
 				display: inline-block;
-				padding: 0.4rem 1.1rem;
+				padding: var(--button-padding);
 
 				color: inherit;
 				text-decoration: none;
+
+				width: 100%;
+				height: 100%;
 			}
 
 			:host(:hover) {
@@ -55,6 +61,14 @@ export class GKButton extends LitElement {
 				--button-background: var(--vscode-button-secondaryBackground);
 				--button-foreground: var(--vscode-button-secondaryForeground);
 				--button-hover-background: var(--vscode-button-secondaryHoverBackground);
+			}
+
+			:host([appearance='toolbar']) {
+				--button-background: transparent;
+				--button-foreground: var(--vscode-foreground);
+				--button-hover-background: var(--vscode-toolbar-hoverBackground);
+				--button-padding: 0.45rem 0.4rem 0.14rem 0.4rem;
+				line-height: 1.64;
 			}
 		`,
 	];

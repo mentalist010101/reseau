@@ -1,7 +1,7 @@
 import { css, html, LitElement, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { SubscriptionState } from '../../../../../subscription';
-import '../../../welcome/components/button';
+import '../../../shared/components/button';
 import { linkStyles } from './vscode.css';
 
 @customElement('plus-feature-gate')

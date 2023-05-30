@@ -1,7 +1,7 @@
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import { focusOutline } from './a11y.css';
-import { elementBase } from './base.css';
+import { focusOutline } from '../../shared/components/styles/lit/a11y.css';
+import { elementBase } from '../../shared/components/styles/lit/base.css';
 
 @customElement('gk-card')
 export class GKCard extends LitElement {

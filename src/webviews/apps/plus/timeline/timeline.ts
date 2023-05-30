@@ -16,7 +16,7 @@ import type { DataPointClickEvent } from './chart';
 import { TimelineChart } from './chart';
 import '../../shared/components/code-icon';
 import '../../shared/components/progress';
-import '../../welcome/components/button';
+import '../../shared/components/button';
 import '../shared/components/plus-feature-welcome';
 
 export class TimelineApp extends App<State> {

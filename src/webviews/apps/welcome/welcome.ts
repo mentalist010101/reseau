@@ -7,7 +7,7 @@ import { App } from '../shared/appBase';
 import { DOM } from '../shared/dom';
 // import { Snow } from '../shared/snow';
 import '../shared/components/code-icon';
-import './components/button';
+import '../shared/components/button';
 import './components/card';
 import './components/gitlens-logo';
 import './components/gitlens-plus-logo';

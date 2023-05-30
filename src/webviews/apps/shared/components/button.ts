@@ -1,7 +1,7 @@
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import { focusOutline } from './a11y.css';
-import { elementBase } from './base.css';
+import { focusOutline } from './styles/lit/a11y.css';
+import { elementBase } from './styles/lit/base.css';
 
 @customElement('gk-button')
 export class GKButton extends LitElement {

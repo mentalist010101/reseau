@@ -111,27 +111,98 @@
 		</header>
 		<main class="home__main scrollable" id="main" tabindex="-1">
 			<nav class="nav-list">
-				<a class="nav-list__item" href="#"
-					><code-icon class="nav-list__icon" icon="graph-line"></code-icon
-					><span class="nav-list__label">Commit Graph</span></a
+				<h3 class="nav-list__title t-eyebrow">Popular views</h3>
+				<a
+					class="nav-list__item"
+					href="command:gitlens.showGraph"
+					title="Show Commit Graph"
+					aria-label="Show Commit Graph"
+					><code-icon class="nav-list__icon" icon="gl-graph"></code-icon
+					><span class="nav-list__label">Commit Graph ✨</span></a
 				>
-				<a class="nav-list__item" href="#"
-					><code-icon class="nav-list__icon" icon="git-commit"></code-icon
-					><span class="nav-list__label">Commit Details</span></a
+				<a
+					class="nav-list__item"
+					href="command:gitlens.showCommitDetailsView"
+					title="Show Commit Details view"
+					aria-label="Show Commit Details view"
+					><code-icon class="nav-list__icon" icon="gl-commit-view"></code-icon
+					><span class="nav-list__label">Commit Details view</span></a
 				>
-				<a class="nav-list__item" href="#"
+				<a
+					class="nav-list__item"
+					href="command:gitlens.showFocusPage"
+					title="Open Focus"
+					aria-label="Open Focus"
 					><code-icon class="nav-list__icon" icon="target"></code-icon
-					><span class="nav-list__label">Focus View</span></a
+					><span class="nav-list__label">Focus ✨</span></a
 				>
-				<a class="nav-list__item" href="#"
+				<a
+					class="nav-list__item"
+					href="command:gitlens.showTimelineView"
+					title="Show Visual File History view"
+					aria-label="Show Visual File History view"
 					><code-icon class="nav-list__icon" icon="graph-scatter"></code-icon
-					><span class="nav-list__label">Visual File History</span></a
+					><span class="nav-list__label">Visual File History ✨</span></a
 				>
-				<a class="nav-list__item" href="#"
+			</nav>
+			<nav class="nav-list">
+				<h3 class="nav-list__title t-eyebrow">Activity Bar</h3>
+				<a
+					class="nav-list__item"
+					href="command:workbench.view.extension.gitlens"
+					title="Show GitLens Side Bar"
+					aria-label="Show GitLens Side Bar"
+					><code-icon class="nav-list__icon" icon="gl-gitlens"></code-icon
+					><span class="nav-list__label">GitLens</span></a
+				>
+				<a
+					class="nav-list__item"
+					href="command:workbench.view.extension.gitlensInspect"
+					title="Show GitLens Inspect Side Bar"
+					aria-label="Show GitLens Inspect Side Bar"
+					><code-icon class="nav-list__icon" icon="gl-gitlens-inspect"></code-icon
+					><span class="nav-list__label">GitLens Inspect</span></a
+				>
+				<a
+					class="nav-list__item"
+					href="command:workbench.view.scm"
+					title="Show Source Control Side Bar"
+					aria-label="Show GitLens Side Bar"
+					><code-icon class="nav-list__icon" icon="source-control"></code-icon
+					><span class="nav-list__label">Source Control</span></a
+				>
+			</nav>
+			<nav class="nav-list">
+				<h3 class="nav-list__title t-eyebrow">Getting Started</h3>
+				<a
+					class="nav-list__item"
+					href="command:gitlens.showWelcomePage"
+					title="Open GitLens Welcome"
+					aria-label="Open GitLens Welcome"
 					><code-icon class="nav-list__icon" icon="play"></code-icon
 					><span class="nav-list__label">Welcome</span></a
 				>
-				<a class="nav-list__item" href="#"
+				<a
+					class="nav-list__item"
+					href="command:gitlens.getStarted"
+					title="Open GitLens Feature Walkthrough"
+					aria-label="Open GitLens Feature Walkthrough"
+					><code-icon class="nav-list__icon" icon="info"></code-icon
+					><span class="nav-list__label">Feature Walkthrough</span></a
+				>
+				<a
+					class="nav-list__item"
+					href="https://www.youtube.com/watch?v=UQPb73Zz9qk"
+					title="Open GitLens Settings"
+					aria-label="Open GitLens Settings"
+					><code-icon class="nav-list__icon" icon="vm-running"></code-icon
+					><span class="nav-list__label">Tutorial Video</span></a
+				>
+				<a
+					class="nav-list__item"
+					href="command:gitlens.showSettingsPage"
+					title="Open GitLens Settings"
+					aria-label="Open GitLens Settings"
 					><code-icon class="nav-list__icon" icon="gear"></code-icon
 					><span class="nav-list__label">GitLens Settings</span></a
 				>
@@ -421,6 +492,13 @@
 				font-family: 'codicon';
 				font-display: block;
 				src: url('#{webroot}/codicon.ttf?0e5b0adf625a37fbcd638d31f0fe72aa') format('truetype');
+			}
+		</style>
+		<style nonce="#{cspNonce}">
+			@font-face {
+				font-family: 'glicons';
+				font-display: block;
+				src: url('#{root}/dist/glicons.woff2?ab6c9110fb0444acd9ba719c4c55fa68') format('woff2');
 			}
 		</style>
 	</body>

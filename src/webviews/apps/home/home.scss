@@ -647,20 +647,44 @@ vscode-button {
 	}
 }
 
+.t {
+	&-eyebrow {
+		text-transform: uppercase;
+		font-size: 1rem;
+		font-weight: 600;
+		color: var(--color-foreground--50);
+		margin: 0;
+	}
+}
+
 .nav-list {
+	margin: {
+		left: -2rem;
+		right: -2rem;
+	}
 	display: flex;
 	flex-direction: column;
-	gap: 0.8rem;
+	gap: 0.1rem;
+	align-items: stretch;
+	margin-bottom: 1.6rem;
 
 	&__item {
 		display: flex;
 		flex-direction: row;
 		align-items: center;
 		gap: 0.8rem;
+		padding: 0.4rem 2rem;
 		color: inherit;
 
 		&:hover {
+			background-color: var(--vscode-list-hoverBackground);
+			color: var(--vscode-list-hoverForeground);
 			text-decoration: none;
+		}
+
+		&:active {
+			background-color: var(--vscode-list-activeSelectionBackground);
+			color: var(--vscode-list-activeSelectionForeground);
 		}
 	}
 
@@ -674,5 +698,9 @@ vscode-button {
 
 	&__item:hover &__label {
 		text-decoration: underline;
+	}
+
+	&__title {
+		padding: 0 2rem;
 	}
 }

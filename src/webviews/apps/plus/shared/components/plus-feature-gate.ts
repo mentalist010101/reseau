@@ -40,7 +40,7 @@ export class PlusFeatureGate extends LitElement {
 		switch (this.state) {
 			case SubscriptionState.VerificationRequired:
 				return html`
-					<p>Please verify your email address before you can continue.</p>
+					<p>You must verify your email before you can continue.</p>
 					<gk-button appearance="${appearance}" href="command:gitlens.plus.resendVerification"
 						>Resend verification email</gk-button
 					>
@@ -55,7 +55,7 @@ export class PlusFeatureGate extends LitElement {
 						>Start Free Pro Trial</gk-button
 					>
 					<p>
-						Instantly start your free Pro trial, or
+						Instantly start a free 3-day Pro trial, or
 						<a href="command:gitlens.plus.loginOrSignUp">sign in</a>.
 					</p>
 					<p>✨ A trial or subscription is required to use this on privately hosted repos.</p>
@@ -64,7 +64,7 @@ export class PlusFeatureGate extends LitElement {
 			case SubscriptionState.FreePreviewTrialExpired:
 				return html`
 					<p>
-						Your free 3-day Pro trial has ended, extend your trial to get an additional free 7-days, or
+						Your free 3-day Pro trial has ended, extend your free trial to get an additional 7-days, or
 						<a href="command:gitlens.plus.loginOrSignUp">sign in</a>.
 					</p>
 					<gk-button appearance="${appearance}" href="command:gitlens.plus.loginOrSignUp"

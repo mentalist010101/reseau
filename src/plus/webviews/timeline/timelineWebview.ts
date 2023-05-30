@@ -64,6 +64,7 @@ export class TimelineWebviewProvider implements WebviewProvider<State> {
 				this.container.git.onDidChangeRepository(this.onRepositoryChanged, this),
 			);
 		} else {
+			this.host.description = '✨';
 			this._disposable = Disposable.from(
 				this.container.subscription.onDidChange(this.onSubscriptionChanged, this),
 				this.container.git.onDidChangeRepository(this.onRepositoryChanged, this),
@@ -266,7 +267,7 @@ export class TimelineWebviewProvider implements WebviewProvider<State> {
 			this.host.title =
 				gitUri == null ? this.host.originalTitle : `${this.host.originalTitle}: ${gitUri.fileName}`;
 		} else {
-			this.host.description = gitUri?.fileName;
+			this.host.description = gitUri?.fileName ?? '✨';
 		}
 
 		const access = await this.container.git.access(PlusFeatures.Timeline, repoPath);

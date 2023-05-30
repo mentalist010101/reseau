@@ -6843,12 +6843,6 @@
 				"category": "GitLens"
 			},
 			{
-				"command": "gitlens.views.timeline.openInTab",
-				"title": "Open in Editor Area",
-				"category": "GitLens",
-				"icon": "$(link-external)"
-			},
-			{
 				"command": "gitlens.views.timeline.refresh",
 				"title": "Refresh",
 				"category": "GitLens",
@@ -9252,10 +9246,6 @@
 					"when": "false"
 				},
 				{
-					"command": "gitlens.views.timeline.openInTab",
-					"when": "false"
-				},
-				{
 					"command": "gitlens.views.timeline.refresh",
 					"when": "false"
 				},
@@ -10640,11 +10630,6 @@
 					"command": "gitlens.views.tags.setShowAvatarsOff",
 					"when": "view =~ /^gitlens\\.views\\.tags/ && config.gitlens.views.tags.avatars",
 					"group": "5_gitlens@0"
-				},
-				{
-					"command": "gitlens.views.timeline.openInTab",
-					"when": "view =~ /^gitlens\\.views\\.timeline/",
-					"group": "navigation@98"
 				},
 				{
 					"command": "gitlens.views.timeline.refresh",

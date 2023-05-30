@@ -13717,15 +13717,6 @@
 					"visibility": "visible"
 				},
 				{
-					"type": "webview",
-					"id": "gitlens.views.account",
-					"name": "GitKraken Account",
-					"contextualTitle": "GitLens",
-					"icon": "$(gitlens-gitlens)",
-					"initialSize": 1,
-					"visibility": "collapsed"
-				},
-				{
 					"id": "gitlens.views.contributors",
 					"name": "Contributors",
 					"when": "!gitlens:disabled",

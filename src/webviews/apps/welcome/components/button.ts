@@ -70,6 +70,15 @@ export class GKButton extends LitElement {
 				--button-padding: 0.45rem 0.4rem 0.14rem 0.4rem;
 				line-height: 1.64;
 			}
+
+			:host([appearance='alert']) {
+				--button-background: transparent;
+				--button-border: var(--color-alert-infoBorder);
+				--button-foreground: var(--color-button-foreground);
+				--button-hover-background: var(--color-alert-infoBorder);
+				--button-padding: 0.4rem;
+				line-height: 1.64;
+			}
 		`,
 	];
 

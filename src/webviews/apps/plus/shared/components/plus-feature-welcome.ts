@@ -33,68 +33,59 @@ export class PlusFeatureWelcome extends LitElement {
 		}
 
 		section {
+			--section-foreground: var(--foreground);
+			--section-background: var(--background);
+			--section-border-color: transparent;
+
 			display: flex;
 			flex-direction: column;
 			padding: 0 2rem 1.3rem 2rem;
-			background: var(--background);
-			color: var(--foreground);
+			background: var(--section-background);
+			color: var(--section-foreground);
+			border: 1px solid var(--section-border-color);
 
 			height: min-content;
 		}
 
-		/* section.alert {
-			--alert-foreground: var(--color-alert-foreground);
-			--alert-background: var(--color-alert-infoBackground);
-			--alert-border-color: var(--color-alert-infoBorder);
-			--alert-hover-background: var(--color-alert-infoHoverBackground);
-			display: flex;
-			flex-direction: row;
-			justify-content: flex-start;
-			align-items: flex-start;
-			gap: 1rem;
-			padding: 1rem;
-			border-radius: 0.25rem;
-			border: 1px solid var(--alert-border-color);
-			background-color: var(--alert-background);
-			color: var(--alert-foreground);
-			font-size: 1.2rem;
-			max-width: 100rem;
-			margin-left: auto;
-			margin-right: auto;
-		}
-
-		section.alert.alert--warning {
-			--alert-background: var(--color-alert-warningBackground);
-			--alert-border-color: var(--color-alert-warningBorder);
-			--alert-hover-background: var(--color-alert-warningHoverBackground);
-		} */
-
 		:host-context(body[data-placement='editor']) section {
+			--section-foreground: var(--color-alert-foreground);
+			--section-background: var(--color-alert-infoBackground);
+			--section-border-color: var(--color-alert-infoBorder);
+
+			--link-decoration-default: underline;
+			--link-foreground: var(--vscode-foreground);
+			--link-foreground-active: var(--vscode-foreground);
+
+			border-radius: 0.3rem;
 			max-width: 600px;
 			max-height: min-content;
 			margin: 0.2rem auto;
 			padding: 0 1.3rem;
-
-			background: var(--color-hover-background);
-			border: 1px solid var(--color-hover-border);
-			border-radius: 0.3rem;
 		}
-	}`;
+	`;
+
+	@property({ type: Boolean })
+	allowed?: boolean;
 
 	@property({ type: Number })
 	state?: SubscriptionState;
 
+	@property({ reflect: true })
+	get appearance() {
+		return (document.body.getAttribute('data-placement') ?? 'editor') === 'editor' ? 'alert' : 'welcome';
+	}
+
 	override render() {
-		if (this.state == null || isSubscriptionStatePaidOrTrial(this.state)) {
-			this.setAttribute('hidden', '');
+		if (this.allowed || this.state == null || isSubscriptionStatePaidOrTrial(this.state)) {
+			this.hidden = true;
 			return undefined;
 		}
 
-		this.removeAttribute('hidden');
+		this.hidden = false;
 		return html`
 			<section>
 				<slot hidden=${this.state === SubscriptionState.Free ? nothing : ''}></slot>
-				<plus-feature-gate state=${this.state}></plus-feature-gate>
+				<plus-feature-gate appearance=${this.appearance} state=${this.state}></plus-feature-gate>
 			</section>
 		`;
 	}

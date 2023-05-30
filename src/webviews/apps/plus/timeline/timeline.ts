@@ -89,6 +89,7 @@ export class TimelineApp extends App<State> {
 		const $welcome = document.getElementsByTagName('plus-feature-welcome')?.[0] as PlusFeatureWelcome;
 		if ($welcome != null) {
 			$welcome.state = this.state.access.subscription.current.state;
+			$welcome.allowed = this.state.access.allowed === true;
 		}
 
 		if (this._chart == null) {

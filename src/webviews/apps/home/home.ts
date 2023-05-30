@@ -1,6 +1,5 @@
 /*global*/
 import './home.scss';
-import { provideVSCodeDesignSystem, vsCodeButton } from '@vscode/webview-ui-toolkit';
 import type { Disposable } from 'vscode';
 import type { State } from '../../home/protocol';
 import { DidChangeRepositoriesType } from '../../home/protocol';
@@ -8,6 +7,7 @@ import type { IpcMessage } from '../../protocol';
 import { ExecuteCommandType, onIpc } from '../../protocol';
 import { App } from '../shared/appBase';
 import { DOM } from '../shared/dom';
+import '../shared/components/button';
 import '../shared/components/code-icon';
 
 export class HomeApp extends App<State> {
@@ -16,8 +16,6 @@ export class HomeApp extends App<State> {
 	}
 
 	protected override onInitialize() {
-		provideVSCodeDesignSystem().register(vsCodeButton());
-
 		this.state = this.getState() ?? this.state;
 		this.updateState();
 	}
@@ -67,7 +65,9 @@ export class HomeApp extends App<State> {
 			repositories: { openCount, hasUnsafe, trusted },
 		} = this.state;
 
+		const header = document.getElementById('header')!;
 		if (!trusted) {
+			header.hidden = false;
 			setElementVisibility('untrusted-alert', true);
 			setElementVisibility('no-repo-alert', false);
 			setElementVisibility('unsafe-repo-alert', false);
@@ -80,6 +80,7 @@ export class HomeApp extends App<State> {
 		const noRepos = openCount === 0;
 		setElementVisibility('no-repo-alert', noRepos && !hasUnsafe);
 		setElementVisibility('unsafe-repo-alert', hasUnsafe);
+		header.hidden = !noRepos && !hasUnsafe;
 	}
 
 	private updateState() {

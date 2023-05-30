@@ -483,7 +483,12 @@
 				</style>
 				<h2>Tutorial Video</h2>
 				<nav class="welcome__starting-nav" aria-label="Getting started links">
-					<a class="video-button" href="https://www.youtube.com/watch?v=UQPb73Zz9qk">
+					<a
+						class="video-button"
+						href="https://www.youtube.com/watch?v=UQPb73Zz9qk"
+						aria-label="Watch the Tutorial video"
+						title="Watch the Tutorial video"
+					>
 						<svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
 							<path
 								d="M13.8626 11.0319C14.3464 10.5343 24.5 16.0074 24.5 17.5C24.5 18.9926 14.346 24.4657 13.8627 23.9681C13.3794 23.4706 13.3788 11.5294 13.8626 11.0319Z"
@@ -495,10 +500,8 @@
 							/>
 						</svg>
 					</a>
+					<span><gk-button href="command:gitlens.getStarted">Get Started Walkthrough</gk-button></span>
 				</nav>
-				<p>
-					<gk-button href="command:gitlens.getStarted">Get Started Walkthrough</gk-button>
-				</p>
 				<!-- <p>
 					<gk-button appearance="secondary"
 						>Tips &amp; Tricks</gk-button
@@ -507,6 +510,7 @@
 
 				<h2>Quick Access</h2>
 				<nav class="welcome__resources-nav">
+					<h3 class="t-eyebrow">Sidebar</h3>
 					<a
 						class="nav-list__item"
 						href="command:workbench.view.extension.gitlens"
@@ -533,6 +537,7 @@
 					>
 				</nav>
 				<nav class="welcome__resources-nav">
+					<h3 class="t-eyebrow">Popular views</h3>
 					<a
 						class="nav-list__item"
 						href="command:gitlens.showGraph"
@@ -567,6 +572,7 @@
 					>
 				</nav>
 				<nav class="welcome__resources-nav">
+					<h3 class="t-eyebrow">Configuration</h3>
 					<a
 						class="nav-list__item"
 						href="command:gitlens.showSettingsPage"

@@ -3,7 +3,6 @@ import { SubscriptionState } from '../../../../../subscription';
 import { pluralize } from '../../../../../system/string';
 import { numberConverter } from '../../../shared/components/converters/number-converter';
 import '../../../shared/components/code-icon';
-import '../../../shared/components/overlays/pop-over';
 
 const template = html<HeaderCard>`
 	<div class="header-card__media"><img class="header-card__image" src="${x => x.image}" alt="GitLens Logo" /></div>
@@ -104,11 +103,6 @@ const styles = css`
 	:host {
 		position: relative;
 		display: grid;
-		/*
-		padding: 1rem 1rem 1.2rem;
-		background-color: var(--card-background);
-		border-radius: 0.4rem;
-		*/
 		padding: 1rem 0 1.2rem;
 		gap: 0 0.8rem;
 		grid-template-columns: 3.4rem auto;
@@ -190,10 +184,6 @@ const styles = css`
 		position: absolute;
 		bottom: 0;
 		left: 0;
-		/*
-		border-bottom-left-radius: 0.4rem;
-		border-bottom-right-radius: 0.4rem;
-		*/
 	}
 
 	.brand {
@@ -201,18 +191,6 @@ const styles = css`
 	}
 	.status {
 		color: var(--color-foreground--65);
-	}
-
-	.status-label {
-		/* cursor: help; */
-	}
-
-	.status pop-over {
-		top: 1.6em;
-		left: 0;
-	}
-	.status-label:not(:hover) + pop-over:not(.is-pinned) {
-		display: none;
 	}
 
 	.repo-access {
@@ -266,10 +244,6 @@ const styles = css`
 	:host-context(.vscode-high-contrast-light) .action:hover,
 	:host-context(.vscode-light) .action:hover {
 		background-color: var(--color-background--darken-10);
-	}
-
-	pop-over .action {
-		margin-right: -0.2rem;
 	}
 
 	.link-inline {

@@ -1,84 +1,28 @@
-import type { ConfigurationChangeEvent } from 'vscode';
-import { Disposable, window, workspace } from 'vscode';
+import { Disposable, window } from 'vscode';
 import { getAvatarUriFromGravatarEmail } from '../../../avatars';
-import { ViewsLayout } from '../../../commands/setViewsLayout';
 import type { Container } from '../../../container';
 import type { RepositoriesVisibility } from '../../../git/gitProviderService';
 import type { Subscription } from '../../../subscription';
 import { registerCommand } from '../../../system/command';
-import { configuration } from '../../../system/configuration';
 import type { Deferrable } from '../../../system/function';
 import { debounce } from '../../../system/function';
-import { getSettledValue } from '../../../system/promise';
-import type { StorageChangeEvent } from '../../../system/storage';
-import { CompletedActions } from '../../../webviews/home/protocol';
-import type { IpcMessage } from '../../../webviews/protocol';
-import { onIpc } from '../../../webviews/protocol';
 import type { WebviewController, WebviewProvider } from '../../../webviews/webviewController';
 import type { SubscriptionChangeEvent } from '../../subscription/subscriptionService';
-import type {
-	CompleteStepParams,
-	DidChangeRepositoriesParams,
-	DismissBannerParams,
-	DismissSectionParams,
-	State,
-} from './protocol';
-import {
-	CompleteStepCommandType,
-	DidChangeConfigurationType,
-	DidChangeLayoutType,
-	DidChangeRepositoriesType,
-	DidChangeSubscriptionNotificationType,
-	DismissBannerCommandType,
-	DismissSectionCommandType,
-	DismissStatusCommandType,
-} from './protocol';
-
-const emptyDisposable = Object.freeze({
-	dispose: () => {
-		/* noop */
-	},
-});
+import type { State } from './protocol';
+import { DidChangeSubscriptionNotificationType } from './protocol';
 
 export class AccountWebviewProvider implements WebviewProvider<State> {
 	private readonly _disposable: Disposable;
 
 	constructor(private readonly container: Container, private readonly host: WebviewController<State>) {
-		this._disposable = Disposable.from(
-			this.container.subscription.onDidChange(this.onSubscriptionChanged, this),
-			this.container.git.onDidChangeRepositories(this.onRepositoriesChanged, this),
-			configuration.onDidChange(this.onConfigurationChanged, this),
-			this.container.storage.onDidChange(this.onStorageChanged, this),
-			!workspace.isTrusted
-				? workspace.onDidGrantWorkspaceTrust(this.notifyDidChangeRepositories, this)
-				: emptyDisposable,
-		);
+		this._disposable = Disposable.from(this.container.subscription.onDidChange(this.onSubscriptionChanged, this));
 	}
 
 	dispose() {
 		this._disposable.dispose();
 	}
 
-	private onConfigurationChanged(e: ConfigurationChangeEvent) {
-		if (!configuration.changed(e, 'plusFeatures.enabled')) {
-			return;
-		}
-
-		this.notifyDidChangeConfiguration();
-	}
-
-	private onRepositoriesChanged() {
-		this.notifyDidChangeRepositories();
-	}
-
-	private onStorageChanged(e: StorageChangeEvent) {
-		if (e.key !== 'views:layout') return;
-
-		this.notifyDidChangeLayout();
-	}
-
-	private async onSubscriptionChanged(e: SubscriptionChangeEvent) {
-		await this.container.storage.store('home:status:pinned', true);
+	private onSubscriptionChanged(e: SubscriptionChangeEvent) {
 		void this.notifyDidChangeData(e.current);
 	}
 
@@ -101,107 +45,11 @@ export class AccountWebviewProvider implements WebviewProvider<State> {
 	}
 
 	registerCommands(): Disposable[] {
-		return [
-			registerCommand(`${this.host.id}.refresh`, () => this.host.refresh(true), this),
-			// registerCommand('gitlens.home.toggleWelcome', async () => {
-			// 	const welcomeVisible = !this.welcomeVisible;
-			// 	await this.container.storage.store('views:welcome:visible', welcomeVisible);
-			// 	if (welcomeVisible) {
-			// 		await Promise.allSettled([
-			// 			this.container.storage.store('home:actions:completed', []),
-			// 			this.container.storage.store('home:steps:completed', []),
-			// 			this.container.storage.store('home:sections:dismissed', []),
-			// 		]);
-			// 	}
-
-			// 	void this.host.refresh();
-			// }),
-			// registerCommand('gitlens.home.restoreWelcome', async () => {
-			// 	await Promise.allSettled([
-			// 		this.container.storage.store('home:steps:completed', []),
-			// 		this.container.storage.store('home:sections:dismissed', []),
-			// 	]);
-
-			// 	void this.host.refresh();
-			// }),
-
-			// registerCommand('gitlens.home.showSCM', async () => {
-			// 	const completedActions = this.container.storage.get('home:actions:completed', []);
-			// 	if (!completedActions.includes(CompletedActions.OpenedSCM)) {
-			// 		completedActions.push(CompletedActions.OpenedSCM);
-			// 		await this.container.storage.store('home:actions:completed', completedActions);
-
-			// 		void this.notifyDidChangeData();
-			// 	}
-
-			// 	await executeCoreCommand('workbench.view.scm');
-			// }),
-		];
-	}
-
-	onMessageReceived(e: IpcMessage) {
-		switch (e.method) {
-			case CompleteStepCommandType.method:
-				onIpc(CompleteStepCommandType, e, params => this.completeStep(params));
-				break;
-			case DismissSectionCommandType.method:
-				onIpc(DismissSectionCommandType, e, params => this.dismissSection(params));
-				break;
-			case DismissStatusCommandType.method:
-				onIpc(DismissStatusCommandType, e, _params => this.dismissPinStatus());
-				break;
-			case DismissBannerCommandType.method:
-				onIpc(DismissBannerCommandType, e, params => this.dismissBanner(params));
-				break;
-		}
-	}
-
-	private async completeStep({ id, completed = false }: CompleteStepParams) {
-		const steps = this.container.storage.get('home:steps:completed', []);
-
-		const hasStep = steps.includes(id);
-		if (!hasStep && completed) {
-			steps.push(id);
-		} else if (hasStep && !completed) {
-			steps.splice(steps.indexOf(id), 1);
-		}
-
-		await this.container.storage.store('home:steps:completed', steps);
-		void this.notifyDidChangeData();
-	}
-
-	private async dismissSection(params: DismissSectionParams) {
-		const sections = this.container.storage.get('home:sections:dismissed', []);
-		if (sections.includes(params.id)) return;
-
-		sections.push(params.id);
-
-		await this.container.storage.store('home:sections:dismissed', sections);
-		void this.notifyDidChangeData();
-	}
-
-	private async dismissBanner(params: DismissBannerParams) {
-		const banners = this.container.storage.get('home:banners:dismissed', []);
-
-		if (!banners.includes(params.id)) {
-			banners.push(params.id);
-		}
-
-		await this.container.storage.store('home:banners:dismissed', banners);
-		void this.notifyDidChangeData();
-	}
-
-	private async dismissPinStatus() {
-		await this.container.storage.store('home:status:pinned', false);
-		void this.notifyDidChangeData();
+		return [registerCommand(`${this.host.id}.refresh`, () => this.host.refresh(true), this)];
 	}
 
 	includeBootstrap(): Promise<State> {
 		return this.getState();
-	}
-
-	private get welcomeVisible(): boolean {
-		return this.container.storage.get('views:welcome:visible', true);
 	}
 
 	private async getRepoVisibility(): Promise<RepositoriesVisibility> {
@@ -210,12 +58,6 @@ export class AccountWebviewProvider implements WebviewProvider<State> {
 	}
 
 	private async getSubscription(subscription?: Subscription) {
-		// Make sure to make a copy of the array otherwise it will be live to the storage value
-		const completedActions = [...this.container.storage.get('home:actions:completed', [])];
-		if (!this.welcomeVisible) {
-			completedActions.push(CompletedActions.DismissedWelcome);
-		}
-
 		const sub = subscription ?? (await this.container.subscription.getSubscription(true));
 
 		let avatar;
@@ -227,40 +69,18 @@ export class AccountWebviewProvider implements WebviewProvider<State> {
 
 		return {
 			subscription: sub,
-			completedActions: completedActions,
 			avatar: avatar,
 		};
 	}
 
-	private getPinStatus() {
-		return this.container.storage.get('home:status:pinned') ?? true;
-	}
-
 	private async getState(subscription?: Subscription): Promise<State> {
-		const [visibilityResult, subscriptionResult] = await Promise.allSettled([
-			this.getRepoVisibility(),
-			this.getSubscription(subscription),
-		]);
-
-		const sub = getSettledValue(subscriptionResult)!;
-		const steps = this.container.storage.get('home:steps:completed', []);
-		const sections = this.container.storage.get('home:sections:dismissed', []);
-		const dismissedBanners = this.container.storage.get('home:banners:dismissed', []);
+		const subscriptionResult = await this.getSubscription(subscription);
 
 		return {
 			timestamp: Date.now(),
-			repositories: this.getRepositoriesState(),
 			webroot: this.host.getWebRoot(),
-			subscription: sub.subscription,
-			completedActions: sub.completedActions,
-			plusEnabled: this.getPlusEnabled(),
-			visibility: getSettledValue(visibilityResult)!,
-			completedSteps: steps,
-			dismissedSections: sections,
-			avatar: sub.avatar,
-			layout: this.getLayout(),
-			pinStatus: this.getPinStatus(),
-			dismissedBanners: dismissedBanners,
+			subscription: subscriptionResult.subscription,
+			avatar: subscriptionResult.avatar,
 		};
 	}
 
@@ -271,47 +91,8 @@ export class AccountWebviewProvider implements WebviewProvider<State> {
 			const sub = await this.getSubscription(subscription);
 			return this.host.notify(DidChangeSubscriptionNotificationType, {
 				...sub,
-				pinStatus: this.getPinStatus(),
 			});
 		});
-	}
-
-	private getRepositoriesState(): DidChangeRepositoriesParams {
-		return {
-			count: this.container.git.repositoryCount,
-			openCount: this.container.git.openRepositoryCount,
-			hasUnsafe: this.container.git.hasUnsafeRepositories(),
-			trusted: workspace.isTrusted,
-		};
-	}
-
-	private notifyDidChangeRepositories() {
-		if (!this.host.ready) return;
-
-		void this.host.notify(DidChangeRepositoriesType, this.getRepositoriesState());
-	}
-
-	private getPlusEnabled() {
-		return configuration.get('plusFeatures.enabled');
-	}
-
-	private notifyDidChangeConfiguration() {
-		if (!this.host.ready) return;
-
-		void this.host.notify(DidChangeConfigurationType, {
-			plusEnabled: this.getPlusEnabled(),
-		});
-	}
-
-	private getLayout() {
-		const layout = this.container.storage.get('views:layout');
-		return layout != null ? (layout as ViewsLayout) : ViewsLayout.SourceControl;
-	}
-
-	private notifyDidChangeLayout() {
-		if (!this.host.ready) return;
-
-		void this.host.notify(DidChangeLayoutType, { layout: this.getLayout() });
 	}
 
 	private _validateSubscriptionDebounced: Deferrable<AccountWebviewProvider['validateSubscription']> | undefined =

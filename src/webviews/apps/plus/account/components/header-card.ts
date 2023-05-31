@@ -45,10 +45,11 @@ const template = html<HeaderCard>`
 	<p class="features">
 		${x =>
 			x.isPro
-				? 'You have access to all GitLens and GitLens+ features on any repo.'
-				: 'You have access to GitLens+ features on local & public repos, and all other GitLens features on any repo.'}
+				? 'You have access to all GitLens features on any repo.'
+				: 'You have access to ✨ features on local & public repos, and all other GitLens features on any repo.'}
 		<br /><br />
-		✨ indicates GitLens+ features, <a class="link-inline" href="command:gitlens.plus.learn">learn more</a>
+		✨ indicates a subscription is required to use this feature on privately hosted repos.
+		<a class="link-inline" href="command:gitlens.plus.learn">learn more</a>
 	</p>
 	<div
 		class="progress header-card__progress"

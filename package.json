@@ -4690,6 +4690,11 @@
 				"category": "GitLens"
 			},
 			{
+				"command": "gitlens.openPatch",
+				"title": "Open Patch...",
+				"category": "GitLens"
+			},
+			{
 				"command": "gitlens.showBranchesView",
 				"title": "Show Branches View",
 				"category": "GitLens"
@@ -8053,6 +8058,10 @@
 					"when": "gitlens:enabled"
 				},
 				{
+					"command": "gitlens.openPatch",
+					"when": "gitlens:enabled"
+				},
+				{
 					"command": "gitlens.timeline.refresh",
 					"when": "false"
 				},
@@ -10218,6 +10227,10 @@
 				}
 			],
 			"editor/title": [
+				{
+					"command": "gitlens.openPatch",
+					"when": "editorLangId == diff"
+				},
 				{
 					"command": "gitlens.diffWithWorking",
 					"when": "gitlens:activeFileStatus =~ /revision/ && resourceScheme =~ /^(?!(file|git)$).*$/ && !isInDiffEditor",

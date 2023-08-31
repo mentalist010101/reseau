@@ -3,7 +3,7 @@ import { customElement, property, state } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { when } from 'lit/directives/when.js';
 import { ViewFilesLayout } from '../../../../../config';
-import type { State } from '../../../../../plus/webviews/patchDetails/protocol';
+import type { PatchDetails, State } from '../../../../../plus/webviews/patchDetails/protocol';
 import { messageHeadlineSplitterToken } from '../../../../../plus/webviews/patchDetails/protocol';
 import type { HierarchicalItem } from '../../../../../system/array';
 import { makeHierarchical } from '../../../../../system/array';
@@ -13,6 +13,26 @@ interface ExplainState {
 	cancelled?: boolean;
 	error?: { message: string };
 	summary?: string;
+}
+
+export interface ApplyPatchDetail {
+	patch: PatchDetails;
+	target?: 'current' | 'branch' | 'worktree';
+	base?: string;
+	[key: string]: unknown;
+}
+export interface ChangePatchBaseDetail {
+	patch: PatchDetails;
+	[key: string]: unknown;
+}
+export interface SelectPatchRepoDetail {
+	patch: PatchDetails;
+	repoPath?: string;
+	[key: string]: unknown;
+}
+export interface ShowPatchInGraphDetail {
+	patch: PatchDetails;
+	[key: string]: unknown;
 }
 
 @customElement('gl-patch-details-app')
@@ -484,6 +504,42 @@ export class GlPatchDetailsApp extends LitElement {
 
 		this.explainBusy = true;
 	}
+
+	onApplyPatch(_e: MouseEvent | KeyboardEvent) {
+		const evt = new CustomEvent<ApplyPatchDetail>('apply-patch', {
+			detail: {
+				patch: this.state!.patch! as PatchDetails,
+			},
+		});
+		this.dispatchEvent(evt);
+	}
+
+	onChangePatchBase(_e: MouseEvent | KeyboardEvent) {
+		const evt = new CustomEvent<ChangePatchBaseDetail>('change-patch-base', {
+			detail: {
+				patch: this.state!.patch! as PatchDetails,
+			},
+		});
+		this.dispatchEvent(evt);
+	}
+
+	onSelectPatchRepo(_e: MouseEvent | KeyboardEvent) {
+		const evt = new CustomEvent<SelectPatchRepoDetail>('select-patch-repo', {
+			detail: {
+				patch: this.state!.patch! as PatchDetails,
+			},
+		});
+		this.dispatchEvent(evt);
+	}
+
+	onShowInGraph(_e: MouseEvent | KeyboardEvent) {
+		const evt = new CustomEvent<ShowPatchInGraphDetail>('graph-show-patch', {
+			detail: {
+				patch: this.state!.patch! as PatchDetails,
+			},
+		});
+		this.dispatchEvent(evt);
+	}
 }
 
 function flattenHeirarchy<T>(item: HierarchicalItem<T>, level = 0): { level: number; item: HierarchicalItem<T> }[] {
@@ -516,4 +572,10 @@ function flattenHeirarchy<T>(item: HierarchicalItem<T>, level = 0): { level: num
 	}
 
 	return flattened;
+}
+
+declare global {
+	interface HTMLElementTagNameMap {
+		'gl-patch-details-app': GlPatchDetailsApp;
+	}
 }

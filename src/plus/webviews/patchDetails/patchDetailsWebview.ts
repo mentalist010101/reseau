@@ -204,7 +204,6 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 			if (this._pendingContext == null) return;
 		}
 
-		this.onRefresh();
 		this.updateState(true);
 	}
 
@@ -260,11 +259,6 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 		if (!this.host.visible) return;
 
 		this._selectionTrackerDisposable = this.container.events.on('patch:selected', this.onPatchSelected, this);
-	}
-
-	onRefresh(_force?: boolean | undefined): void {
-		const patch = this._pendingContext?.patch;
-		this.updatePatch(patch, { immediate: false });
 	}
 
 	onMessageReceived(e: IpcMessage) {

@@ -1,7 +1,6 @@
 /*global*/
 import { ViewFilesLayout } from '../../../../config';
-import type { Serialized } from '../../../../system/serialize';
-import type { CommitActionsParams, State } from '../../../commitDetails/protocol';
+import type { CommitActionsParams, State } from '../../../../plus/webviews/patchDetails/protocol';
 import {
 	CommitActionsCommandType,
 	DidChangeNotificationType,
@@ -15,13 +14,21 @@ import {
 	PickCommitCommandType,
 	PreferencesCommandType,
 	SearchCommitCommandType,
-} from '../../../commitDetails/protocol';
+	SelectPatchBaseCommandType,
+} from '../../../../plus/webviews/patchDetails/protocol';
+import type { Serialized } from '../../../../system/serialize';
 import type { IpcMessage } from '../../../protocol';
 import { ExecuteCommandType, onIpc } from '../../../protocol';
 import { App } from '../../shared/appBase';
 import type { FileChangeListItem, FileChangeListItemDetail } from '../../shared/components/list/file-change-list-item';
 import { DOM } from '../../shared/dom';
-import type { GlPatchDetailsApp } from './components/patch-details-app';
+import type {
+	ApplyPatchDetail,
+	ChangePatchBaseDetail,
+	GlPatchDetailsApp,
+	SelectPatchRepoDetail,
+	ShowPatchInGraphDetail,
+} from './components/patch-details-app';
 import './patchDetails.scss';
 import '../../shared/components/actions/action-item';
 import '../../shared/components/actions/action-nav';
@@ -74,6 +81,18 @@ export class PatchDetailsApp extends App<Serialized<State>> {
 			DOM.on('[data-switch-value]', 'click', e => this.onToggleFilesLayout(e)),
 			DOM.on('[data-action="explain-commit"]', 'click', e => this.onExplainCommit(e)),
 			DOM.on('[data-action="switch-ai"]', 'click', e => this.onSwitchAiModel(e)),
+			DOM.on<GlPatchDetailsApp, ApplyPatchDetail>('gl-patch-details-app', 'apply-patch', e =>
+				this.onApplyPatch(e.detail),
+			),
+			DOM.on<GlPatchDetailsApp, ChangePatchBaseDetail>('gl-patch-details-app', 'change-patch-base', e =>
+				this.onChangePatchBase(e.detail),
+			),
+			DOM.on<GlPatchDetailsApp, SelectPatchRepoDetail>('gl-patch-details-app', 'select-patch-repo', e =>
+				this.onSelectPatchRepo(e.detail),
+			),
+			DOM.on<GlPatchDetailsApp, ShowPatchInGraphDetail>('gl-patch-details-app', 'graph-show-patch', e =>
+				this.onSelectPatchRepo(e.detail),
+			),
 		];
 
 		return disposables;
@@ -120,6 +139,19 @@ export class PatchDetailsApp extends App<Serialized<State>> {
 			default:
 				super.onMessageReceived?.(e);
 		}
+	}
+
+	private onApplyPatch(e: ApplyPatchDetail) {
+		console.log('onApplyPatch', e);
+	}
+
+	private onChangePatchBase(e: ChangePatchBaseDetail) {
+		console.log('onChangePatchBase', e);
+	}
+
+	private onSelectPatchRepo(e: SelectPatchRepoDetail) {
+		console.log('onSelectPatchRepo', e);
+		this.sendCommand(SelectPatchBaseCommandType, undefined);
 	}
 
 	private onCommandClickedCore(action?: string) {
@@ -205,7 +237,7 @@ export class PatchDetailsApp extends App<Serialized<State>> {
 
 	private onCommitActions(e: MouseEvent) {
 		e.preventDefault();
-		if (this.state.selected === undefined) {
+		if (this.state.patch === undefined) {
 			e.stopPropagation();
 			return;
 		}

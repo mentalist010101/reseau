@@ -61,6 +61,18 @@ export interface CommitActionsParams {
 }
 export const CommitActionsCommandType = new IpcCommandType<CommitActionsParams>('commit/actions');
 
+export interface ApplyPatchParams {
+	target?: 'head' | 'branch' | 'worktree';
+}
+export const ApplyPatchCommandType = new IpcCommandType<ApplyPatchParams>('patch/apply');
+
+export interface SelectPatchRepoParams {
+	repoPath: string;
+}
+export const SelectPatchRepoCommandType = new IpcCommandType<SelectPatchRepoParams>('patch/selectRepo');
+
+export const SelectPatchBaseCommandType = new IpcCommandType<undefined>('patch/selectBase');
+
 export interface FileActionParams {
 	path: string;
 	repoPath: string;

@@ -13,6 +13,7 @@ export class GlButton extends LitElement {
 				--button-background: var(--color-button-background);
 				--button-hover-background: var(--vscode-button-hoverBackground);
 				--button-padding: 0.4rem 1.1rem;
+				--button-compact-padding: 0.4rem 0.4rem;
 				--button-line-height: 1.694;
 				--button-border: var(--vscode-button-border, transparent);
 
@@ -96,11 +97,18 @@ export class GlButton extends LitElement {
 				display: block;
 				width: max-content;
 			}
+
+			:host([density='compact']) {
+				padding: var(--button-compact-padding);
+			}
 		`,
 	];
 
 	@property({ type: Boolean, reflect: true })
 	full = false;
+
+	@property({ reflect: true })
+	density?: 'compact';
 
 	@property()
 	href?: string;

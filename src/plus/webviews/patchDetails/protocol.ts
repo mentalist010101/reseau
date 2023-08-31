@@ -2,8 +2,6 @@ import type { TextDocumentShowOptions } from 'vscode';
 import type { Config } from '../../../config';
 import type { GitCommitIdentityShape, GitCommitStats } from '../../../git/models/commit';
 import type { GitFileChangeShape } from '../../../git/models/file';
-import type { IssueOrPullRequest } from '../../../git/models/issue';
-import type { PullRequestShape } from '../../../git/models/pullRequest';
 import type { Serialized } from '../../../system/serialize';
 import { IpcCommandType, IpcNotificationType } from '../../../webviews/protocol';
 
@@ -81,16 +79,6 @@ export const AutolinkSettingsCommandType = new IpcCommandType<undefined>('commit
 
 export const ExplainCommitCommandType = new IpcCommandType<undefined>('commit/explain');
 
-export interface PinParams {
-	pin: boolean;
-}
-export const PinCommitCommandType = new IpcCommandType<PinParams>('commit/pin');
-
-export interface NavigateParams {
-	direction: 'back' | 'forward';
-}
-export const NavigateCommitCommandType = new IpcCommandType<NavigateParams>('commit/navigate');
-
 export interface PreferenceParams {
 	autolinksExpanded?: boolean;
 	avatars?: boolean;
@@ -104,15 +92,6 @@ export interface DidChangeParams {
 	state: Serialized<State>;
 }
 export const DidChangeNotificationType = new IpcNotificationType<DidChangeParams>('commit/didChange', true);
-
-export type DidChangeRichStateParams = {
-	formattedMessage?: string;
-	autolinkedIssues?: IssueOrPullRequest[];
-	pullRequest?: PullRequestShape;
-};
-export const DidChangeRichStateNotificationType = new IpcNotificationType<DidChangeRichStateParams>(
-	'commit/didChange/rich',
-);
 
 export type DidExplainCommitParams =
 	| {

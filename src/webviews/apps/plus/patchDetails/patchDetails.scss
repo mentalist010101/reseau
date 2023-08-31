@@ -156,8 +156,11 @@ ul {
 .button-group {
 	display: inline-flex;
 	gap: 0.1rem;
-	width: 100%;
-	max-width: 30rem;
+
+	&--single {
+		width: 100%;
+		max-width: 30rem;
+	}
 }
 
 .section {

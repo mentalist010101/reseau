@@ -3,19 +3,16 @@ import { ViewFilesLayout } from '../../../../config';
 import type { Serialized } from '../../../../system/serialize';
 import type { CommitActionsParams, State } from '../../../commitDetails/protocol';
 import {
-	AutolinkSettingsCommandType,
 	CommitActionsCommandType,
 	DidChangeNotificationType,
 	DidExplainCommitCommandType,
 	ExplainCommitCommandType,
 	FileActionsCommandType,
-	NavigateCommitCommandType,
 	OpenFileCommandType,
 	OpenFileComparePreviousCommandType,
 	OpenFileCompareWorkingCommandType,
 	OpenFileOnRemoteCommandType,
 	PickCommitCommandType,
-	PinCommitCommandType,
 	PreferencesCommandType,
 	SearchCommitCommandType,
 } from '../../../commitDetails/protocol';
@@ -23,12 +20,12 @@ import type { IpcMessage } from '../../../protocol';
 import { ExecuteCommandType, onIpc } from '../../../protocol';
 import { App } from '../../shared/appBase';
 import type { FileChangeListItem, FileChangeListItemDetail } from '../../shared/components/list/file-change-list-item';
-import type { WebviewPane, WebviewPaneExpandedChangeEventDetail } from '../../shared/components/webview-pane';
 import { DOM } from '../../shared/dom';
 import type { GlPatchDetailsApp } from './components/patch-details-app';
 import './patchDetails.scss';
 import '../../shared/components/actions/action-item';
 import '../../shared/components/actions/action-nav';
+import '../../shared/components/button';
 import '../../shared/components/code-icon';
 import '../../shared/components/commit/commit-identity';
 import '../../shared/components/formatted-date';
@@ -74,16 +71,7 @@ export class PatchDetailsApp extends App<Serialized<State>> {
 			DOM.on('[data-action="commit-actions"]', 'click', e => this.onCommitActions(e)),
 			DOM.on('[data-action="pick-commit"]', 'click', e => this.onPickCommit(e)),
 			DOM.on('[data-action="search-commit"]', 'click', e => this.onSearchCommit(e)),
-			DOM.on('[data-action="autolink-settings"]', 'click', e => this.onAutolinkSettings(e)),
 			DOM.on('[data-switch-value]', 'click', e => this.onToggleFilesLayout(e)),
-			DOM.on('[data-action="pin"]', 'click', e => this.onTogglePin(e)),
-			DOM.on('[data-action="back"]', 'click', e => this.onNavigate('back', e)),
-			DOM.on('[data-action="forward"]', 'click', e => this.onNavigate('forward', e)),
-			DOM.on<WebviewPane, WebviewPaneExpandedChangeEventDetail>(
-				'[data-region="rich-pane"]',
-				'expanded-change',
-				e => this.onExpandedChange(e.detail),
-			),
 			DOM.on('[data-action="explain-commit"]', 'click', e => this.onExplainCommit(e)),
 			DOM.on('[data-action="switch-ai"]', 'click', e => this.onSwitchAiModel(e)),
 		];
@@ -187,31 +175,6 @@ export class PatchDetailsApp extends App<Serialized<State>> {
 
 		this.sendCommand(PreferencesCommandType, { files: files });
 	}
-
-	private onExpandedChange(e: WebviewPaneExpandedChangeEventDetail) {
-		this.state.preferences = {
-			...this.state.preferences,
-			autolinksExpanded: e.expanded,
-		};
-
-		this.sendCommand(PreferencesCommandType, { autolinksExpanded: e.expanded });
-	}
-
-	private onNavigate(direction: 'back' | 'forward', e: Event) {
-		e.preventDefault();
-		this.sendCommand(NavigateCommitCommandType, { direction: direction });
-	}
-
-	private onTogglePin(e: MouseEvent) {
-		e.preventDefault();
-		this.sendCommand(PinCommitCommandType, { pin: !this.state.pinned });
-	}
-
-	private onAutolinkSettings(e: MouseEvent) {
-		e.preventDefault();
-		this.sendCommand(AutolinkSettingsCommandType, undefined);
-	}
-
 	private onSearchCommit(_e: MouseEvent) {
 		this.sendCommand(SearchCommitCommandType, undefined);
 	}

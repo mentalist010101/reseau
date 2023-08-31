@@ -51,7 +51,7 @@ export class GlPatchDetailsApp extends LitElement {
 				<p>Alternatively, search for or choose a commit</p>
 
 				<p class="button-container">
-					<span class="button-group">
+					<span class="button-group button-group--single">
 						<button class="button button--full" type="button" data-action="pick-commit">
 							Choose Commit...
 						</button>
@@ -70,10 +70,22 @@ export class GlPatchDetailsApp extends LitElement {
 		`;
 	}
 
-	private renderCommitMessage() {
-		if (this.state?.patch == null) {
+	private renderPatchMessage() {
+		if (this.state?.patch?.message == null) {
 			return undefined;
 		}
+
+		// if (this.state.patch.message == null) {
+		// 	return html`
+		// 		<div class="section section--message">
+		// 			<div class="message-block">
+		// 				<p class="message-block__text scrollable" data-region="message">
+		// 					<strong>Cloud</strong>
+		// 				</p>
+		// 			</div>
+		// 		</div>
+		// 	`;
+		// }
 
 		const message = this.state.patch.message ?? '';
 		const index = message.indexOf(messageHeadlineSplitterToken);
@@ -385,14 +397,19 @@ export class GlPatchDetailsApp extends LitElement {
 							<div class="top-details__actionbar">
 								<div class="top-details__actionbar-group"></div>
 								<div class="top-details__actionbar-group">
-									<a class="commit-action" href="#">
-										<code-icon icon="link"></code-icon>
-										<span class="top-details__sha">Copy Link</span></a
-									>
-									<a class="commit-action" href="#">
-										<code-icon icon="send"></code-icon>
-										<span class="top-details__sha">Share</span></a
-									>
+									${when(
+										this.state?.patch?.type === 'cloud',
+										() => html`
+											<a class="commit-action" href="#">
+												<code-icon icon="link"></code-icon>
+												<span class="top-details__sha">Copy Link</span></a
+											>
+											<a class="commit-action" href="#">
+												<code-icon icon="send"></code-icon>
+												<span class="top-details__sha">Share</span></a
+											>
+										`,
+									)}
 									<a
 										class="commit-action"
 										href="#"
@@ -421,7 +438,34 @@ export class GlPatchDetailsApp extends LitElement {
 							)}
 						</div>
 					</div>
-					${this.renderCommitMessage()}${this.renderPatches()}${this.renderCollaborators()}${this.renderChangedFiles()}${this.renderExplainAi()}
+					${this.renderPatchMessage()}
+					${when(
+						this.state.patch?.type == 'local',
+						() => html`
+							<div class="section section--sticky-actions">
+								<p class="button-container">
+									<span class="button-group">
+										<gl-button>Apply Patch</gl-button>
+										<gl-button
+											density="compact"
+											aria-label="Apply Patch Options..."
+											title="Apply Patch Options..."
+											><code-icon icon="chevron-down"></code-icon
+										></gl-button>
+									</span>
+									<gl-button appearance="secondary">Base: 0000000</gl-button>
+									<gl-button
+										appearance="secondary"
+										density="compact"
+										aria-label="Open in Commit Graph"
+										title="Open in Commit Graph"
+										><code-icon icon="gl-graph"></code-icon
+									></gl-button>
+								</p>
+							</div>
+						`,
+					)}
+					${this.renderChangedFiles()}${this.renderExplainAi()}
 				</main>
 			</div>
 		`;

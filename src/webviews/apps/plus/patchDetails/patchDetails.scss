@@ -247,6 +247,10 @@ ul {
 	&--emphasis-low:not(:hover, :focus, :active) {
 		opacity: 0.5;
 	}
+
+	&--centered {
+		vertical-align: text-bottom;
+	}
 }
 
 .change-list {
@@ -406,6 +410,22 @@ ul {
 		.has-error & {
 			white-space: normal;
 		}
+	}
+}
+
+.patch-base {
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-end;
+	align-items: center;
+	gap: 0.4rem;
+	padding: {
+		top: 0.1rem;
+		bottom: 0.1rem;
+	}
+
+	:first-child {
+		margin-right: auto;
 	}
 }
 

@@ -1,3 +1,4 @@
+import { defineGkElement, Menu, MenuItem, Popover } from '@gitkraken/shared-web-components';
 import { html, LitElement, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
@@ -45,6 +46,12 @@ export class GlPatchDetailsApp extends LitElement {
 
 	@property({ type: Object })
 	explain?: ExplainState;
+
+	constructor() {
+		super();
+
+		defineGkElement(Popover, Menu, MenuItem);
+	}
 
 	override updated(changedProperties: Map<string, any>) {
 		if (changedProperties.has('explain')) {
@@ -343,23 +350,69 @@ export class GlPatchDetailsApp extends LitElement {
 		return html`
 			<webview-pane collapsable expanded>
 				<span slot="title">Patches</span>
-
-				<div class="h-spacing">
-					<list-container>
-						<list-item>
-							<code-icon slot="icon" icon="repo" title="Repository" aria-label="Repository"></code-icon>
-							axosoft/GitKraken
-						</list-item>
-						<list-item>
-							<code-icon slot="icon" icon="repo" title="Repository" aria-label="Repository"></code-icon>
-							gitkraken/shared-web-components
-						</list-item>
-						<list-item>
-							<code-icon slot="icon" icon="repo" title="Repository" aria-label="Repository"></code-icon>
-							gitkraken/vscode-gitlens
-						</list-item>
-					</list-container>
+				<div class="section">
+					<div class="patch-base">
+						<a href="#" class="commit-action"
+							><code-icon icon="repo" title="Repository" aria-label="Repository"></code-icon
+							><span class="top-details__sha">Select base repo</span></a
+						>
+						<a href="#" class="commit-action is-disabled"><code-icon icon="gl-graph"></code-icon></a>
+					</div>
+					<div class="patch-base">
+						<a href="#" class="commit-action"
+							><code-icon icon="repo" title="Repository" aria-label="Repository"></code-icon
+							><span class="top-details__sha">GitKraken</span></a
+						>
+						<a href="#" class="commit-action"
+							><code-icon icon="git-commit"></code-icon
+							><span class="top-details__sha">Select base</span></a
+						>
+						<a href="#" class="commit-action is-disabled"><code-icon icon="gl-graph"></code-icon></a>
+					</div>
+					<div class="patch-base">
+						<a href="#" class="commit-action"
+							><code-icon icon="repo" title="Repository" aria-label="Repository"></code-icon
+							><span class="top-details__sha">GitKraken</span></a
+						>
+						<a href="#" class="commit-action"
+							><code-icon icon="git-commit"></code-icon><span class="top-details__sha">0000000</span></a
+						>
+						<a href="#" class="commit-action"><code-icon icon="gl-graph"></code-icon></a>
+					</div>
 				</div>
+				${when(
+					this.state!.patch?.type == 'local',
+					() => html`
+						<div class="section section--sticky-actions">
+							<p class="button-container">
+								<span class="button-group button-group--single">
+									<gl-button full>Apply Patch</gl-button>
+									<gk-popover placement="bottom">
+										<gl-button
+											slot="trigger"
+											density="compact"
+											aria-label="Apply Patch Options..."
+											title="Apply Patch Options..."
+											><code-icon icon="chevron-down"></code-icon
+										></gl-button>
+										<gk-menu class="mine-menu" @select=${this.onSelectApplyOption}>
+											<gk-menu-item data-value="branch">Apply to new branch</gk-menu-item>
+											<gk-menu-item data-value="worktree">Apply to new worktree</gk-menu-item>
+										</gk-menu>
+									</gk-popover>
+								</span>
+								<!-- <gl-button appearance="secondary">Base: 0000000</gl-button>
+									<gl-button
+										appearance="secondary"
+										density="compact"
+										aria-label="Open in Commit Graph"
+										title="Open in Commit Graph"
+										><code-icon icon="gl-graph"></code-icon
+									></gl-button> -->
+							</p>
+						</div>
+					`,
+				)}
 			</webview-pane>
 		`;
 	}
@@ -424,12 +477,11 @@ export class GlPatchDetailsApp extends LitElement {
 												<code-icon icon="link"></code-icon>
 												<span class="top-details__sha">Copy Link</span></a
 											>
-											<a class="commit-action" href="#">
-												<code-icon icon="send"></code-icon>
-												<span class="top-details__sha">Share</span></a
-											>
 										`,
 									)}
+									<a class="commit-action" href="#" aria-label="Share Patch" title="Share Patch"
+										>Share</a
+									>
 									<a
 										class="commit-action"
 										href="#"
@@ -458,33 +510,7 @@ export class GlPatchDetailsApp extends LitElement {
 							)}
 						</div>
 					</div>
-					${this.renderPatchMessage()}
-					${when(
-						this.state.patch?.type == 'local',
-						() => html`
-							<div class="section section--sticky-actions">
-								<p class="button-container">
-									<span class="button-group">
-										<gl-button>Apply Patch</gl-button>
-										<gl-button
-											density="compact"
-											aria-label="Apply Patch Options..."
-											title="Apply Patch Options..."
-											><code-icon icon="chevron-down"></code-icon
-										></gl-button>
-									</span>
-									<gl-button appearance="secondary">Base: 0000000</gl-button>
-									<gl-button
-										appearance="secondary"
-										density="compact"
-										aria-label="Open in Commit Graph"
-										title="Open in Commit Graph"
-										><code-icon icon="gl-graph"></code-icon
-									></gl-button>
-								</p>
-							</div>
-						`,
-					)}
+					${this.renderPatchMessage()}${this.renderPatches()}
 					${this.renderChangedFiles()}${this.renderExplainAi()}
 				</main>
 			</div>
@@ -505,13 +531,21 @@ export class GlPatchDetailsApp extends LitElement {
 		this.explainBusy = true;
 	}
 
-	onApplyPatch(_e: MouseEvent | KeyboardEvent) {
+	onApplyPatch(e?: MouseEvent | KeyboardEvent, target: 'current' | 'branch' | 'worktree' = 'current') {
 		const evt = new CustomEvent<ApplyPatchDetail>('apply-patch', {
 			detail: {
 				patch: this.state!.patch! as PatchDetails,
+				target: target,
 			},
 		});
 		this.dispatchEvent(evt);
+	}
+
+	onSelectApplyOption(e: CustomEvent<{ target: MenuItem }>) {
+		const target = e.detail?.target;
+		if (target?.dataset?.value != null) {
+			this.onApplyPatch(undefined, target.dataset.value as 'current' | 'branch' | 'worktree');
+		}
 	}
 
 	onChangePatchBase(_e: MouseEvent | KeyboardEvent) {

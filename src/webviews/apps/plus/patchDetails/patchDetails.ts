@@ -48,7 +48,6 @@ import './components/patch-details-app';
 
 export const uncommittedSha = '0000000000000000000000000000000000000000';
 
-export type CommitState = SomeNonNullable<Serialized<State>, 'selected'>;
 export class PatchDetailsApp extends App<Serialized<State>> {
 	constructor() {
 		super('PatchDetailsApp');

@@ -1,5 +1,6 @@
 import type { TextDocumentShowOptions } from 'vscode';
 import type { Config } from '../../../config';
+import type { WebviewIds, WebviewViewIds } from '../../../constants';
 import type { GitCommitIdentityShape, GitCommitStats } from '../../../git/models/commit';
 import type { GitFileChangeShape } from '../../../git/models/file';
 import type { Serialized } from '../../../system/serialize';
@@ -38,6 +39,7 @@ export interface Preferences {
 }
 
 export interface State {
+	webviewId: WebviewIds | WebviewViewIds;
 	timestamp: number;
 
 	preferences?: Preferences;

@@ -371,6 +371,7 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 		// const commitChoices = await Promise.all(this.commits.map(async commit => summaryModel(commit)));
 
 		const state = serialize<State>({
+			webviewId: this.host.id,
 			timestamp: Date.now(),
 			// includeRichContent: false,
 			// commits: commitChoices,

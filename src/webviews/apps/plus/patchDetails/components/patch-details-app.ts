@@ -322,46 +322,63 @@ export class GlPatchDetailsApp extends LitElement {
 	}
 
 	renderPatches() {
+		const path = this.state.patch?.repoPath;
+		const repo = this.state.patch?.repoName;
+		const base = this.state.patch?.baseRef;
+
+		const getActions = () => {
+			if (!repo) {
+				return html`
+					<a href="#" class="commit-action" data-action="select-patch-repo" @click=${this.onSelectPatchRepo}
+						><code-icon icon="repo" title="Repository" aria-label="Repository"></code-icon
+						><span class="top-details__sha">Select base repo</span></a
+					>
+					<a href="#" class="commit-action is-disabled"><code-icon icon="gl-graph"></code-icon></a>
+				`;
+			}
+
+			if (!base) {
+				return html`
+					<a href="#" class="commit-action" data-action="select-patch-repo" @click=${this.onSelectPatchRepo}
+						><code-icon icon="repo" title="Repository" aria-label="Repository"></code-icon
+						><span class="top-details__sha">${repo}</span></a
+					>
+					<a href="#" class="commit-action" data-action="select-patch-base" @click=${this.onChangePatchBase}
+						><code-icon icon="git-commit" title="Repository" aria-label="Repository"></code-icon
+						><span class="top-details__sha">Select base</span></a
+					>
+					<a href="#" class="commit-action is-disabled"><code-icon icon="gl-graph"></code-icon></a>
+				`;
+			}
+
+			return html`
+				<a href="#" class="commit-action" data-action="select-patch-repo" @click=${this.onSelectPatchRepo}
+					><code-icon icon="repo" title="Repository" aria-label="Repository"></code-icon
+					><span class="top-details__sha">${repo}</span></a
+				>
+				<a href="#" class="commit-action" data-action="select-patch-base" @click=${this.onChangePatchBase}
+					><code-icon icon="git-commit"></code-icon
+					><span class="top-details__sha">${base?.substring(0, 7)}</span></a
+				>
+				<a href="#" class="commit-action" data-action="patch-base-in-graph" @click=${this.onShowInGraph}
+					><code-icon icon="gl-graph"></code-icon
+				></a>
+			`;
+		};
+
 		return html`
 			<webview-pane collapsable expanded>
 				<span slot="title">Patches</span>
 				<div class="section">
-					<div class="patch-base">
-						<a href="#" class="commit-action"
-							><code-icon icon="repo" title="Repository" aria-label="Repository"></code-icon
-							><span class="top-details__sha">Select base repo</span></a
-						>
-						<a href="#" class="commit-action is-disabled"><code-icon icon="gl-graph"></code-icon></a>
-					</div>
-					<div class="patch-base">
-						<a href="#" class="commit-action"
-							><code-icon icon="repo" title="Repository" aria-label="Repository"></code-icon
-							><span class="top-details__sha">GitKraken</span></a
-						>
-						<a href="#" class="commit-action"
-							><code-icon icon="git-commit"></code-icon
-							><span class="top-details__sha">Select base</span></a
-						>
-						<a href="#" class="commit-action is-disabled"><code-icon icon="gl-graph"></code-icon></a>
-					</div>
-					<div class="patch-base">
-						<a href="#" class="commit-action"
-							><code-icon icon="repo" title="Repository" aria-label="Repository"></code-icon
-							><span class="top-details__sha">GitKraken</span></a
-						>
-						<a href="#" class="commit-action"
-							><code-icon icon="git-commit"></code-icon><span class="top-details__sha">0000000</span></a
-						>
-						<a href="#" class="commit-action"><code-icon icon="gl-graph"></code-icon></a>
-					</div>
+					<div class="patch-base">${getActions()}</div>
 				</div>
 				${when(
-					this.state.patch?.type == 'local',
+					path != null && base != null,
 					() => html`
 						<div class="section section--sticky-actions">
 							<p class="button-container">
 								<span class="button-group button-group--single">
-									<gl-button full>Apply Patch</gl-button>
+									<gl-button full @click=${this.onApplyPatch}>Apply Patch</gl-button>
 									<gk-popover placement="bottom">
 										<gl-button
 											slot="trigger"
@@ -376,14 +393,22 @@ export class GlPatchDetailsApp extends LitElement {
 										</gk-menu>
 									</gk-popover>
 								</span>
-								<!-- <gl-button appearance="secondary">Base: 0000000</gl-button>
+							</p>
+						</div>
+					`,
+					() => html`
+						<div class="section section--sticky-actions">
+							<p class="button-container">
+								<span class="button-group button-group--single">
+									<gl-button disabled full>Apply Patch</gl-button>
 									<gl-button
-										appearance="secondary"
+										disabled
 										density="compact"
-										aria-label="Open in Commit Graph"
-										title="Open in Commit Graph"
-										><code-icon icon="gl-graph"></code-icon
-									></gl-button> -->
+										aria-label="Apply Patch Options..."
+										title="Apply Patch Options..."
+										><code-icon icon="chevron-down"></code-icon
+									></gl-button>
+								</span>
 							</p>
 						</div>
 					`,

@@ -58,6 +58,8 @@ import {
 	OpenFileCompareWorkingCommandType,
 	OpenFileOnRemoteCommandType,
 	OpenInCommitGraphCommandType,
+	SelectPatchBaseCommandType,
+	SelectPatchRepoCommandType,
 	UpdatePreferencesCommandType,
 } from './protocol';
 
@@ -274,6 +276,13 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 				break;
 			case ExplainCommandType.method:
 				onIpc(ExplainCommandType, e, () => this.explainPatch(e.completionId));
+				break;
+			case SelectPatchBaseCommandType.method:
+				onIpc(SelectPatchBaseCommandType, e, () => void this.selectPatchBase());
+				break;
+			case SelectPatchRepoCommandType.method:
+				onIpc(SelectPatchRepoCommandType, e, () => void this.selectPatchRepo());
+				break;
 		}
 	}
 
@@ -589,12 +598,16 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 			return {
 				type: 'local',
 				files: files,
+				repoPath: patch.repo?.path,
+				repoName: patch.repo?.name,
+				baseRef: patch.baseRef,
 			};
 		}
 
 		return {
 			type: 'cloud',
 			repoPath: patch.repo.path,
+			repoName: patch.repo.name,
 			author: {
 				name: 'You',
 				email: 'no@way.com',
@@ -683,6 +696,86 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 			}
 		}
 		return patch.commit;
+	}
+
+	private async getPatchBaseRef(patch: GitPatch | GitCloudPatch, force = false) {
+		if (patch.baseRef != null && force === false) {
+			return patch.baseRef;
+		}
+
+		if (patch.repo == null) {
+			const pick = await getRepositoryOrShowPicker(
+				'Patch Repository',
+				'Choose which repository this patch belongs to',
+			);
+			if (pick == null) return undefined;
+
+			patch.repo = pick;
+		}
+
+		const pick = await showCommitPicker(
+			this.container.git.getLog(patch.repo.uri),
+			'Patch Base',
+			'Choose which base this patch was created from',
+		);
+		if (pick == null) return undefined;
+
+		patch.baseRef = pick.sha;
+
+		return patch.baseRef;
+	}
+
+	private async selectPatchBase() {
+		let patch: GitPatch | GitCloudPatch;
+		switch (this._context.patch?.type) {
+			case 'local':
+				patch = this._context.patch.patch;
+				break;
+			case 'cloud':
+				patch = this._context.patch.changesets[0]?.patches[0];
+				break;
+			default:
+				throw new Error('Invalid patch type');
+		}
+
+		const baseRef = await this.getPatchBaseRef(patch, true);
+		if (baseRef == null) return;
+
+		this.updatePatch(this._context.patch, { force: true });
+	}
+
+	private async selectPatchRepo() {
+		let patch: GitPatch | GitCloudPatch;
+		switch (this._context.patch?.type) {
+			case 'local':
+				patch = this._context.patch.patch;
+				break;
+			case 'cloud':
+				patch = this._context.patch.changesets[0]?.patches[0];
+				break;
+			default:
+				throw new Error('Invalid patch type');
+		}
+
+		const repo = await this.getPatchRepo(patch, true);
+		if (repo == null) return;
+
+		this.updatePatch(this._context.patch, { force: true });
+	}
+
+	private async getPatchRepo(patch: GitPatch | GitCloudPatch, force = false) {
+		if (patch.repo != null && force === false) {
+			return patch.repo;
+		}
+		const pick = await getRepositoryOrShowPicker(
+			'Patch Repository',
+			'Choose which repository this patch belongs to',
+		);
+		if (pick == null) return undefined;
+
+		patch.repo = pick;
+
+		return patch.repo;
 	}
 
 	private showAutolinkSettings() {

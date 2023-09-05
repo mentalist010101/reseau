@@ -21,6 +21,9 @@ interface LocalPatchDetails {
 	author?: undefined;
 	createdAt?: undefined;
 	updatedAt?: undefined;
+	repoPath?: string;
+	repoName?: string;
+	baseRef?: string;
 }
 
 interface CloudPatchDetails {
@@ -38,6 +41,8 @@ interface CloudPatchDetails {
 	createdAt: number;
 	updatedAt: number;
 	repoPath: string;
+	repoName?: string;
+	baseRef?: string;
 }
 
 export type PatchDetails = LocalPatchDetails | CloudPatchDetails;
@@ -77,7 +82,7 @@ export const OpenInCommitGraphCommandType = new IpcCommandType<OpenInCommitGraph
 export interface SelectPatchRepoParams {
 	repoPath: string;
 }
-export const SelectPatchRepoCommandType = new IpcCommandType<SelectPatchRepoParams>('patch/selectRepo');
+export const SelectPatchRepoCommandType = new IpcCommandType<undefined>('patch/selectRepo');
 
 export const SelectPatchBaseCommandType = new IpcCommandType<undefined>('patch/selectBase');
 

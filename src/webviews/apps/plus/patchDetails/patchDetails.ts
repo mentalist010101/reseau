@@ -11,6 +11,7 @@ import {
 	OpenFileCompareWorkingCommandType,
 	OpenFileOnRemoteCommandType,
 	SelectPatchBaseCommandType,
+	SelectPatchRepoCommandType,
 	UpdatePreferencesCommandType,
 } from '../../../../plus/webviews/patchDetails/protocol';
 import type { Serialized } from '../../../../system/serialize';
@@ -140,11 +141,12 @@ export class PatchDetailsApp extends App<Serialized<State>> {
 
 	private onChangePatchBase(e: ChangePatchBaseDetail) {
 		console.log('onChangePatchBase', e);
+		this.sendCommand(SelectPatchBaseCommandType, undefined);
 	}
 
 	private onSelectPatchRepo(e: SelectPatchRepoDetail) {
 		console.log('onSelectPatchRepo', e);
-		this.sendCommand(SelectPatchBaseCommandType, undefined);
+		this.sendCommand(SelectPatchRepoCommandType, undefined);
 	}
 
 	private onCommandClickedCore(action?: string) {

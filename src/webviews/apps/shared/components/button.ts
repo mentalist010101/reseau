@@ -1,3 +1,4 @@
+import type { PropertyValueMap } from 'lit';
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { focusOutline } from './styles/lit/a11y.css';
@@ -101,11 +102,20 @@ export class GlButton extends LitElement {
 			:host([density='compact']) {
 				padding: var(--button-compact-padding);
 			}
+
+			:host([disabled]) {
+				opacity: 0.4;
+				cursor: not-allowed;
+				pointer-events: none;
+			}
 		`,
 	];
 
 	@property({ type: Boolean, reflect: true })
 	full = false;
+
+	@property({ type: Boolean, reflect: true })
+	disabled = false;
 
 	@property({ reflect: true })
 	density?: 'compact';
@@ -123,6 +133,15 @@ export class GlButton extends LitElement {
 
 	@property({ type: Number, reflect: true })
 	override tabIndex = 0;
+
+	protected override updated(changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+		super.updated(changedProperties);
+
+		if (changedProperties.has('disabled')) {
+			this.tabIndex = this.disabled ? -1 : 0;
+			this.setAttribute('aria-disabled', this.disabled.toString());
+		}
+	}
 
 	override render() {
 		const main = html`<slot></slot>`;

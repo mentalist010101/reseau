@@ -608,6 +608,12 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 		});
 
 		if (draft._brand === 'local' || patch?._brand === 'file') {
+			if (patch && patch.repo == null) {
+				const repo = this.container.git.getBestRepository();
+				if (repo != null) {
+					patch.repo = repo;
+				}
+			}
 			return {
 				type: 'local',
 				files: files,

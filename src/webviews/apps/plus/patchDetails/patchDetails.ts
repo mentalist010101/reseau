@@ -178,7 +178,7 @@ export class PatchDetailsApp extends App<Serialized<State>> {
 	}
 
 	private onToggleFilesLayout(e: MouseEvent) {
-		const layout = ((e.target as HTMLElement)?.dataset.switchList as ViewFilesLayout) ?? undefined;
+		const layout = ((e.target as HTMLElement)?.dataset.switchValue as ViewFilesLayout) ?? undefined;
 		if (layout === this.state.preferences?.files?.layout) return;
 
 		const files = {

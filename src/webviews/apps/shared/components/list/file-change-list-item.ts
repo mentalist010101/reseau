@@ -81,6 +81,9 @@ export class FileChangeListItem extends LitElement {
 	@property({ type: Number })
 	level = 1;
 
+	@property({ type: Boolean, reflect: true }) checkable = false;
+	@property({ type: Boolean, reflect: true }) checked = false;
+
 	@property({ type: Boolean })
 	active = false;
 
@@ -150,6 +153,8 @@ export class FileChangeListItem extends LitElement {
 				?active=${this.active}
 				?expanded=${this.expanded}
 				?parentexpanded=${this.parentexpanded}
+				?checkable=${this.checkable}
+				?checked=${this.checked}
 				@selected=${this.onComparePrevious}
 			>
 				<img slot="icon" .src=${this.icon} .title=${this.statusName} .alt=${this.statusName} />

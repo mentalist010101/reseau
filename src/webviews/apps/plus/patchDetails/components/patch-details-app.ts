@@ -499,7 +499,7 @@ export class GlPatchDetailsApp extends LitElement {
 											<commit-identity
 												name="${this.state.draft!.author!.name}"
 												email="${this.state.draft!.author!.email}"
-												date=${new Date(this.state.draft!.createdAt!)}
+												date="${this.state.draft!.createdAt!}"
 												dateFormat="${this.state.preferences.dateFormat}"
 												avatarUrl="${this.state.draft!.author!.avatar ?? ''}"
 												?showavatar=${this.state.preferences?.avatars ?? true}

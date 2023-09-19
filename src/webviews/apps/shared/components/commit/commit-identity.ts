@@ -77,7 +77,7 @@ export class CommitIdentity extends LitElement {
 			<a class="name" href="${this.email ? `mailto:${this.email}` : '#'}">${this.name}</a>
 			<span class="date">
 				${this.actionLabel}
-				<formatted-date date=${this.date} format=${this.dateFormat}> </formatted-date>
+				<formatted-date date=${this.date?.getTime()} format=${this.dateFormat}> </formatted-date>
 			</span>
 		`;
 	}

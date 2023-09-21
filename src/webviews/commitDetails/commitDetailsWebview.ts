@@ -85,6 +85,7 @@ import {
 } from './protocol';
 
 interface Context {
+	mode: 'commit' | 'wip';
 	navigationStack: {
 		count: number;
 		position: number;
@@ -119,6 +120,7 @@ export class CommitDetailsWebviewProvider implements WebviewProvider<State, Seri
 		private readonly options: { mode: 'default' | 'graph' },
 	) {
 		this._context = {
+			mode: 'commit',
 			navigationStack: {
 				count: 0,
 				position: 0,
@@ -485,6 +487,7 @@ export class CommitDetailsWebviewProvider implements WebviewProvider<State, Seri
 		}
 
 		const state = serialize<State>({
+			mode: current.mode,
 			webviewId: this.host.id,
 			timestamp: Date.now(),
 			commit: details,
@@ -505,7 +508,9 @@ export class CommitDetailsWebviewProvider implements WebviewProvider<State, Seri
 
 		const success =
 			!this.host.ready || !this.host.visible
-				? await this.host.notify(DidChangeWipStateNotificationType, { wip: wip })
+				? await this.host.notify(DidChangeWipStateNotificationType, {
+						wip: wip != null ? serialize<Wip>(wip) : undefined,
+				  })
 				: false;
 		if (success) {
 			this._context.wip = wip;
@@ -653,11 +658,11 @@ export class CommitDetailsWebviewProvider implements WebviewProvider<State, Seri
 	}
 
 	private onWipChanged(commit: GitCommit, repository: Repository) {
-		if (commit.isUncommitted) {
-			void this.showWip({ repoPath: repository.path });
+		// if (commit.isUncommitted) {
+		// 	void this.showWip({ repoPath: repository.path });
 
-			return;
-		}
+		// 	return;
+		// }
 
 		void this.updateWipState(repository);
 	}
@@ -673,6 +678,9 @@ export class CommitDetailsWebviewProvider implements WebviewProvider<State, Seri
 						name: repository.name,
 						path: repository.path,
 					},
+					commit: await this.getDetailsModel(
+						(await this.container.git.getCommit(repository.path, uncommitted))!,
+					),
 			  };
 	}
 
@@ -930,15 +938,25 @@ export class CommitDetailsWebviewProvider implements WebviewProvider<State, Seri
 	}
 
 	private async showWip(params: ShowWipParams) {
+		let repo;
 		let { repoPath } = params;
 		if (repoPath == null) {
-			const repo = this.container.git.getBestRepositoryOrFirst();
+			repo = this.container.git.getBestRepositoryOrFirst();
 			if (repo == null) return;
 
 			repoPath = repo.path;
+		} else {
+			repo = this.container.git.getRepository(repoPath)!;
 		}
-		const commit = await this.container.git.getCommit(repoPath, uncommitted);
-		void this.updateCommit(commit, { force: true, immediate: true });
+
+		this.updatePendingContext({ mode: params.mode });
+		if (params.mode === 'commit') {
+			// this._context.commit != null ? this._context.commit	:
+			const commit = await this.container.git.getCommit(repoPath, uncommitted);
+			void this.updateCommit(commit, { force: true, immediate: true });
+		} else {
+			void this.updateWipState(repo);
+		}
 	}
 
 	private showCommitActions() {

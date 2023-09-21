@@ -46,11 +46,13 @@ export interface Wip {
 	changes: number; //{ staged: number; unstaged: number };
 	branchName: string;
 	repository: { name: string; path: string };
+	commit?: CommitDetails;
 }
 
 export interface State {
 	webviewId: WebviewIds | WebviewViewIds;
 	timestamp: number;
+	mode: 'commit' | 'wip';
 
 	pinned: boolean;
 	navigationStack: {
@@ -98,6 +100,7 @@ export const SearchCommitCommandType = new IpcCommandType<undefined>('commit/sea
 
 export interface ShowWipParams {
 	repoPath?: string;
+	mode: 'commit' | 'wip';
 }
 export const ShowWipCommandType = new IpcCommandType<ShowWipParams>('commit/showWip');
 
@@ -134,7 +137,7 @@ export const DidChangeNotificationType = new IpcNotificationType<DidChangeParams
 // 	'commit/didChange/rich',
 // );
 
-export type DidChangeWipStateParams = Pick<State, 'wip'>;
+export type DidChangeWipStateParams = Pick<Serialized<State>, 'wip'>;
 export const DidChangeWipStateNotificationType = new IpcNotificationType<DidChangeWipStateParams>(
 	'commit/didChange/wip',
 );

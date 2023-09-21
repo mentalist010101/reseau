@@ -559,162 +559,219 @@ export class GlCommitDetailsApp extends LitElement {
 		`;
 	}
 
-	override render() {
+	private renderCommitContent() {
 		if (this.state?.commit == null) {
-			return html` <div class="commit-detail-panel scrollable">${this.renderEmptyContent()}</div>`;
+			return this.renderEmptyContent();
 		}
 
 		const pinLabel = this.state.pinned
 			? 'Unpin this Commit\nRestores Automatic Following'
 			: 'Pin this Commit\nSuspends Automatic Following';
+
 		return html`
-			<div class="commit-detail-panel scrollable">
-				<main id="main" tabindex="-1">
-					${this.state?.wip?.changes && !this.isUncommitted
-						? html`<div class="wip-details">
-								<span class="wip-changes"
-									>${pluralize('file change', this.state.wip.changes, {
-										plural: 'file changes',
-									})}
-									on <span class="wip-branch">${this.state.wip.branchName}</span></span
-								>
-								<gl-button appearance="alert" data-action="wip">View Changes</gl-button>
-						  </div>`
-						: nothing}
-					<div class="top-details">
-						<div class="top-details__top-menu">
-							<div class="top-details__actionbar${this.state.pinned ? ' is-pinned' : ''}">
-								<div class="top-details__actionbar-group">
+			${this.state?.wip?.changes && !this.isUncommitted
+				? html`<div class="wip-details">
+						<span class="wip-changes"
+							>${pluralize('file change', this.state.wip.changes, {
+								plural: 'file changes',
+							})}
+							on <span class="wip-branch">${this.state.wip.branchName}</span></span
+						>
+						<gl-button appearance="alert" data-action="wip">View Changes</gl-button>
+				  </div>`
+				: nothing}
+			<div class="top-details">
+				<div class="top-details__top-menu">
+					<div class="top-details__actionbar${this.state.pinned ? ' is-pinned' : ''}">
+						<div class="top-details__actionbar-group">
+							<a
+								class="commit-action${this.state.pinned ? ' is-active' : ''}"
+								href="#"
+								data-action="pin"
+								aria-label="${pinLabel}"
+								title="${pinLabel}"
+								><code-icon
+									icon="${this.state.pinned ? 'gl-pinned-filled' : 'pin'}"
+									data-region="commit-pin"
+								></code-icon
+							></a>
+							<a
+								class="commit-action${this.navigation.back ? '' : ' is-disabled'}"
+								aria-disabled="${this.navigation.back ? nothing : 'true'}"
+								href="#"
+								data-action="back"
+								aria-label="Back"
+								title="Back"
+								><code-icon icon="arrow-left" data-region="commit-back"></code-icon
+							></a>
+							${when(
+								this.navigation.forward,
+								() => html`
 									<a
-										class="commit-action${this.state.pinned ? ' is-active' : ''}"
+										class="commit-action"
 										href="#"
-										data-action="pin"
-										aria-label="${pinLabel}"
-										title="${pinLabel}"
-										><code-icon
-											icon="${this.state.pinned ? 'gl-pinned-filled' : 'pin'}"
-											data-region="commit-pin"
-										></code-icon
+										data-action="forward"
+										aria-label="Forward"
+										title="Forward"
+										><code-icon icon="arrow-right" data-region="commit-forward"></code-icon
 									></a>
+								`,
+							)}
+							${when(
+								this.state.navigationStack.hint,
+								() => html`
 									<a
-										class="commit-action${this.navigation.back ? '' : ' is-disabled'}"
-										aria-disabled="${this.navigation.back ? nothing : 'true'}"
+										class="commit-action commit-action--emphasis-low"
 										href="#"
-										data-action="back"
-										aria-label="Back"
-										title="Back"
-										><code-icon icon="arrow-left" data-region="commit-back"></code-icon
-									></a>
-									${when(
-										this.navigation.forward,
-										() => html`
-											<a
-												class="commit-action"
-												href="#"
-												data-action="forward"
-												aria-label="Forward"
-												title="Forward"
-												><code-icon icon="arrow-right" data-region="commit-forward"></code-icon
-											></a>
-										`,
-									)}
-									${when(
-										this.state.navigationStack.hint,
-										() => html`
-											<a
-												class="commit-action commit-action--emphasis-low"
-												href="#"
-												title="View this Commit"
-												data-action="${this.state!.pinned ? 'forward' : 'back'}"
-												><code-icon icon="git-commit"></code-icon
-												><span data-region="commit-hint"
-													>${this.state!.navigationStack.hint}</span
-												></a
-											>
-										`,
-									)}
-								</div>
-								<div class="top-details__actionbar-group">
-									${when(
-										!this.isUncommitted,
-										() => html`
-											<a
-												class="commit-action"
-												href="#"
-												data-action="commit-actions"
-												data-action-type="sha"
-												aria-label="Copy SHA
-	[⌥] Pick Commit..."
-												title="Copy SHA
-	[⌥] Pick Commit..."
-											>
-												<code-icon icon="git-commit"></code-icon>
-												<span class="top-details__sha" data-region="shortsha"
-													>${this.shortSha}</span
-												></a
-											>
-										`,
-										() => html`
-											<a
-												class="commit-action"
-												href="#"
-												data-action="commit-actions"
-												data-action-type="scm"
-												aria-label="Open SCM view"
-												title="Open SCM view"
-												><code-icon icon="source-control"></code-icon
-											></a>
-										`,
-									)}
+										title="View this Commit"
+										data-action="${this.state!.pinned ? 'forward' : 'back'}"
+										><code-icon icon="git-commit"></code-icon
+										><span data-region="commit-hint">${this.state!.navigationStack.hint}</span></a
+									>
+								`,
+							)}
+						</div>
+						<div class="top-details__actionbar-group">
+							${when(
+								!this.isUncommitted,
+								() => html`
 									<a
 										class="commit-action"
 										href="#"
 										data-action="commit-actions"
-										data-action-type="graph"
-										aria-label="Open in Commit Graph"
-										title="Open in Commit Graph"
-										><code-icon icon="gl-graph"></code-icon
-									></a>
-									${when(
-										!this.isUncommitted,
-										() => html`
-											<a
-												class="commit-action"
-												href="#"
-												data-action="commit-actions"
-												data-action-type="more"
-												aria-label="Show Commit Actions"
-												title="Show Commit Actions"
-												><code-icon icon="kebab-vertical"></code-icon
-											></a>
-										`,
-									)}
-								</div>
-							</div>
-							${when(
-								this.state.commit && this.state.commit.stashNumber == null,
+										data-action-type="sha"
+										aria-label="Copy SHA
+[⌥] Pick Commit..."
+										title="Copy SHA
+[⌥] Pick Commit..."
+									>
+										<code-icon icon="git-commit"></code-icon>
+										<span class="top-details__sha" data-region="shortsha">${this.shortSha}</span></a
+									>
+								`,
 								() => html`
-									<ul class="top-details__authors" aria-label="Authors">
-										<li class="top-details__author" data-region="author">
-											<commit-identity
-												name="${this.state!.commit!.author.name}"
-												email="${this.state!.commit!.author.email}"
-												date=${this.state!.commit!.author.date}
-												dateFormat="${this.state!.preferences.dateFormat}"
-												avatarUrl="${this.state!.commit!.author.avatar ?? ''}"
-												showAvatar="${this.state!.preferences?.avatars ?? true}"
-												actionLabel="${this.state!.commit!.sha === uncommittedSha
-													? 'modified'
-													: 'committed'}"
-											></commit-identity>
-										</li>
-									</ul>
+									<a
+										class="commit-action"
+										href="#"
+										data-action="commit-actions"
+										data-action-type="scm"
+										aria-label="Open SCM view"
+										title="Open SCM view"
+										><code-icon icon="source-control"></code-icon
+									></a>
+								`,
+							)}
+							<a
+								class="commit-action"
+								href="#"
+								data-action="commit-actions"
+								data-action-type="graph"
+								aria-label="Open in Commit Graph"
+								title="Open in Commit Graph"
+								><code-icon icon="gl-graph"></code-icon
+							></a>
+							${when(
+								!this.isUncommitted,
+								() => html`
+									<a
+										class="commit-action"
+										href="#"
+										data-action="commit-actions"
+										data-action-type="more"
+										aria-label="Show Commit Actions"
+										title="Show Commit Actions"
+										><code-icon icon="kebab-vertical"></code-icon
+									></a>
 								`,
 							)}
 						</div>
 					</div>
-					${this.renderCommitMessage()} ${this.renderAutoLinks()} ${this.renderChangedFiles()}
-					${this.renderExplainAi()}
+					${when(
+						this.state.commit && this.state.commit.stashNumber == null,
+						() => html`
+							<ul class="top-details__authors" aria-label="Authors">
+								<li class="top-details__author" data-region="author">
+									<commit-identity
+										name="${this.state!.commit!.author.name}"
+										email="${this.state!.commit!.author.email}"
+										date=${this.state!.commit!.author.date}
+										dateFormat="${this.state!.preferences.dateFormat}"
+										avatarUrl="${this.state!.commit!.author.avatar ?? ''}"
+										showAvatar="${this.state!.preferences?.avatars ?? true}"
+										actionLabel="${this.state!.commit!.sha === uncommittedSha
+											? 'modified'
+											: 'committed'}"
+									></commit-identity>
+								</li>
+							</ul>
+						`,
+					)}
+				</div>
+			</div>
+			${this.renderCommitMessage()} ${this.renderAutoLinks()} ${this.renderChangedFiles()}
+			${this.renderExplainAi()}
+		`;
+	}
+
+	private renderWipContent() {
+		if (this.state?.wip == null) {
+			return html`<div class="section"><p>No WIP</p></div>`;
+		}
+		return html`
+			<div class="top-details">
+				<div class="top-details__top-menu">
+					<div class="top-details__actionbar${this.state.pinned ? ' is-pinned' : ''}">
+						<div class="top-details__actionbar-group"></div>
+						<div class="top-details__actionbar-group">
+							<a
+								class="commit-action"
+								href="#"
+								data-action="commit-actions"
+								data-action-type="scm"
+								aria-label="Open SCM view"
+								title="Open SCM view"
+								><code-icon icon="source-control"></code-icon
+							></a>
+							<a
+								class="commit-action"
+								href="#"
+								data-action="commit-actions"
+								data-action-type="graph"
+								aria-label="Open in Commit Graph"
+								title="Open in Commit Graph"
+								><code-icon icon="gl-graph"></code-icon
+							></a>
+						</div>
+					</div>
+				</div>
+			</div>
+			${this.renderCommitMessage()}${this.renderChangedFiles()}
+		`;
+	}
+
+	override render() {
+		return html`
+			<div class="commit-detail-panel scrollable">
+				<main id="main" tabindex="-1">
+					<nav class="details-tab">
+						<button
+							class="details-tab__item ${this.state?.mode === 'commit' ? ' is-active' : ''}"
+							data-action="details"
+						>
+							Details
+						</button>
+						<button
+							class="details-tab__item ${this.state?.mode === 'wip' ? ' is-active' : ''}"
+							data-action="wip"
+						>
+							WIP${this.state?.wip?.changes ? ` (${this.state?.wip?.changes})` : ''}
+						</button>
+					</nav>
+					${when(
+						this.state?.mode === 'commit',
+						() => this.renderCommitContent(),
+						() => this.renderWipContent(),
+					)}
 				</main>
 			</div>
 		`;

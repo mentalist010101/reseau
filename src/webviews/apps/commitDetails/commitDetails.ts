@@ -83,7 +83,8 @@ export class CommitDetailsApp extends App<Serialized<State>> {
 			),
 			DOM.on('[data-action="commit-actions"]', 'click', e => this.onCommitActions(e)),
 			DOM.on('[data-action="pick-commit"]', 'click', e => this.onPickCommit(e)),
-			DOM.on('[data-action="wip"]', 'click', e => this.onShowWip(e)),
+			DOM.on('[data-action="wip"]', 'click', e => this.onShowWip(e, 'wip')),
+			DOM.on('[data-action="details"]', 'click', e => this.onShowWip(e, 'commit')),
 			DOM.on('[data-action="search-commit"]', 'click', e => this.onSearchCommit(e)),
 			DOM.on('[data-action="autolink-settings"]', 'click', e => this.onAutolinkSettings(e)),
 			DOM.on('[data-action="files-layout"]', 'click', e => this.onToggleFilesLayout(e)),
@@ -225,8 +226,8 @@ export class CommitDetailsApp extends App<Serialized<State>> {
 		this.sendCommand(SearchCommitCommandType, undefined);
 	}
 
-	private onShowWip(_e: MouseEvent) {
-		this.sendCommand(ShowWipCommandType, {});
+	private onShowWip(_e: MouseEvent, mode: 'commit' | 'wip') {
+		this.sendCommand(ShowWipCommandType, { mode: mode });
 	}
 
 	private onOpenFileOnRemote(e: FileChangeListItemDetail) {

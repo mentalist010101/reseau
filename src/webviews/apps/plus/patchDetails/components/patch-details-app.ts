@@ -8,7 +8,6 @@ import type { PatchDetails, State } from '../../../../../plus/webviews/patchDeta
 import { messageHeadlineSplitterToken } from '../../../../../plus/webviews/patchDetails/protocol';
 import type { HierarchicalItem } from '../../../../../system/array';
 import { makeHierarchical } from '../../../../../system/array';
-import type { Serialized } from '../../../../../system/serialize';
 
 interface ExplainState {
 	cancelled?: boolean;
@@ -22,15 +21,18 @@ export interface ApplyPatchDetail {
 	base?: string;
 	[key: string]: unknown;
 }
+
 export interface ChangePatchBaseDetail {
 	patch: PatchDetails;
 	[key: string]: unknown;
 }
+
 export interface SelectPatchRepoDetail {
 	patch: PatchDetails;
 	repoPath?: string;
 	[key: string]: unknown;
 }
+
 export interface ShowPatchInGraphDetail {
 	patch: PatchDetails;
 	[key: string]: unknown;
@@ -39,7 +41,7 @@ export interface ShowPatchInGraphDetail {
 @customElement('gl-patch-details-app')
 export class GlPatchDetailsApp extends LitElement {
 	@property({ type: Object })
-	state?: Serialized<State>;
+	state!: State;
 
 	@state()
 	explainBusy = false;
@@ -63,36 +65,9 @@ export class GlPatchDetailsApp extends LitElement {
 	private renderEmptyContent() {
 		return html`
 			<div class="section section--empty" id="empty">
-				<p>Rich details for commits and stashes are shown as you navigate:</p>
-
-				<ul class="bulleted">
-					<li>lines in the text editor</li>
-					<li>
-						commits in the <a href="command:gitlens.showGraph">Commit Graph</a>,
-						<a href="command:gitlens.showTimelineView">Visual File History</a>, or
-						<a href="command:gitlens.showCommitsView">Commits view</a>
-					</li>
-					<li>stashes in the <a href="command:gitlens.showStashesView">Stashes view</a></li>
-				</ul>
-
-				<p>Alternatively, search for or choose a commit</p>
-
-				<p class="button-container">
-					<span class="button-group button-group--single">
-						<button class="button button--full" type="button" data-action="pick-commit">
-							Choose Commit...
-						</button>
-						<button
-							class="button"
-							type="button"
-							data-action="search-commit"
-							aria-label="Search for Commit"
-							title="Search for Commit"
-						>
-							<code-icon icon="search"></code-icon>
-						</button>
-					</span>
-				</p>
+				<button-container>
+					<gl-button full href="command:gitlens.openPatch">Open Patch...</gl-button>
+				</button-container>
 			</div>
 		`;
 	}
@@ -208,7 +183,7 @@ export class GlPatchDetailsApp extends LitElement {
 
 	private renderFileList() {
 		return html`<list-container>
-			${this.state!.patch!.files!.map(
+			${this.state.patch!.files!.map(
 				(file: Record<string, any>) => html`
 					<file-change-list-item
 						?stash=${false}
@@ -225,13 +200,13 @@ export class GlPatchDetailsApp extends LitElement {
 
 	private renderFileTree() {
 		const tree = makeHierarchical(
-			this.state!.patch!.files!,
+			this.state.patch!.files!,
 			n => n.path.split('/'),
 			(...parts: string[]) => parts.join('/'),
-			this.state!.preferences?.files?.compact ?? true,
+			this.state.preferences?.files?.compact ?? true,
 		);
 		const flatTree = flattenHeirarchy(tree);
-		return html`<list-container class="indentGuides-${this.state!.indentGuides}">
+		return html`<list-container class="indentGuides-${this.state.preferences?.indentGuides}">
 			<list-item level="1" tree branch>
 				<code-icon slot="icon" icon="repo" title="Repository" aria-label="Repository"></code-icon>
 				gitkraken/shared-web-components
@@ -381,7 +356,7 @@ export class GlPatchDetailsApp extends LitElement {
 					</div>
 				</div>
 				${when(
-					this.state!.patch?.type == 'local',
+					this.state.patch?.type == 'local',
 					() => html`
 						<div class="section section--sticky-actions">
 							<p class="button-container">
@@ -492,17 +467,17 @@ export class GlPatchDetailsApp extends LitElement {
 								</div>
 							</div>
 							${when(
-								this.state.patch?.author != null,
+								this.state.patch?.type === 'cloud' && this.state.patch?.author != null,
 								() => html`
 									<ul class="top-details__authors" aria-label="Authors">
 										<li class="top-details__author" data-region="author">
 											<commit-identity
-												name="${this.state!.patch!.author!.name}"
-												email="${this.state!.patch!.author!.email}"
-												date=${this.state!.patch!.author!.date}
-												dateFormat="${this.state!.dateFormat}"
-												avatarUrl="${this.state!.patch!.author!.avatar ?? ''}"
-												showAvatar="${this.state!.preferences?.avatars ?? true}"
+												name="${this.state.patch!.author!.name}"
+												email="${this.state.patch!.author!.email}"
+												date=${new Date(this.state.patch!.createdAt!)}
+												dateFormat="${this.state.preferences.dateFormat}"
+												avatarUrl="${this.state.patch!.author!.avatar ?? ''}"
+												?showavatar=${this.state.preferences?.avatars ?? true}
 											></commit-identity>
 										</li>
 									</ul>
@@ -534,7 +509,7 @@ export class GlPatchDetailsApp extends LitElement {
 	onApplyPatch(e?: MouseEvent | KeyboardEvent, target: 'current' | 'branch' | 'worktree' = 'current') {
 		const evt = new CustomEvent<ApplyPatchDetail>('apply-patch', {
 			detail: {
-				patch: this.state!.patch! as PatchDetails,
+				patch: this.state.patch!,
 				target: target,
 			},
 		});
@@ -551,7 +526,7 @@ export class GlPatchDetailsApp extends LitElement {
 	onChangePatchBase(_e: MouseEvent | KeyboardEvent) {
 		const evt = new CustomEvent<ChangePatchBaseDetail>('change-patch-base', {
 			detail: {
-				patch: this.state!.patch! as PatchDetails,
+				patch: this.state.patch!,
 			},
 		});
 		this.dispatchEvent(evt);
@@ -560,7 +535,7 @@ export class GlPatchDetailsApp extends LitElement {
 	onSelectPatchRepo(_e: MouseEvent | KeyboardEvent) {
 		const evt = new CustomEvent<SelectPatchRepoDetail>('select-patch-repo', {
 			detail: {
-				patch: this.state!.patch! as PatchDetails,
+				patch: this.state.patch!,
 			},
 		});
 		this.dispatchEvent(evt);
@@ -569,7 +544,7 @@ export class GlPatchDetailsApp extends LitElement {
 	onShowInGraph(_e: MouseEvent | KeyboardEvent) {
 		const evt = new CustomEvent<ShowPatchInGraphDetail>('graph-show-patch', {
 			detail: {
-				patch: this.state!.patch! as PatchDetails,
+				patch: this.state.patch!,
 			},
 		});
 		this.dispatchEvent(evt);

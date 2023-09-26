@@ -148,7 +148,7 @@ export class OpenPatchCommand extends ActiveEditorCommand {
 				canSelectFiles: true,
 				canSelectFolders: false,
 				canSelectMany: false,
-				filters: { Patches: ['patch'] },
+				filters: { Patches: ['diff', 'patch'] },
 				openLabel: 'Open Patch',
 				title: 'Open Patch File',
 			});

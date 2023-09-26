@@ -1,20 +1,17 @@
 /*global*/
 import { ViewFilesLayout } from '../../../../config';
-import type { CommitActionsParams, State } from '../../../../plus/webviews/patchDetails/protocol';
+import type { State } from '../../../../plus/webviews/patchDetails/protocol';
 import {
-	CommitActionsCommandType,
 	DidChangeNotificationType,
-	DidExplainCommitCommandType,
-	ExplainCommitCommandType,
+	DidExplainCommandType,
+	ExplainCommandType,
 	FileActionsCommandType,
 	OpenFileCommandType,
 	OpenFileComparePreviousCommandType,
 	OpenFileCompareWorkingCommandType,
 	OpenFileOnRemoteCommandType,
-	PickCommitCommandType,
-	PreferencesCommandType,
-	SearchCommitCommandType,
 	SelectPatchBaseCommandType,
+	UpdatePreferencesCommandType,
 } from '../../../../plus/webviews/patchDetails/protocol';
 import type { Serialized } from '../../../../system/serialize';
 import type { IpcMessage } from '../../../protocol';
@@ -74,9 +71,6 @@ export class PatchDetailsApp extends App<Serialized<State>> {
 			DOM.on<FileChangeListItem, FileChangeListItemDetail>('file-change-list-item', 'file-more-actions', e =>
 				this.onFileMoreActions(e.detail),
 			),
-			DOM.on('[data-action="commit-actions"]', 'click', e => this.onCommitActions(e)),
-			DOM.on('[data-action="pick-commit"]', 'click', e => this.onPickCommit(e)),
-			DOM.on('[data-action="search-commit"]', 'click', e => this.onSearchCommit(e)),
 			DOM.on('[data-switch-value]', 'click', e => this.onToggleFilesLayout(e)),
 			DOM.on('[data-action="explain-commit"]', 'click', e => this.onExplainCommit(e)),
 			DOM.on('[data-action="switch-ai"]', 'click', e => this.onSwitchAiModel(e)),
@@ -166,11 +160,7 @@ export class PatchDetailsApp extends App<Serialized<State>> {
 
 	async onExplainCommit(_e: MouseEvent) {
 		try {
-			const result = await this.sendCommandWithCompletion(
-				ExplainCommitCommandType,
-				undefined,
-				DidExplainCommitCommandType,
-			);
+			const result = await this.sendCommandWithCompletion(ExplainCommandType, undefined, DidExplainCommandType);
 
 			if (result.error) {
 				this.component.explain = { error: { message: result.error.message ?? 'Error retrieving content' } };
@@ -204,14 +194,7 @@ export class PatchDetailsApp extends App<Serialized<State>> {
 
 		this.attachState();
 
-		this.sendCommand(PreferencesCommandType, { files: files });
-	}
-	private onSearchCommit(_e: MouseEvent) {
-		this.sendCommand(SearchCommitCommandType, undefined);
-	}
-
-	private onPickCommit(_e: MouseEvent) {
-		this.sendCommand(PickCommitCommandType, undefined);
+		this.sendCommand(UpdatePreferencesCommandType, { files: files });
 	}
 
 	private onOpenFileOnRemote(e: FileChangeListItemDetail) {
@@ -234,19 +217,6 @@ export class PatchDetailsApp extends App<Serialized<State>> {
 		this.sendCommand(FileActionsCommandType, e);
 	}
 
-	private onCommitActions(e: MouseEvent) {
-		e.preventDefault();
-		if (this.state.patch === undefined) {
-			e.stopPropagation();
-			return;
-		}
-
-		const action = (e.target as HTMLElement)?.getAttribute('data-action-type');
-		if (action == null) return;
-
-		this.sendCommand(CommitActionsCommandType, { action: action as CommitActionsParams['action'], alt: e.altKey });
-	}
-
 	private _component?: GlPatchDetailsApp;
 	private get component() {
 		if (this._component == null) {
@@ -256,7 +226,7 @@ export class PatchDetailsApp extends App<Serialized<State>> {
 	}
 
 	attachState() {
-		this.component.state = this.state;
+		this.component.state = this.state!;
 	}
 }
 

@@ -1,5 +1,6 @@
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import { dateConverter } from '../converters/date-converter';
 import '../code-icon';
 import '../formatted-date';
 
@@ -48,8 +49,8 @@ export class CommitIdentity extends LitElement {
 	@property()
 	email = '';
 
-	@property()
-	date = '';
+	@property({ converter: dateConverter(), reflect: true })
+	date: Date | undefined;
 
 	@property()
 	avatarUrl = 'https://www.gravatar.com/avatar/?s=64&d=robohash';

@@ -1,8 +1,9 @@
 import type { TextDocumentShowOptions } from 'vscode';
 import type { Config } from '../../../config';
 import type { WebviewIds, WebviewViewIds } from '../../../constants';
-import type { GitCommitIdentityShape, GitCommitStats } from '../../../git/models/commit';
+import type { GitCommitStats } from '../../../git/models/commit';
 import type { GitFileChangeShape } from '../../../git/models/file';
+import type { DateTimeFormat } from '../../../system/date';
 import type { Serialized } from '../../../system/serialize';
 import { IpcCommandType, IpcNotificationType } from '../../../webviews/protocol';
 
@@ -18,6 +19,8 @@ interface LocalPatchDetails {
 	stats?: GitCommitStats;
 
 	author?: undefined;
+	createdAt?: undefined;
+	updatedAt?: undefined;
 }
 
 interface CloudPatchDetails {
@@ -27,46 +30,49 @@ interface CloudPatchDetails {
 	files?: (GitFileChangeShape & { icon: { dark: string; light: string } })[];
 	stats?: GitCommitStats;
 
-	author: GitCommitIdentityShape & { avatar: string | undefined };
+	author: {
+		avatar: string | undefined;
+		name: string;
+		email: string | undefined;
+	};
+	createdAt: number;
+	updatedAt: number;
 	repoPath: string;
 }
 
 export type PatchDetails = LocalPatchDetails | CloudPatchDetails;
 
 export interface Preferences {
-	avatars?: boolean;
-	files?: Config['views']['patchDetails']['files'];
+	avatars: boolean;
+	dateFormat: DateTimeFormat | string;
+	files: Config['views']['patchDetails']['files'];
+	indentGuides: 'none' | 'onHover' | 'always';
 }
+
+export type UpdateablePreferences = Partial<Pick<Preferences, 'files'>>;
 
 export interface State {
 	webviewId: WebviewIds | WebviewViewIds;
 	timestamp: number;
 
-	preferences?: Preferences;
-	// includeRichContent?: boolean;
-
 	patch?: PatchDetails;
-	// autolinkedIssues?: IssueOrPullRequest[];
-
-	dateFormat: string;
-	// indent: number;
-	indentGuides: 'none' | 'onHover' | 'always';
+	preferences: Preferences;
 }
 
 export type ShowCommitDetailsViewCommandArgs = string[];
 
 // COMMANDS
 
-export interface CommitActionsParams {
-	action: 'graph' | 'more' | 'scm' | 'sha';
-	alt?: boolean;
-}
-export const CommitActionsCommandType = new IpcCommandType<CommitActionsParams>('commit/actions');
-
 export interface ApplyPatchParams {
 	target?: 'head' | 'branch' | 'worktree';
 }
 export const ApplyPatchCommandType = new IpcCommandType<ApplyPatchParams>('patch/apply');
+
+export interface OpenInCommitGraphParams {
+	repoPath: string;
+	ref: string;
+}
+export const OpenInCommitGraphCommandType = new IpcCommandType<OpenInCommitGraphParams>('patch/openInGraph');
 
 export interface SelectPatchRepoParams {
 	repoPath: string;
@@ -81,36 +87,28 @@ export interface FileActionParams {
 
 	showOptions?: TextDocumentShowOptions;
 }
-export const FileActionsCommandType = new IpcCommandType<FileActionParams>('commit/file/actions');
-export const OpenFileCommandType = new IpcCommandType<FileActionParams>('commit/file/open');
-export const OpenFileOnRemoteCommandType = new IpcCommandType<FileActionParams>('commit/file/openOnRemote');
-export const OpenFileCompareWorkingCommandType = new IpcCommandType<FileActionParams>('commit/file/compareWorking');
-export const OpenFileComparePreviousCommandType = new IpcCommandType<FileActionParams>('commit/file/comparePrevious');
+export const FileActionsCommandType = new IpcCommandType<FileActionParams>('patch/file/actions');
+export const OpenFileCommandType = new IpcCommandType<FileActionParams>('patch/file/open');
+export const OpenFileOnRemoteCommandType = new IpcCommandType<FileActionParams>('patch/file/openOnRemote');
+export const OpenFileCompareWorkingCommandType = new IpcCommandType<FileActionParams>('patch/file/compareWorking');
+export const OpenFileComparePreviousCommandType = new IpcCommandType<FileActionParams>('patch/file/comparePrevious');
 
-export const PickCommitCommandType = new IpcCommandType<undefined>('commit/pickCommit');
-export const SearchCommitCommandType = new IpcCommandType<undefined>('commit/searchCommit');
-export const AutolinkSettingsCommandType = new IpcCommandType<undefined>('commit/autolinkSettings');
+export const ExplainCommandType = new IpcCommandType<undefined>('patch/explain');
 
-export const ExplainCommitCommandType = new IpcCommandType<undefined>('commit/explain');
-
-export interface PreferenceParams {
-	autolinksExpanded?: boolean;
-	avatars?: boolean;
-	files?: Config['views']['patchDetails']['files'];
-}
-export const PreferencesCommandType = new IpcCommandType<PreferenceParams>('commit/preferences');
+export type UpdatePreferenceParams = UpdateablePreferences;
+export const UpdatePreferencesCommandType = new IpcCommandType<UpdatePreferenceParams>('patch/preferences/update');
 
 // NOTIFICATIONS
 
 export interface DidChangeParams {
 	state: Serialized<State>;
 }
-export const DidChangeNotificationType = new IpcNotificationType<DidChangeParams>('commit/didChange', true);
+export const DidChangeNotificationType = new IpcNotificationType<DidChangeParams>('patch/didChange', true);
 
-export type DidExplainCommitParams =
+export type DidExplainParams =
 	| {
 			summary: string | undefined;
 			error?: undefined;
 	  }
 	| { error: { message: string } };
-export const DidExplainCommitCommandType = new IpcNotificationType<DidExplainCommitParams>('commit/didExplain');
+export const DidExplainCommandType = new IpcNotificationType<DidExplainParams>('patch/didExplain');

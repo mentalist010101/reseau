@@ -22,11 +22,11 @@ import type { GitCommit } from '../../../git/models/commit';
 import type { GitFileChange } from '../../../git/models/file';
 import { getGitFileStatusIcon } from '../../../git/models/file';
 import type { GitCloudPatch, GitPatch, LocalPatch } from '../../../git/models/patch';
+import { createReference } from '../../../git/models/reference';
 import { showCommitPicker } from '../../../quickpicks/commitPicker';
-import { showRepositoryPicker } from '../../../quickpicks/repositoryPicker';
+import { getRepositoryOrShowPicker } from '../../../quickpicks/repositoryPicker';
 import { executeCommand, registerCommand } from '../../../system/command';
 import { configuration } from '../../../system/configuration';
-import type { DateTimeFormat } from '../../../system/date';
 import { debug } from '../../../system/decorators/log';
 import type { Deferrable } from '../../../system/function';
 import { debounce } from '../../../system/function';
@@ -39,29 +39,31 @@ import { onIpc } from '../../../webviews/protocol';
 import type { WebviewController, WebviewProvider } from '../../../webviews/webviewController';
 import { updatePendingContext } from '../../../webviews/webviewController';
 import type { CloudPatch } from '../../patches/cloudPatchService';
-import type { DidExplainCommitParams, FileActionParams, PatchDetails, Preferences, State } from './protocol';
+import type { ShowInCommitGraphCommandArgs } from '../graph/protocol';
+import type {
+	DidExplainParams,
+	FileActionParams,
+	PatchDetails,
+	Preferences,
+	State,
+	UpdateablePreferences,
+} from './protocol';
 import {
 	DidChangeNotificationType,
-	DidExplainCommitCommandType,
-	ExplainCommitCommandType,
+	DidExplainCommandType,
+	ExplainCommandType,
 	FileActionsCommandType,
 	OpenFileCommandType,
 	OpenFileComparePreviousCommandType,
 	OpenFileCompareWorkingCommandType,
 	OpenFileOnRemoteCommandType,
-	PreferencesCommandType,
+	OpenInCommitGraphCommandType,
+	UpdatePreferencesCommandType,
 } from './protocol';
 
 interface Context {
 	patch: LocalPatch | CloudPatch | undefined;
-	preferences: Preferences | undefined;
-	// richStateLoaded: boolean;
-	// formattedMessage: string | undefined;
-	// autolinkedIssues: IssueOrPullRequest[] | undefined;
-	// pullRequest: PullRequest | undefined;
-
-	dateFormat: DateTimeFormat | string;
-	indentGuides: 'none' | 'onHover' | 'always';
+	preferences: Preferences;
 
 	visible: boolean;
 }
@@ -83,17 +85,13 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 			patch: undefined,
 			preferences: {
 				avatars: configuration.get('views.patchDetails.avatars'),
+				dateFormat: configuration.get('defaultDateFormat') ?? 'MMMM Do, YYYY h:mma',
 				files: configuration.get('views.patchDetails.files'),
+				indentGuides:
+					configuration.getAny<CoreConfiguration, Preferences['indentGuides']>(
+						'workbench.tree.renderIndentGuides',
+					) ?? 'onHover',
 			},
-			// richStateLoaded: false,
-			// formattedMessage: undefined,
-			// autolinkedIssues: undefined,
-			// pullRequest: undefined,
-			dateFormat: configuration.get('defaultDateFormat') ?? 'MMMM Do, YYYY h:mma',
-			// indent: configuration.getAny('workbench.tree.indent') ?? 8,
-			indentGuides:
-				configuration.getAny<CoreConfiguration, Context['indentGuides']>('workbench.tree.renderIndentGuides') ??
-				'onHover',
 			visible: false,
 		};
 
@@ -208,47 +206,26 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 	}
 
 	private onAnyConfigurationChanged(e: ConfigurationChangeEvent) {
-		if (configuration.changed(e, 'defaultDateFormat')) {
-			this.updatePendingContext({ dateFormat: configuration.get('defaultDateFormat') ?? 'MMMM Do, YYYY h:mma' });
-			this.updateState();
-		}
-
-		if (configuration.changed(e, 'views.patchDetails')) {
-			if (
-				configuration.changed(e, 'views.patchDetails.files') ||
-				configuration.changed(e, 'views.patchDetails.avatars')
-			) {
-				this.updatePendingContext({
-					preferences: {
-						...this._context.preferences,
-						...this._pendingContext?.preferences,
-						avatars: configuration.get('views.patchDetails.avatars'),
-						files: configuration.get('views.patchDetails.files'),
-					},
-				});
-			}
-
-			// if (this._context.commit != null && configuration.changed(e, 'views.patchDetails.autolinks')) {
-			// 	void this.updateCommit(this._context.commit, { force: true });
-			// }
-
-			this.updateState();
-		}
-
-		// if (configuration.changedAny<CoreConfiguration>(e, 'workbench.tree.indent')) {
-		// 	this.updatePendingContext({ indent: configuration.getAny('workbench.tree.indent') ?? 8 });
-		// 	this.updateState();
-		// }
-
-		if (configuration.changedAny<CoreConfiguration>(e, 'workbench.tree.renderIndentGuides')) {
+		if (
+			configuration.changed(e, ['defaultDateFormat', 'views.patchDetails.files', 'views.patchDetails.avatars']) ||
+			configuration.changedAny<CoreConfiguration>(e, 'workbench.tree.renderIndentGuides')
+		) {
 			this.updatePendingContext({
-				indentGuides:
-					configuration.getAny<CoreConfiguration, Context['indentGuides']>(
-						'workbench.tree.renderIndentGuides',
-					) ?? 'onHover',
+				preferences: {
+					...this._context.preferences,
+					...this._pendingContext?.preferences,
+					avatars: configuration.get('views.patchDetails.avatars'),
+					dateFormat: configuration.get('defaultDateFormat') ?? 'MMMM Do, YYYY h:mma',
+					files: configuration.get('views.patchDetails.files'),
+					indentGuides:
+						configuration.getAny<CoreConfiguration, Preferences['indentGuides']>(
+							'workbench.tree.renderIndentGuides',
+						) ?? 'onHover',
+				},
 			});
-			this.updateState();
 		}
+
+		this.updateState();
 	}
 
 	private _selectionTrackerDisposable: Disposable | undefined;
@@ -282,65 +259,43 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 			case FileActionsCommandType.method:
 				onIpc(FileActionsCommandType, e, params => void this.showFileActions(params));
 				break;
-			// case CommitActionsCommandType.method:
-			// 	onIpc(CommitActionsCommandType, e, params => {
-			// 		switch (params.action) {
-			// 			case 'graph':
-			// 				if (this._context.commit == null) return;
-
-			// 				void executeCommand<ShowInCommitGraphCommandArgs>(Commands.ShowInCommitGraph, {
-			// 					ref: getReferenceFromRevision(this._context.commit),
-			// 				});
-			// 				break;
-			// 			case 'more':
-			// 				this.showCommitActions();
-			// 				break;
-			// 			case 'scm':
-			// 				void executeCoreCommand('workbench.view.scm');
-			// 				break;
-			// 			case 'sha':
-			// 				if (params.alt) {
-			// 					this.showCommitPicker();
-			// 				} else if (this._context.commit != null) {
-			// 					void executeCommand<CopyShaToClipboardCommandArgs>(Commands.CopyShaToClipboard, {
-			// 						sha: this._context.commit.sha,
-			// 					});
-			// 				}
-			// 				break;
-			// 		}
-			// 	});
-			// 	break;
-			// case PickCommitCommandType.method:
-			// 	onIpc(PickCommitCommandType, e, _params => this.showCommitPicker());
-			// 	break;
-			// case SearchCommitCommandType.method:
-			// 	onIpc(SearchCommitCommandType, e, _params => this.showCommitSearch());
-			// 	break;
-			// case AutolinkSettingsCommandType.method:
-			// 	onIpc(AutolinkSettingsCommandType, e, _params => this.showAutolinkSettings());
-			// 	break;
-			case PreferencesCommandType.method:
-				onIpc(PreferencesCommandType, e, params => this.updatePreferences(params));
+			case OpenInCommitGraphCommandType.method:
+				onIpc(
+					OpenInCommitGraphCommandType,
+					e,
+					params =>
+						void executeCommand<ShowInCommitGraphCommandArgs>(Commands.ShowInCommitGraph, {
+							ref: createReference(params.ref, params.repoPath, { refType: 'revision' }),
+						}),
+				);
 				break;
-			case ExplainCommitCommandType.method:
-				onIpc(ExplainCommitCommandType, e, () => this.explainCommit(e.completionId));
+			case UpdatePreferencesCommandType.method:
+				onIpc(UpdatePreferencesCommandType, e, params => this.updatePreferences(params));
+				break;
+			case ExplainCommandType.method:
+				onIpc(ExplainCommandType, e, () => this.explainPatch(e.completionId));
 		}
 	}
 
-	private explainCommit(completionId?: string) {
-		let params: DidExplainCommitParams;
-		// try {
-		// 	const summary = await this.container.ai.explainCommit(this._context.commit!, {
-		// 		progress: { location: { viewId: this.host.id } },
-		// 	});
-		// 	params = { summary: summary };
-		// } catch (ex) {
-		// 	debugger;
-		// 	params = { error: { message: ex.message } };
-		// }
-		// eslint-disable-next-line prefer-const
-		params = { error: { message: 'Not yet supported' } };
-		void this.host.notify(DidExplainCommitCommandType, params, completionId);
+	private async explainPatch(completionId?: string) {
+		if (this._context.patch == null) return;
+
+		let params: DidExplainParams;
+
+		try {
+			const commit = await this.getUnreachablePatchCommit();
+			if (commit == null) return;
+
+			const summary = await this.container.ai.explainCommit(commit, {
+				progress: { location: { viewId: this.host.id } },
+			});
+			params = { summary: summary };
+		} catch (ex) {
+			debugger;
+			params = { error: { message: ex.message } };
+		}
+
+		void this.host.notify(DidExplainCommandType, params, completionId);
 	}
 
 	private _cancellationTokenSource: CancellationTokenSource | undefined = undefined;
@@ -373,15 +328,8 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 		const state = serialize<State>({
 			webviewId: this.host.id,
 			timestamp: Date.now(),
-			// includeRichContent: false,
-			// commits: commitChoices,
-			preferences: current.preferences,
 			patch: details,
-			// autolinkedIssues: current.autolinkedIssues?.map(serializeIssueOrPullRequest),
-			// pullRequest: current.pullRequest != null ? serializePullRequest(current.pullRequest) : undefined,
-			dateFormat: current.dateFormat,
-			// indent: current.indent,
-			indentGuides: current.indentGuides,
+			preferences: current.preferences,
 		});
 		return state;
 	}
@@ -495,10 +443,8 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 		this.updateState(options?.immediate ?? true);
 	}
 
-	private updatePreferences(preferences: Preferences) {
+	private updatePreferences(preferences: UpdateablePreferences) {
 		if (
-			this._context.preferences?.avatars === preferences.avatars &&
-			this._context.preferences?.files === preferences.files &&
 			this._context.preferences?.files?.compact === preferences.files?.compact &&
 			this._context.preferences?.files?.icon === preferences.files?.icon &&
 			this._context.preferences?.files?.layout === preferences.files?.layout &&
@@ -512,13 +458,7 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 			...this._pendingContext?.preferences,
 		};
 
-		if (preferences.avatars != null && this._context.preferences?.avatars !== preferences.avatars) {
-			void configuration.updateEffective('views.patchDetails.avatars', preferences.avatars);
-
-			changes.avatars = preferences.avatars;
-		}
-
-		if (preferences.files != null && this._context.preferences?.files !== preferences.files) {
+		if (preferences.files != null) {
 			if (this._context.preferences?.files?.compact !== preferences.files?.compact) {
 				void configuration.updateEffective('views.patchDetails.files.compact', preferences.files?.compact);
 			}
@@ -645,7 +585,7 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 			};
 		});
 
-		if (patch.type === 'file') {
+		if (patchset.type === 'local' || patch.type === 'file') {
 			return {
 				type: 'local',
 				files: files,
@@ -658,10 +598,11 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 			author: {
 				name: 'You',
 				email: 'no@way.com',
-				date: new Date(),
 				avatar: undefined,
 			},
 			files: files,
+			createdAt: patchset.createdAt.getTime(),
+			updatedAt: patchset.updatedAt.getTime(),
 		};
 	}
 
@@ -689,11 +630,11 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 	private async getFileCommitFromParams(
 		params: FileActionParams,
 	): Promise<[commit: GitCommit, file: GitFileChange] | undefined> {
-		const commit = await (await this.getPatchCommit())?.getCommitForFile(params.path);
+		const commit = await (await this.getUnreachablePatchCommit())?.getCommitForFile(params.path);
 		return commit != null ? [commit, commit.file!] : undefined;
 	}
 
-	private async getPatchCommit(): Promise<GitCommit | undefined> {
+	private async getUnreachablePatchCommit(): Promise<GitCommit | undefined> {
 		let patch: GitPatch | GitCloudPatch;
 		switch (this._context.patch?.type) {
 			case 'local':
@@ -707,20 +648,20 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 		}
 
 		if (patch.repo == null) {
-			const pick = await showRepositoryPicker(
-				'Patch Repository',
+			const pick = await getRepositoryOrShowPicker(
+				'Patch Details: Select Repository',
 				'Choose which repository this patch belongs to',
 			);
 			if (pick == null) return undefined;
 
-			patch.repo = pick.item;
+			patch.repo = pick;
 		}
 
 		if (patch.baseRef == null) {
 			const pick = await showCommitPicker(
 				this.container.git.getLog(patch.repo.uri),
-				'Patch Base',
-				'Choose which base this patch was created from',
+				'Patch Details: Select Base',
+				'Choose the base which this patch was created from or should be applied to',
 			);
 			if (pick == null) return undefined;
 
@@ -738,6 +679,7 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 				patch.commit = commit;
 			} catch (ex) {
 				void window.showErrorMessage(`Unable preview the patch on base '${patch.baseRef}': ${ex.message}`);
+				patch.baseRef = undefined;
 			}
 		}
 		return patch.commit;

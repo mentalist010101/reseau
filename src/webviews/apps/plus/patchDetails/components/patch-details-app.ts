@@ -4,7 +4,7 @@ import { customElement, property, state } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { when } from 'lit/directives/when.js';
 import { ViewFilesLayout } from '../../../../../config';
-import type { PatchDetails, State } from '../../../../../plus/webviews/patchDetails/protocol';
+import type { DraftDetails, State } from '../../../../../plus/webviews/patchDetails/protocol';
 import { messageHeadlineSplitterToken } from '../../../../../plus/webviews/patchDetails/protocol';
 import type { HierarchicalItem } from '../../../../../system/array';
 import { makeHierarchical } from '../../../../../system/array';
@@ -16,26 +16,26 @@ interface ExplainState {
 }
 
 export interface ApplyPatchDetail {
-	patch: PatchDetails;
+	draft: DraftDetails;
 	target?: 'current' | 'branch' | 'worktree';
 	base?: string;
-	[key: string]: unknown;
+	// [key: string]: unknown;
 }
 
 export interface ChangePatchBaseDetail {
-	patch: PatchDetails;
-	[key: string]: unknown;
+	draft: DraftDetails;
+	// [key: string]: unknown;
 }
 
 export interface SelectPatchRepoDetail {
-	patch: PatchDetails;
+	draft: DraftDetails;
 	repoPath?: string;
-	[key: string]: unknown;
+	// [key: string]: unknown;
 }
 
 export interface ShowPatchInGraphDetail {
-	patch: PatchDetails;
-	[key: string]: unknown;
+	draft: DraftDetails;
+	// [key: string]: unknown;
 }
 
 @customElement('gl-patch-details-app')
@@ -58,7 +58,7 @@ export class GlPatchDetailsApp extends LitElement {
 	override updated(changedProperties: Map<string, any>) {
 		if (changedProperties.has('explain')) {
 			this.explainBusy = false;
-			this.querySelector('[data-region="commit-explanation"]')?.scrollIntoView();
+			this.querySelector('[data-region="ai-explanation"]')?.scrollIntoView();
 		}
 	}
 
@@ -73,11 +73,11 @@ export class GlPatchDetailsApp extends LitElement {
 	}
 
 	private renderPatchMessage() {
-		if (this.state?.patch?.message == null) {
+		if (this.state?.draft?.message == null) {
 			return undefined;
 		}
 
-		// if (this.state.patch.message == null) {
+		// if (this.state.draft.message == null) {
 		// 	return html`
 		// 		<div class="section section--message">
 		// 			<div class="message-block">
@@ -89,7 +89,7 @@ export class GlPatchDetailsApp extends LitElement {
 		// 	`;
 		// }
 
-		const message = this.state.patch.message ?? '';
+		const message = this.state.draft.message ?? '';
 		const index = message.indexOf(messageHeadlineSplitterToken);
 		return html`
 			<div class="section section--message">
@@ -123,18 +123,18 @@ export class GlPatchDetailsApp extends LitElement {
 				</action-nav>
 
 				<div class="section">
-					<p>Let AI assist in understanding the changes made with this commit.</p>
+					<p>Let AI assist in understanding the changes made with this patch.</p>
 					<p class="button-container">
 						<span class="button-group">
 							<button
 								class="button button--full button--busy"
 								type="button"
-								data-action="explain-commit"
+								data-action="ai-explain"
 								aria-busy="${this.explainBusy ? 'true' : nothing}"
 								@click=${this.onExplainChanges}
 								@keydown=${this.onExplainChanges}
 							>
-								<code-icon icon="loading" modifier="spin"></code-icon>Explain this Commit
+								<code-icon icon="loading" modifier="spin"></code-icon>Explain this Change
 							</button>
 						</span>
 					</p>
@@ -143,7 +143,7 @@ export class GlPatchDetailsApp extends LitElement {
 						() => html`
 							<div
 								class="ai-content${this.explain?.error ? ' has-error' : ''}"
-								data-region="commit-explanation"
+								data-region="ai-explanation"
 							>
 								${when(
 									this.explain?.error,
@@ -165,25 +165,25 @@ export class GlPatchDetailsApp extends LitElement {
 	}
 
 	private renderCommitStats() {
-		if (this.state?.patch?.stats?.changedFiles == null) {
+		if (this.state?.draft?.stats?.changedFiles == null) {
 			return undefined;
 		}
 
-		if (typeof this.state.patch.stats.changedFiles === 'number') {
+		if (typeof this.state.draft.stats.changedFiles === 'number') {
 			return html`<commit-stats
 				added="?"
-				modified="${this.state.patch.stats.changedFiles}"
+				modified="${this.state.draft.stats.changedFiles}"
 				removed="?"
 			></commit-stats>`;
 		}
 
-		const { added, deleted, changed } = this.state.patch.stats.changedFiles;
+		const { added, deleted, changed } = this.state.draft.stats.changedFiles;
 		return html`<commit-stats added="${added}" modified="${changed}" removed="${deleted}"></commit-stats>`;
 	}
 
 	private renderFileList() {
 		return html`<list-container>
-			${this.state.patch!.files!.map(
+			${this.state.draft!.files!.map(
 				(file: Record<string, any>) => html`
 					<file-change-list-item
 						?stash=${false}
@@ -200,7 +200,7 @@ export class GlPatchDetailsApp extends LitElement {
 
 	private renderFileTree() {
 		const tree = makeHierarchical(
-			this.state.patch!.files!,
+			this.state.draft!.files!,
 			n => n.path.split('/'),
 			(...parts: string[]) => parts.join('/'),
 			this.state.preferences?.files?.compact ?? true,
@@ -266,9 +266,9 @@ export class GlPatchDetailsApp extends LitElement {
 		let icon = 'list-tree';
 		let label = 'View as Tree';
 		let isTree = false;
-		if (this.state?.patch?.files != null) {
+		if (this.state?.draft?.files != null) {
 			if (layout === ViewFilesLayout.Auto) {
-				isTree = this.state.patch.files.length > (this.state.preferences?.files?.threshold ?? 5);
+				isTree = this.state.draft.files.length > (this.state.preferences?.files?.threshold ?? 5);
 			} else {
 				isTree = layout === ViewFilesLayout.Tree;
 			}
@@ -302,7 +302,7 @@ export class GlPatchDetailsApp extends LitElement {
 
 				<div class="change-list" data-region="files">
 					${when(
-						this.state?.patch?.files == null,
+						this.state?.draft?.files == null,
 						() => html`
 							<div class="section section--skeleton">
 								<skeleton-loader></skeleton-loader>
@@ -322,9 +322,9 @@ export class GlPatchDetailsApp extends LitElement {
 	}
 
 	renderPatches() {
-		const path = this.state.patch?.repoPath;
-		const repo = this.state.patch?.repoName;
-		const base = this.state.patch?.baseRef;
+		const path = this.state.draft?.repoPath;
+		const repo = this.state.draft?.repoName;
+		const base = this.state.draft?.baseRef;
 
 		const getActions = () => {
 			if (!repo) {
@@ -458,7 +458,7 @@ export class GlPatchDetailsApp extends LitElement {
 	}
 
 	override render() {
-		if (this.state?.patch == null) {
+		if (this.state?.draft == null) {
 			return html` <div class="commit-detail-panel scrollable">${this.renderEmptyContent()}</div>`;
 		}
 
@@ -471,7 +471,7 @@ export class GlPatchDetailsApp extends LitElement {
 								<div class="top-details__actionbar-group"></div>
 								<div class="top-details__actionbar-group">
 									${when(
-										this.state?.patch?.type === 'cloud',
+										this.state?.draft?.type === 'cloud',
 										() => html`
 											<a class="commit-action" href="#">
 												<code-icon icon="link"></code-icon>
@@ -492,16 +492,16 @@ export class GlPatchDetailsApp extends LitElement {
 								</div>
 							</div>
 							${when(
-								this.state.patch?.type === 'cloud' && this.state.patch?.author != null,
+								this.state.draft?.type === 'cloud' && this.state.draft?.author != null,
 								() => html`
 									<ul class="top-details__authors" aria-label="Authors">
 										<li class="top-details__author" data-region="author">
 											<commit-identity
-												name="${this.state.patch!.author!.name}"
-												email="${this.state.patch!.author!.email}"
-												date=${new Date(this.state.patch!.createdAt!)}
+												name="${this.state.draft!.author!.name}"
+												email="${this.state.draft!.author!.email}"
+												date=${new Date(this.state.draft!.createdAt!)}
 												dateFormat="${this.state.preferences.dateFormat}"
-												avatarUrl="${this.state.patch!.author!.avatar ?? ''}"
+												avatarUrl="${this.state.draft!.author!.avatar ?? ''}"
 												?showavatar=${this.state.preferences?.avatars ?? true}
 											></commit-identity>
 										</li>
@@ -534,7 +534,7 @@ export class GlPatchDetailsApp extends LitElement {
 	onApplyPatch(e?: MouseEvent | KeyboardEvent, target: 'current' | 'branch' | 'worktree' = 'current') {
 		const evt = new CustomEvent<ApplyPatchDetail>('apply-patch', {
 			detail: {
-				patch: this.state.patch!,
+				draft: this.state.draft!,
 				target: target,
 			},
 		});
@@ -551,7 +551,7 @@ export class GlPatchDetailsApp extends LitElement {
 	onChangePatchBase(_e: MouseEvent | KeyboardEvent) {
 		const evt = new CustomEvent<ChangePatchBaseDetail>('change-patch-base', {
 			detail: {
-				patch: this.state.patch!,
+				draft: this.state.draft!,
 			},
 		});
 		this.dispatchEvent(evt);
@@ -560,7 +560,7 @@ export class GlPatchDetailsApp extends LitElement {
 	onSelectPatchRepo(_e: MouseEvent | KeyboardEvent) {
 		const evt = new CustomEvent<SelectPatchRepoDetail>('select-patch-repo', {
 			detail: {
-				patch: this.state.patch!,
+				draft: this.state.draft!,
 			},
 		});
 		this.dispatchEvent(evt);
@@ -569,7 +569,7 @@ export class GlPatchDetailsApp extends LitElement {
 	onShowInGraph(_e: MouseEvent | KeyboardEvent) {
 		const evt = new CustomEvent<ShowPatchInGraphDetail>('graph-show-patch', {
 			detail: {
-				patch: this.state.patch!,
+				draft: this.state.draft!,
 			},
 		});
 		this.dispatchEvent(evt);

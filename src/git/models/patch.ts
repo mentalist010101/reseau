@@ -3,12 +3,6 @@ import type { GitCommit } from './commit';
 import type { GitDiffFiles } from './diff';
 import type { Repository } from './repository';
 
-export interface LocalPatch {
-	readonly type: 'local';
-
-	patch: GitPatch;
-}
-
 export interface GitPatch {
 	readonly type: 'file';
 	readonly id?: undefined;

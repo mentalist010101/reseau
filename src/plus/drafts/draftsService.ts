@@ -2,24 +2,30 @@ import fetch from 'node-fetch';
 import type { Disposable } from 'vscode';
 import { Uri } from 'vscode';
 import type { Container } from '../../container';
-import type { GitCloudPatch } from '../../git/models/patch';
+import type { GitCloudPatch, GitPatch } from '../../git/models/patch';
 import type { Repository } from '../../git/models/repository';
 import { getSettledValue } from '../../system/promise';
 import type { ServerConnection } from '../gk/serverConnection';
 
 export const nonexistingChangesetId = '00000000-0000-0000-0000-000000000000';
 
-export interface CloudPatch extends CloudPatchBase {
+export interface LocalDraft {
+	readonly type: 'local';
+
+	patch: GitPatch;
+}
+
+export interface Draft extends DraftBase {
 	readonly user?: {
 		readonly id: string;
 		readonly name: string;
 		readonly email: string;
 	};
 
-	readonly changesets: CloudPatchChangeset[];
+	readonly changesets: DraftChangeset[];
 }
 
-export interface CloudPatchChangeset {
+export interface DraftChangeset {
 	readonly id: string;
 	// readonly linkUrl: string; TODO add this once the backend actually supports it
 	readonly createdAt: Date;
@@ -31,7 +37,7 @@ export interface CloudPatchChangeset {
 	readonly userId?: string;
 }
 
-export interface CloudPatchBase {
+export interface DraftBase {
 	readonly type: 'cloud';
 
 	readonly id: string;
@@ -45,7 +51,7 @@ export interface CloudPatchBase {
 	readonly organizationId?: string;
 }
 
-export interface CloudPatchData {
+export interface DraftData {
 	id: string;
 	draftId: string;
 	gitProfileId: string;
@@ -54,7 +60,7 @@ export interface CloudPatchData {
 	contents: string;
 }
 
-export interface CloudPatchResponse {
+interface DraftResponse {
 	id: string;
 	draftId: string;
 	gitProfileId?: string;
@@ -62,7 +68,7 @@ export interface CloudPatchResponse {
 	gitBranchName?: string;
 }
 
-export class CloudPatchService implements Disposable {
+export class DraftService implements Disposable {
 	// private _disposable: Disposable;
 	// private _subscription: Subscription | undefined;
 
@@ -88,7 +94,7 @@ export class CloudPatchService implements Disposable {
 	// 	return this._subscription;
 	// }
 
-	async create(repository: Repository, baseSha: string, contents: string): Promise<CloudPatch | undefined> {
+	async create(repository: Repository, baseSha: string, contents: string): Promise<Draft | undefined> {
 		// const subscription = await this.ensureSubscription();
 		// if (subscription.account == null) return undefined;
 
@@ -183,7 +189,7 @@ export class CloudPatchService implements Disposable {
 		};
 	}
 
-	async get(id: string): Promise<CloudPatch | undefined> {
+	async get(id: string): Promise<Draft | undefined> {
 		const draftResponse = await this.connection.fetch(
 			Uri.joinPath(this.connection.baseGkApiUri, `v1/drafts/${id}`).toString(),
 			{
@@ -209,7 +215,7 @@ export class CloudPatchService implements Disposable {
 	}
 
 	// TODO: This call is 404ing...maybe it's not implemented yet?
-	async getChangesets(id: string): Promise<CloudPatchChangeset[] | undefined> {
+	async getChangesets(id: string): Promise<DraftChangeset[] | undefined> {
 		const changesetsResponse = await this.connection.fetch(
 			Uri.joinPath(this.connection.baseGkApiUri, `/v1/drafts/${id}/changesets`).toString(),
 			{
@@ -218,7 +224,7 @@ export class CloudPatchService implements Disposable {
 		);
 
 		const changesetsData = (await changesetsResponse.json()).data;
-		return changesetsData.map((changesetData: any): CloudPatchChangeset => {
+		return changesetsData.map((changesetData: any): DraftChangeset => {
 			const { id, createdAt, updatedAt, draftId, gitProfileId, parentChangesetId, patches } = changesetData;
 			return {
 				id: id,
@@ -229,10 +235,10 @@ export class CloudPatchService implements Disposable {
 				parentChangesetId: parentChangesetId,
 				patches: patches,
 			};
-		}) as CloudPatchChangeset[];
+		}) as DraftChangeset[];
 	}
 
-	async getPatches(id: string, options?: { includeContents?: boolean }): Promise<CloudPatchData[] | undefined> {
+	async getPatches(id: string, options?: { includeContents?: boolean }): Promise<DraftData[] | undefined> {
 		const patchesResponse = await this.connection.fetch(
 			Uri.joinPath(this.connection.baseGkApiUri, `/v1/drafts/${id}/patches`).toString(),
 			{
@@ -240,9 +246,9 @@ export class CloudPatchService implements Disposable {
 			},
 		);
 
-		const patchesData: CloudPatchResponse[] = (await patchesResponse.json()).data;
+		const patchesData: DraftResponse[] = (await patchesResponse.json()).data;
 		const patches = await Promise.allSettled(
-			patchesData.map(async (patchData: any): Promise<CloudPatchData> => {
+			patchesData.map(async (patchData: any): Promise<DraftData> => {
 				const { draftId, gitProfileId, gitRepositoryName, gitBranchName } = patchData;
 				const { url, method, headers } = patchData.secureDownloadData;
 				let contents = '';
@@ -271,10 +277,10 @@ export class CloudPatchService implements Disposable {
 			}),
 		);
 
-		return patches.map(patch => getSettledValue(patch)) as CloudPatchData[];
+		return patches.map(patch => getSettledValue(patch)) as DraftData[];
 	}
 
-	async getPatch(id: string): Promise<CloudPatchData | undefined> {
+	async getPatch(id: string): Promise<DraftData | undefined> {
 		const patchResponse = await this.connection.fetch(
 			Uri.joinPath(this.connection.baseGkApiUri, `/v1/patches/${id}`).toString(),
 			{

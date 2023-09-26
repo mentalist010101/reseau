@@ -21,10 +21,10 @@ import { GitLabAuthenticationProvider } from './git/remotes/gitlab';
 import { RichRemoteProviderService } from './git/remotes/remoteProviderService';
 import { LineHoverController } from './hovers/lineHoverController';
 import type { RepositoryPathMappingProvider } from './pathMapping/repositoryPathMappingProvider';
+import { DraftService } from './plus/drafts/draftsService';
 import { AccountAuthenticationProvider } from './plus/gk/authenticationProvider';
 import { ServerConnection } from './plus/gk/serverConnection';
 import { IntegrationAuthenticationService } from './plus/integrationAuthentication';
-import { CloudPatchService } from './plus/patches/cloudPatchService';
 import { SubscriptionService } from './plus/subscription/subscriptionService';
 import { registerAccountWebviewView } from './plus/webviews/account/registration';
 import { registerFocusWebviewPanel } from './plus/webviews/focus/registration';
@@ -368,17 +368,12 @@ export class Container {
 		return this._cache;
 	}
 
-	private _cloudPatches: CloudPatchService | undefined;
-	get cloudPatches() {
-		if (this._cloudPatches == null) {
-			this._disposables.push((this._cloudPatches = new CloudPatchService(this, this._connection)));
+	private _drafts: DraftService | undefined;
+	get drafts() {
+		if (this._drafts == null) {
+			this._disposables.push((this._drafts = new DraftService(this, this._connection)));
 		}
-		return this._cloudPatches;
-	}
-
-	private readonly _patchDetailsView: WebviewViewProxy;
-	get patchDetailsView() {
-		return this._patchDetailsView;
+		return this._drafts;
 	}
 
 	private readonly _codeLensController: GitCodeLensController;
@@ -555,6 +550,11 @@ export class Container {
 	private readonly _lineTracker: GitLineTracker;
 	get lineTracker() {
 		return this._lineTracker;
+	}
+
+	private readonly _patchDetailsView: WebviewViewProxy;
+	get patchDetailsView() {
+		return this._patchDetailsView;
 	}
 
 	private readonly _prerelease;

@@ -11,7 +11,7 @@ export const messageHeadlineSplitterToken = '\x00\n\x00';
 
 export type FileShowOptions = TextDocumentShowOptions;
 
-interface LocalPatchDetails {
+interface LocalDraftDetails {
 	type: 'local';
 
 	message?: string;
@@ -26,7 +26,7 @@ interface LocalPatchDetails {
 	baseRef?: string;
 }
 
-interface CloudPatchDetails {
+interface CloudDraftDetails {
 	type: 'cloud';
 
 	message?: string;
@@ -45,7 +45,7 @@ interface CloudPatchDetails {
 	baseRef?: string;
 }
 
-export type PatchDetails = LocalPatchDetails | CloudPatchDetails;
+export type DraftDetails = LocalDraftDetails | CloudDraftDetails;
 
 export interface Preferences {
 	avatars: boolean;
@@ -60,7 +60,7 @@ export interface State {
 	webviewId: WebviewIds | WebviewViewIds;
 	timestamp: number;
 
-	patch?: PatchDetails;
+	draft?: DraftDetails;
 	preferences: Preferences;
 }
 

@@ -2,9 +2,8 @@ import type { TextEditor } from 'vscode';
 import { env, window, workspace } from 'vscode';
 import { Commands } from '../constants';
 import type { Container } from '../container';
-import type { LocalPatch } from '../git/models/patch';
-import { showPatchesView } from '../plus/patches/actions';
-import type { CloudPatch, CloudPatchData } from '../plus/patches/cloudPatchService';
+import { showPatchesView } from '../plus/drafts/actions';
+import type { Draft, DraftData, LocalDraft } from '../plus/drafts/draftsService';
 import { getRepositoryOrShowPicker } from '../quickpicks/repositoryPicker';
 import { command } from '../system/command';
 import type { CommandContext } from './base';
@@ -115,11 +114,11 @@ export class CreateCloudPatchCommand extends Command {
 		const d = await workspace.openTextDocument({ content: diff.contents, language: 'diff' });
 		await window.showTextDocument(d);
 
-		const patch = await this.container.cloudPatches.create(repo, diff.baseSha, diff.contents);
+		const patch = await this.container.drafts.create(repo, diff.baseSha, diff.contents);
 		void this.showPatchNotification(patch);
 	}
 
-	private async showPatchNotification(patch: CloudPatch | undefined) {
+	private async showPatchNotification(patch: Draft | undefined) {
 		if (patch == null) return;
 
 		await env.clipboard.writeText(patch.linkUrl);
@@ -159,7 +158,7 @@ export class OpenPatchCommand extends ActiveEditorCommand {
 			await window.showTextDocument(document);
 		}
 
-		const patch: LocalPatch = {
+		const patch: LocalDraft = {
 			type: 'local',
 			patch: {
 				type: 'file',
@@ -196,17 +195,17 @@ export class OpenCloudPatchCommand extends Command {
 			return;
 		}
 
-		const cloudPatch = await this.container.cloudPatches.get(args?.id);
-		if (cloudPatch == null) {
+		const draft = await this.container.drafts.get(args?.id);
+		if (draft == null) {
 			void window.showErrorMessage(`Cannot open cloud patch: patch ${args.id} not found`);
 			return;
 		}
 
-		let patch: CloudPatchData | undefined;
+		let patch: DraftData | undefined;
 		if (args?.patchId) {
-			patch = await this.container.cloudPatches.getPatch(args.patchId);
+			patch = await this.container.drafts.getPatch(args.patchId);
 		} else {
-			const patches = await this.container.cloudPatches.getPatches(cloudPatch.id);
+			const patches = await this.container.drafts.getPatches(draft.id);
 
 			if (patches == null || patches.length === 0) {
 				void window.showErrorMessage(`Cannot open cloud patch: no patch found under id ${args.patchId}`);
@@ -215,7 +214,7 @@ export class OpenCloudPatchCommand extends Command {
 
 			patch = patches[0];
 
-			const patchContents = await this.container.cloudPatches.getPatchContents(patch.id);
+			const patchContents = await this.container.drafts.getPatchContents(patch.id);
 			if (patchContents == null) {
 				void window.showErrorMessage(`Cannot open cloud patch: patch not found of contents empty`);
 				return;
@@ -228,6 +227,6 @@ export class OpenCloudPatchCommand extends Command {
 			return;
 		}
 
-		void showPatchesView(cloudPatch);
+		void showPatchesView(draft);
 	}
 }

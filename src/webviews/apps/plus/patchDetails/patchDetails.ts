@@ -73,8 +73,8 @@ export class PatchDetailsApp extends App<Serialized<State>> {
 				this.onFileMoreActions(e.detail),
 			),
 			DOM.on('[data-switch-value]', 'click', e => this.onToggleFilesLayout(e)),
-			DOM.on('[data-action="explain-commit"]', 'click', e => this.onExplainCommit(e)),
-			DOM.on('[data-action="switch-ai"]', 'click', e => this.onSwitchAiModel(e)),
+			DOM.on('[data-action="ai-explain"]', 'click', e => this.onAIExplain(e)),
+			DOM.on('[data-action="switch-ai"]', 'click', e => this.onSwitchAIModel(e)),
 			DOM.on<GlPatchDetailsApp, ApplyPatchDetail>('gl-patch-details-app', 'apply-patch', e =>
 				this.onApplyPatch(e.detail),
 			),
@@ -156,11 +156,11 @@ export class PatchDetailsApp extends App<Serialized<State>> {
 		this.sendCommand(ExecuteCommandType, { command: command });
 	}
 
-	private onSwitchAiModel(_e: MouseEvent) {
+	private onSwitchAIModel(_e: MouseEvent) {
 		this.onCommandClickedCore('gitlens.switchAIModel');
 	}
 
-	async onExplainCommit(_e: MouseEvent) {
+	async onAIExplain(_e: MouseEvent) {
 		try {
 			const result = await this.sendCommandWithCompletion(ExplainCommandType, undefined, DidExplainCommandType);
 

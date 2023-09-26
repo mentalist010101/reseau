@@ -27,14 +27,12 @@ import {
 export class DeepLinkService implements Disposable {
 	private readonly _disposables: Disposable[] = [];
 	private _context: DeepLinkServiceContext;
-	private readonly _onDeepLinkProgressUpdated: EventEmitter<DeepLinkProgress>;
+	private readonly _onDeepLinkProgressUpdated = new EventEmitter<DeepLinkProgress>();
 
 	constructor(private readonly container: Container) {
 		this._context = {
 			state: DeepLinkServiceState.Idle,
 		};
-
-		this._onDeepLinkProgressUpdated = new EventEmitter<DeepLinkProgress>();
 
 		this._disposables.push(
 			container.uri.onDidReceiveUri(async (uri: Uri) => {

@@ -4690,6 +4690,11 @@
 				"category": "GitLens"
 			},
 			{
+				"command": "gitlens.createCloudPatch",
+				"title": "Create Cloud Patch...",
+				"category": "GitLens"
+			},
+			{
 				"command": "gitlens.openPatch",
 				"title": "Open Patch...",
 				"category": "GitLens"
@@ -8056,6 +8061,10 @@
 				{
 					"command": "gitlens.createPatch",
 					"when": "gitlens:enabled"
+				},
+				{
+					"command": "gitlens.createCloudPatch",
+					"when": "gitlens:enabled && gitlens:plus"
 				},
 				{
 					"command": "gitlens.openPatch",
@@ -11772,9 +11781,14 @@
 					"group": "1_gitlens_actions_1@2"
 				},
 				{
+					"command": "gitlens.createCloudPatch",
+					"when": "!gitlens:untrusted && !gitlens:hasVirtualFolders && gitlens:plus && viewItem =~ /gitlens:(commit|stash)\\b/",
+					"group": "1_gitlens_actions_1@3"
+				},
+				{
 					"command": "gitlens.views.createTag",
 					"when": "!gitlens:readonly && !gitlens:untrusted && !gitlens:hasVirtualFolders && viewItem =~ /gitlens:commit\\b/",
-					"group": "1_gitlens_actions_1@2"
+					"group": "1_gitlens_actions_1@4"
 				},
 				{
 					"submenu": "gitlens/commit/changes",
@@ -12569,6 +12583,11 @@
 					"command": "gitlens.createPatch",
 					"when": "!gitlens:untrusted && !gitlens:hasVirtualFolders && viewItem =~ /gitlens:compare:results(?!:)\\b/",
 					"group": "1_gitlens_secondary_actions@1"
+				},
+				{
+					"command": "gitlens.createCloudPatch",
+					"when": "!gitlens:untrusted && !gitlens:hasVirtualFolders && gitlens:plus && viewItem =~ /gitlens:compare:results(?!:)\\b/",
+					"group": "1_gitlens_secondary_actions@2"
 				},
 				{
 					"command": "gitlens.views.openDirectoryDiff",

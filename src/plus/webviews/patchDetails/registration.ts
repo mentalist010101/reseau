@@ -7,7 +7,7 @@ export function registerPatchDetailsWebviewView(controller: WebviewsController) 
 		{
 			id: 'gitlens.views.patchDetails',
 			fileName: 'patchDetails.html',
-			title: 'Patch Details',
+			title: 'Patch',
 			contextKeyPrefix: `gitlens:webviewView:patchDetails`,
 			trackingFeature: 'patchDetailsView',
 			plusFeature: true,

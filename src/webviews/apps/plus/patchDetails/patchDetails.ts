@@ -189,11 +189,7 @@ export class PatchDetailsApp extends App<Serialized<State>> {
 			icon: this.state.preferences.files.icon ?? 'type',
 		};
 
-		this.state.preferences = {
-			...this.state.preferences,
-			files: files,
-		};
-
+		this.state = { ...this.state, preferences: { ...this.state.preferences, files: files } };
 		this.attachState();
 
 		this.sendCommand(UpdatePreferencesCommandType, { files: files });

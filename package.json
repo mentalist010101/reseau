@@ -13045,9 +13045,19 @@
 					"group": "1_gitlens_actions_1@1"
 				},
 				{
+					"command": "gitlens.createPatch",
+					"when": "!gitlens:untrusted && !gitlens:hasVirtualFolders && webviewItem =~ /gitlens:(commit|stash)\\b/",
+					"group": "1_gitlens_actions_1@2"
+				},
+				{
+					"command": "gitlens.createCloudPatch",
+					"when": "!gitlens:untrusted && !gitlens:hasVirtualFolders && gitlens:plus && webviewItem =~ /gitlens:(commit|stash)\\b/",
+					"group": "1_gitlens_actions_1@3"
+				},
+				{
 					"command": "gitlens.graph.createTag",
 					"when": "!gitlens:readonly && !gitlens:untrusted && !gitlens:hasVirtualFolders && webviewItem =~ /gitlens:commit\\b/",
-					"group": "1_gitlens_actions_1@2"
+					"group": "1_gitlens_actions_1@4"
 				},
 				{
 					"submenu": "gitlens/graph/commit/changes",
@@ -13501,9 +13511,19 @@
 					"group": "1_gitlens_secondary_actions@1"
 				},
 				{
+					"command": "gitlens.createPatch",
+					"when": "!gitlens:untrusted && !gitlens:hasVirtualFolders && viewItem =~ /gitlens:file\\b(?=.*?\\b\\+committed\\b)/",
+					"group": "1_gitlens_secondary_actions@2"
+				},
+				{
+					"command": "gitlens.createCloudPatch",
+					"when": "!gitlens:untrusted && !gitlens:hasVirtualFolders && gitlens:plus && viewItem =~ /gitlens:file\\b(?=.*?\\b\\+committed\\b)/",
+					"group": "1_gitlens_secondary_actions@3"
+				},
+				{
 					"command": "gitlens.views.createTag",
 					"when": "!gitlens:readonly && !gitlens:untrusted && !gitlens:hasVirtualFolders && viewItem =~ /gitlens:file\\b(?=.*?\\b\\+committed\\b)/",
-					"group": "1_gitlens_secondary_actions@2"
+					"group": "1_gitlens_secondary_actions@4"
 				}
 			],
 			"gitlens/commit/file/changes": [
@@ -14538,8 +14558,8 @@
 					"icon": "$(gitlens-gitlens-inspect)"
 				},
 				{
-					"id": "gitlensPatches",
-					"title": "GitLens Patches",
+					"id": "gitlensPatch",
+					"title": "Patch",
 					"icon": "$(cloud)"
 				}
 			],
@@ -14569,7 +14589,7 @@
 			},
 			{
 				"view": "gitlens.views.drafts",
-				"contents": "Cloud Patches allow you to easily share code with your teamates, accessible from anywhere, streamlining your workflow with better collaboration."
+				"contents": "Cloud Patches allow you to easily and securely share code with your teammates or other developers, accessible from anywhere, streamlining your workflow with better collaboration."
 			},
 			{
 				"view": "gitlens.views.drafts",
@@ -14802,16 +14822,15 @@
 					"visibility": "collapsed"
 				}
 			],
-			"gitlensPatches": [
+			"gitlensPatch": [
 				{
 					"type": "webview",
 					"id": "gitlens.views.patchDetails",
-					"name": "Patch Details",
+					"name": "Patch",
 					"when": "!gitlens:disabled",
 					"contextualTitle": "GL",
 					"icon": "$(gitlens-commit-view)",
-					"initialSize": 6,
-					"visibility": "hidden"
+					"initialSize": 6
 				}
 			]
 		},

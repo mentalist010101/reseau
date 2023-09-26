@@ -225,9 +225,8 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 						) ?? 'onHover',
 				},
 			});
+			this.updateState();
 		}
-
-		this.updateState();
 	}
 
 	private _selectionTrackerDisposable: Disposable | undefined;
@@ -482,6 +481,7 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 		}
 
 		this.updatePendingContext({ preferences: changes });
+		this.updateState();
 	}
 
 	private updatePendingContext(context: Partial<Context>, force: boolean = false): boolean {

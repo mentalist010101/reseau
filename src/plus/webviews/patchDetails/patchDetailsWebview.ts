@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/require-await */
 import type {
-	CancellationToken,
 	CancellationTokenSource,
 	ConfigurationChangeEvent,
 	Disposable,
@@ -8,8 +7,6 @@ import type {
 	ViewColumn,
 } from 'vscode';
 import { Uri, window } from 'vscode';
-import { serializeAutolink } from '../../../annotations/autolinks';
-import type { CopyShaToClipboardCommandArgs } from '../../../commands';
 import type { CoreConfiguration } from '../../../constants';
 import { Commands } from '../../../constants';
 import type { Container } from '../../../container';
@@ -22,57 +19,36 @@ import {
 	openFileOnRemote,
 	showDetailsQuickPick,
 } from '../../../git/actions/commit';
-import { CommitFormatter } from '../../../git/formatters/commitFormatter';
 import type { GitCommit } from '../../../git/models/commit';
-import { isCommit } from '../../../git/models/commit';
 import type { GitFileChange } from '../../../git/models/file';
 import { getGitFileStatusIcon } from '../../../git/models/file';
-import type { IssueOrPullRequest } from '../../../git/models/issue';
 import type { GitCloudPatch, GitPatch, LocalPatch } from '../../../git/models/patch';
-import type { PullRequest } from '../../../git/models/pullRequest';
-import type { GitRevisionReference } from '../../../git/models/reference';
-import { getReferenceFromRevision, shortenRevision } from '../../../git/models/reference';
-import type { GitRemote } from '../../../git/models/remote';
-import { executeCommand, executeCoreCommand, registerCommand } from '../../../system/command';
+import { executeCommand, registerCommand } from '../../../system/command';
 import { configuration } from '../../../system/configuration';
-import { getContext } from '../../../system/context';
 import type { DateTimeFormat } from '../../../system/date';
 import { debug } from '../../../system/decorators/log';
 import type { Deferrable } from '../../../system/function';
 import { debounce } from '../../../system/function';
-import { map, union } from '../../../system/iterable';
 import { Logger } from '../../../system/logger';
 import { getLogScope } from '../../../system/logger.scope';
-import { MRU } from '../../../system/mru';
-import type { PromiseCancelledError } from '../../../system/promise';
-import { getSettledValue } from '../../../system/promise';
 import type { Serialized } from '../../../system/serialize';
 import { serialize } from '../../../system/serialize';
 import type { IpcMessage } from '../../../webviews/protocol';
 import { onIpc } from '../../../webviews/protocol';
 import type { WebviewController, WebviewProvider } from '../../../webviews/webviewController';
 import { updatePendingContext } from '../../../webviews/webviewController';
-import { isSerializedState } from '../../../webviews/webviewsController';
 import type { CloudPatch } from '../../patches/cloudPatchService';
-import type { ShowInCommitGraphCommandArgs } from '../graph/protocol';
 import type { DidExplainCommitParams, FileActionParams, PatchDetails, Preferences, State } from './protocol';
 import {
-	AutolinkSettingsCommandType,
-	CommitActionsCommandType,
 	DidChangeNotificationType,
 	DidExplainCommitCommandType,
 	ExplainCommitCommandType,
 	FileActionsCommandType,
-	messageHeadlineSplitterToken,
-	NavigateCommitCommandType,
 	OpenFileCommandType,
 	OpenFileComparePreviousCommandType,
 	OpenFileCompareWorkingCommandType,
 	OpenFileOnRemoteCommandType,
-	PickCommitCommandType,
-	PinCommitCommandType,
 	PreferencesCommandType,
-	SearchCommitCommandType,
 } from './protocol';
 
 interface Context {
@@ -729,26 +705,26 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 		// };
 	}
 
-	private getFormattedMessage(
-		commit: GitCommit,
-		remote: GitRemote | undefined,
-		issuesOrPullRequests?: Map<string, IssueOrPullRequest | PromiseCancelledError | undefined>,
-	) {
-		let message = CommitFormatter.fromTemplate(`\${message}`, commit);
-		const index = message.indexOf('\n');
-		if (index !== -1) {
-			message = `${message.substring(0, index)}${messageHeadlineSplitterToken}${message.substring(index + 1)}`;
-		}
+	// private getFormattedMessage(
+	// 	commit: GitCommit,
+	// 	remote: GitRemote | undefined,
+	// 	issuesOrPullRequests?: Map<string, IssueOrPullRequest | PromiseCancelledError | undefined>,
+	// ) {
+	// 	let message = CommitFormatter.fromTemplate(`\${message}`, commit);
+	// 	const index = message.indexOf('\n');
+	// 	if (index !== -1) {
+	// 		message = `${message.substring(0, index)}${messageHeadlineSplitterToken}${message.substring(index + 1)}`;
+	// 	}
 
-		if (!configuration.get('views.patchDetails.autolinks.enabled')) return message;
+	// 	if (!configuration.get('views.patchDetails.autolinks.enabled')) return message;
 
-		return this.container.autolinks.linkify(
-			message,
-			'html',
-			remote != null ? [remote] : undefined,
-			issuesOrPullRequests,
-		);
-	}
+	// 	return this.container.autolinks.linkify(
+	// 		message,
+	// 		'html',
+	// 		remote != null ? [remote] : undefined,
+	// 		issuesOrPullRequests,
+	// 	);
+	// }
 
 	private async getFileCommitFromParams(
 		params: FileActionParams,

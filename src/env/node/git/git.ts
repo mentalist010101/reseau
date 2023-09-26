@@ -389,12 +389,13 @@ export class Git {
 		return this.git<string>({ cwd: repoPath, stdin: patch }, ...params);
 	}
 
-	async apply__stats(
+	async apply2(
 		repoPath: string,
 		options?: {
 			cancellation?: CancellationToken;
 			configs?: readonly string[];
 			errors?: GitErrorHandling;
+			env?: Record<string, unknown>;
 			stdin?: string;
 		},
 		...args: string[]
@@ -404,6 +405,7 @@ export class Git {
 				cwd: repoPath,
 				cancellation: options?.cancellation,
 				configs: options?.configs ?? gitLogDefaultConfigs,
+				env: options?.env,
 				errors: options?.errors,
 				stdin: options?.stdin,
 			},

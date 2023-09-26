@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/require-await */
 import type {
 	CancellationTokenSource,
 	ConfigurationChangeEvent,
@@ -109,11 +108,11 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 		void this.notifyDidChangeState(true);
 	}
 
-	async onShowing(
+	onShowing(
 		_loading: boolean,
 		options: { column?: ViewColumn; preserveFocus?: boolean },
 		...args: [Partial<PatchSelectedEvent['data']> | { state: Partial<Serialized<State>> }] | unknown[]
-	): Promise<boolean> {
+	): boolean {
 		let data: Partial<PatchSelectedEvent['data']> | undefined;
 
 		const [arg] = args;
@@ -152,7 +151,7 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 		}
 
 		if (patch != null) {
-			await this.updatePatch(patch);
+			this.updatePatch(patch);
 		}
 
 		if (data?.preserveVisibility && !this.host.visible) return false;
@@ -265,7 +264,7 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 
 	onRefresh(_force?: boolean | undefined): void {
 		const patch = this._pendingContext?.patch;
-		void this.updatePatch(patch, { immediate: false });
+		this.updatePatch(patch, { immediate: false });
 	}
 
 	onMessageReceived(e: IpcMessage) {
@@ -334,7 +333,7 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 		}
 	}
 
-	private async explainCommit(completionId?: string) {
+	private explainCommit(completionId?: string) {
 		let params: DidExplainCommitParams;
 		// try {
 		// 	const summary = await this.container.ai.explainCommit(this._context.commit!, {
@@ -457,7 +456,7 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 
 	private _commitDisposable: Disposable | undefined;
 
-	private async updatePatch(
+	private updatePatch(
 		patch: LocalPatch | CloudPatch | undefined,
 		options?: { force?: boolean; immediate?: boolean },
 	) {
@@ -614,97 +613,61 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 	// 	return commit;
 	// }
 
-	private async getDetailsModel(patch: LocalPatch | CloudPatch, formattedMessage?: string): Promise<PatchDetails> {
-		if (patch.type === 'local') {
-			if (patch.patch.files == null) {
-				setTimeout(async () => {
-					const files = await this.container.git.getDiffFiles('', patch.patch.contents);
-					patch.patch.files = files?.files;
+	// eslint-disable-next-line @typescript-eslint/require-await
+	private async getDetailsModel(patchset: LocalPatch | CloudPatch): Promise<PatchDetails> {
+		let patch: GitPatch | GitCloudPatch;
+		if (patchset.type === 'local') {
+			patch = patchset.patch;
+		} else {
+			patch = patchset.changesets[0].patches[0];
+		}
 
-					this.updatePendingContext({ patch: patch }, true);
-					this.updateState();
-				}, 1);
-			}
+		if (patch.files == null) {
+			setTimeout(async () => {
+				const files = await this.container.git.getDiffFiles('', patch.contents);
+				patch.files = files?.files;
 
+				this.updatePendingContext({ patch: patchset }, true);
+				this.updateState();
+			}, 1);
+		}
+
+		const files = patch.files?.map(({ status, repoPath, path, originalPath }) => {
+			const icon = getGitFileStatusIcon(status);
+			return {
+				path: path,
+				originalPath: originalPath,
+				status: status,
+				repoPath: repoPath,
+				icon: {
+					dark: this.host
+						.asWebviewUri(Uri.joinPath(this.host.getRootUri(), 'images', 'dark', icon))
+						.toString(),
+					light: this.host
+						.asWebviewUri(Uri.joinPath(this.host.getRootUri(), 'images', 'light', icon))
+						.toString(),
+				},
+			};
+		});
+
+		if (patch.type === 'file') {
 			return {
 				type: 'local',
-				files: patch.patch.files?.map(({ status, repoPath, path, originalPath }) => {
-					const icon = getGitFileStatusIcon(status);
-					return {
-						path: path,
-						originalPath: originalPath,
-						status: status,
-						repoPath: repoPath,
-						icon: {
-							dark: this.host
-								.asWebviewUri(Uri.joinPath(this.host.getRootUri(), 'images', 'dark', icon))
-								.toString(),
-							light: this.host
-								.asWebviewUri(Uri.joinPath(this.host.getRootUri(), 'images', 'light', icon))
-								.toString(),
-						},
-					};
-				}),
+				files: files,
 			};
 		}
+
 		return {
-			type: 'local',
-			files: undefined,
+			type: 'cloud',
+			repoPath: patch.repo.path,
+			author: {
+				name: 'You',
+				email: 'no@way.com',
+				date: new Date(),
+				avatar: undefined,
+			},
+			files: files,
 		};
-
-		// const [commitResult, avatarUriResult, remoteResult] = await Promise.allSettled([
-		// 	!patch.hasFullDetails() ? patch.ensureFullDetails().then(() => patch) : patch,
-		// 	patch.author.getAvatarUri(patch, { size: 32 }),
-		// 	this.container.git.getBestRemoteWithRichProvider(patch.repoPath, { includeDisconnected: true }),
-		// ]);
-
-		// patch = getSettledValue(commitResult, patch);
-		// const avatarUri = getSettledValue(avatarUriResult);
-		// const remote = getSettledValue(remoteResult);
-
-		// if (formattedMessage == null) {
-		// 	formattedMessage = this.getFormattedMessage(patch, remote);
-		// }
-
-		// let autolinks;
-		// if (patch.message != null) {
-		// 	const customAutolinks = this.container.autolinks.getAutolinks(patch.message);
-		// 	if (remote != null) {
-		// 		const providerAutolinks = this.container.autolinks.getAutolinks(patch.message, remote);
-		// 		autolinks = new Map(union(providerAutolinks, customAutolinks));
-		// 	} else {
-		// 		autolinks = customAutolinks;
-		// 	}
-		// }
-
-		// return {
-		// 	repoPath: patch.repoPath,
-		// 	sha: patch.sha,
-		// 	shortSha: patch.shortSha,
-		// 	author: { ...patch.author, avatar: avatarUri?.toString(true) },
-		// 	// committer: { ...commit.committer, avatar: committerAvatar?.toString(true) },
-		// 	message: formattedMessage,
-		// 	stashNumber: patch.refType === 'stash' ? patch.number : undefined,
-		// 	files: patch.files?.map(({ status, repoPath, path, originalPath }) => {
-		// 		const icon = getGitFileStatusIcon(status);
-		// 		return {
-		// 			path: path,
-		// 			originalPath: originalPath,
-		// 			status: status,
-		// 			repoPath: repoPath,
-		// 			icon: {
-		// 				dark: this.host
-		// 					.asWebviewUri(Uri.joinPath(this.host.getRootUri(), 'images', 'dark', icon))
-		// 					.toString(),
-		// 				light: this.host
-		// 					.asWebviewUri(Uri.joinPath(this.host.getRootUri(), 'images', 'light', icon))
-		// 					.toString(),
-		// 			},
-		// 		};
-		// 	}),
-		// 	stats: patch.stats,
-		// 	autolinks: autolinks != null ? [...map(autolinks.values(), serializeAutolink)] : undefined,
-		// };
 	}
 
 	// private getFormattedMessage(
@@ -770,13 +733,17 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 		}
 
 		if (patch.commit == null) {
-			const commit = await this.container.git.createUnreachableCommitForPatch(
-				patch.repo.uri,
-				patch.contents,
-				patch.baseRef ?? 'HEAD',
-				'PATCH',
-			);
-			patch.commit = commit;
+			try {
+				const commit = await this.container.git.createUnreachableCommitForPatch(
+					patch.repo.uri,
+					patch.contents,
+					patch.baseRef ?? 'HEAD',
+					'PATCH',
+				);
+				patch.commit = commit;
+			} catch (ex) {
+				void window.showErrorMessage(`Unable preview the patch on base '${patch.baseRef}': ${ex.message}`);
+			}
 		}
 		return patch.commit;
 	}

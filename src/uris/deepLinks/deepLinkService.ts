@@ -444,7 +444,7 @@ export class DeepLinkService implements Disposable {
 
 					action = DeepLinkServiceAction.RepoTypeMatched;
 					break;
-                }
+				}
 				case DeepLinkServiceState.OpenPatch: {
 					if (targetId == null) {
 						action = DeepLinkServiceAction.DeepLinkErrored;
@@ -455,7 +455,7 @@ export class DeepLinkService implements Disposable {
 					void (await executeCommand(Commands.OpenCloudPatch, { id: targetId, patchId: secondaryTargetId }));
 					action = DeepLinkServiceAction.DeepLinkResolved;
 					break;
-                }
+				}
 				case DeepLinkServiceState.RepoMatch:
 				case DeepLinkServiceState.AddedRepoMatch: {
 					if (!repoId && !remoteUrl && !repoPath) {
@@ -567,7 +567,7 @@ export class DeepLinkService implements Disposable {
 
 					if (repoOpenType == null) {
 						repoOpenType = await this.showOpenTypePrompt({
-						    includeCurrent: targetType === DeepLinkType.Patch,
+							includeCurrent: targetType === DeepLinkType.Patch,
 							customMessage:
 								chosenRepoPath === 'Choose a different location' || targetType === DeepLinkType.Patch
 									? 'Please choose an option to open the repository'

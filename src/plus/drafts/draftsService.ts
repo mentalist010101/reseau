@@ -1,8 +1,7 @@
-import fetch from 'node-fetch';
 import type { Disposable } from 'vscode';
-import { Uri } from 'vscode';
 import type { Container } from '../../container';
 import type { GitCloudPatch, GitPatch } from '../../git/models/patch';
+import { isSha } from '../../git/models/reference';
 import type { Repository } from '../../git/models/repository';
 import { getSettledValue } from '../../system/promise';
 import type { ServerConnection } from '../gk/serverConnection';
@@ -15,57 +14,203 @@ export interface LocalDraft {
 	patch: GitPatch;
 }
 
-export interface Draft extends DraftBase {
+export interface Draft {
+	readonly type: 'cloud';
+	readonly id: string;
+
+	readonly createdBy: string; // userId of creator
+	readonly organizationId?: string;
+
+	readonly deepLinkUrl: string;
+	readonly isPublic: boolean;
+
+	readonly createdAt: Date;
+	readonly updatedAt: Date;
+
+	readonly title?: string;
+	readonly description?: string;
+
 	readonly user?: {
 		readonly id: string;
 		readonly name: string;
 		readonly email: string;
 	};
 
-	readonly changesets: DraftChangeset[];
+	changesets?: DraftChangeset[];
 }
 
 export interface DraftChangeset {
 	readonly id: string;
-	// readonly linkUrl: string; TODO add this once the backend actually supports it
-	readonly createdAt: Date;
-	readonly updatedAt: Date;
 	readonly draftId: string;
-	readonly gitProfileId: string;
 	readonly parentChangesetId: string;
-	readonly patches: GitCloudPatch[];
-	readonly userId?: string;
-}
 
-export interface DraftBase {
-	readonly type: 'cloud';
+	readonly userId: string;
+	readonly gitUserName: string;
+	readonly gitUserEmail: string;
 
-	readonly id: string;
-	readonly linkUrl: string;
-	readonly title?: string;
-	readonly description?: string;
+	readonly deepLinkUrl?: string;
+
 	readonly createdAt: Date;
 	readonly updatedAt: Date;
-	readonly createdBy: string; // userId of creator
-	readonly isPublic: boolean;
-	readonly organizationId?: string;
+
+	readonly patches: GitCloudPatch[];
 }
 
-export interface DraftData {
-	id: string;
-	draftId: string;
-	gitProfileId: string;
-	gitRepositoryName: string;
-	gitBranchName: string;
-	contents: string;
+export interface DraftPatch {
+	readonly id: string;
+	// readonly draftId: string;
+	readonly changesetId: string;
+	readonly userId: string;
+
+	readonly baseCommitSHA: string;
+	readonly baseBranchName: string;
+
+	contents?: string;
+}
+
+type GitRepositoryDataRequest =
+	| {
+			readonly initialCommitSha: string;
+			readonly remoteURL?: undefined;
+			readonly remoteDomain?: undefined;
+			readonly remotePath?: undefined;
+	  }
+	| ({
+			readonly initialCommitSha?: string;
+			readonly remoteURL: string;
+			readonly remoteDomain: string;
+			readonly remotePath: string;
+	  } & (
+			| { readonly remoteProvider?: undefined }
+			| {
+					readonly remoteProvider: string;
+					readonly remoteProviderRepoDomain: string;
+					readonly remoteProviderRepoName: string;
+					readonly remoteProviderRepoOwnerDomain?: string;
+			  }
+	  ));
+
+interface GitRepositoryDataResponse {
+	readonly id: string;
+
+	readonly initialCommitSha?: string;
+	readonly remoteURL?: string;
+	readonly remoteDomain?: string;
+	readonly remotePath?: string;
+	readonly remoteProvider?: string;
+	readonly remoteProviderRepoDomain?: string;
+	readonly remoteProviderRepoName?: string;
+	readonly remoteProviderRepoOwnerDomain?: string;
+
+	readonly createdAt: string;
+	readonly updatedAt: string;
+}
+
+interface CreateDraftRequest {
+	readonly organizationId?: string;
+	readonly isPublic: boolean;
+}
+
+interface CreateDraftChangesetRequest {
+	readonly parentChangesetId?: string | null;
+	readonly gitUserName?: string;
+	readonly gitUserEmail?: string;
+	readonly patches: CreateDraftPatchRequest[];
+}
+
+interface CreateDraftChangesetResponse {
+	readonly id: string;
+	readonly draftId: string;
+	readonly parentChangesetId: string;
+
+	readonly userId: string;
+	readonly gitUserName: string;
+	readonly gitUserEmail: string;
+
+	readonly deepLink?: string;
+
+	readonly createdAt: string;
+	readonly updatedAt: string;
+	readonly patches: CreateDraftPatchResponse[];
+}
+
+interface CreateDraftPatchRequest {
+	readonly baseCommitSha: string;
+	readonly baseBranchName: string;
+	readonly gitRepoData: GitRepositoryDataRequest;
+}
+
+interface CreateDraftPatchResponse {
+	readonly id: string;
+	readonly changesetId: string;
+
+	readonly baseCommitSha: string;
+	readonly baseBranchName: string;
+	readonly gitRepositoryId: string;
+
+	readonly secureUploadData: {
+		readonly headers: {
+			readonly Host: string[];
+		};
+		readonly method: string;
+		readonly url: string;
+	};
 }
 
 interface DraftResponse {
-	id: string;
-	draftId: string;
-	gitProfileId?: string;
-	gitRepositoryName?: string;
-	gitBranchName?: string;
+	readonly id: string;
+	readonly createdBy: string;
+	readonly organizationId?: string;
+
+	readonly deepLink: string;
+	readonly isPublic: boolean;
+
+	readonly createdAt: string;
+	readonly updatedAt: string;
+
+	readonly title?: string;
+	readonly description?: string;
+}
+
+interface DraftChangesetResponse {
+	readonly id: string;
+	readonly draftId: string;
+	readonly parentChangesetId: string;
+
+	readonly userId: string;
+	readonly gitUserName: string;
+	readonly gitUserEmail: string;
+
+	readonly deepLink?: string;
+
+	readonly createdAt: Date;
+	readonly updatedAt: Date;
+
+	readonly patches: DraftPatchResponse[];
+}
+
+interface DraftPatchResponse {
+	readonly id: string;
+
+	readonly changesetId: string;
+	readonly userId: string;
+
+	readonly baseCommitSha: string;
+	readonly baseBranchName: string;
+
+	readonly secureDownloadData: {
+		readonly url: string;
+		readonly method: string;
+		readonly headers: {
+			readonly Host: string[];
+		};
+	};
+
+	readonly gitRepositoryId: string;
+	readonly gitRepositoryData: GitRepositoryDataResponse;
+
+	readonly createdAt: string;
+	readonly updatedAt: string;
 }
 
 export class DraftService implements Disposable {
@@ -94,7 +239,7 @@ export class DraftService implements Disposable {
 	// 	return this._subscription;
 	// }
 
-	async create(repository: Repository, baseSha: string, contents: string): Promise<Draft | undefined> {
+	async createDraft(repository: Repository, baseSha: string, contents: string): Promise<Draft | undefined> {
 		// const subscription = await this.ensureSubscription();
 		// if (subscription.account == null) return undefined;
 
@@ -109,57 +254,66 @@ export class DraftService implements Disposable {
 		if (remote?.provider == null) throw new Error('No Git provider found');
 
 		const user = getSettledValue(userResult);
-		const gitProfileId = user?.email ?? user?.name ?? '';
 
 		const branch = getSettledValue(branchResult);
 		const branchName = branch?.name ?? '';
 
-		// POST v1/drafts
-		const draftResponse = await this.connection.fetch(
-			Uri.joinPath(this.connection.baseGkApiUri, 'v1/drafts').toString(),
-			{
-				method: 'POST',
-				// body: JSON.stringify({ userId: subscription.account.id }),
-			},
-		);
+		if (!isSha(baseSha)) {
+			const commit = await repository.getCommit(baseSha);
+			if (commit == null) throw new Error(`No commit found for ${baseSha}`);
 
-		const draftData = (await draftResponse.json()).data;
+			baseSha = commit.sha;
+		}
+
+		type DraftResult = { data: DraftResponse };
+
+		// POST v1/drafts
+		const draftRsp = await this.connection.fetchGkDevApi('v1/drafts', {
+			method: 'POST',
+			body: JSON.stringify({ /*organizationId: undefined,*/ isPublic: true } satisfies CreateDraftRequest),
+		});
+
+		const draftData = ((await draftRsp.json()) as DraftResult).data;
 		const draftId = draftData.id;
-		const newDraft = await this.get(draftId);
-		if (newDraft == null) return undefined;
+
+		// const newDraft = await this.getDraft(draftId);
+		// if (newDraft == null) return undefined;
 
 		const repoFirstCommitSha = await this.container.git.getUniqueRepositoryId(repository.path);
 
-		// POST /v1/drafts/:draftId/changesets
-		const changesetCreateResponse = await this.connection.fetch(
-			Uri.joinPath(this.connection.baseGkApiUri, `v1/drafts/${draftId}/changesets`).toString(),
-			{
-				method: 'POST',
-				body: JSON.stringify({
-					gitProfileId: gitProfileId,
-					patches: [
-						{
-							baseCommitSha: baseSha,
-							baseBranchName: branchName,
-							gitRepoData: {
-								...(repoFirstCommitSha != null &&
-									repoFirstCommitSha != '-' && { initialCommitSha: repoFirstCommitSha }),
-								// TODO - Add other repo provider data once the model documentation is available
-							},
-						},
-					],
-				}),
-			},
-		);
+		type ChangesetResult = { data: CreateDraftChangesetResponse };
 
-		const changesetCreatedData = (await changesetCreateResponse.json()).data;
-		const patch = changesetCreatedData.patches[0];
+		// POST /v1/drafts/:draftId/changesets
+		const changesetRsp = await this.connection.fetchGkDevApi(`v1/drafts/${draftId}/changesets`, {
+			method: 'POST',
+			body: JSON.stringify({
+				// parentChangesetId: null,
+				gitUserName: user?.name,
+				gitUserEmail: user?.email,
+				patches: [
+					{
+						baseCommitSha: baseSha,
+						baseBranchName: branchName,
+						gitRepoData: {
+							initialCommitSha:
+								repoFirstCommitSha != null && repoFirstCommitSha != '-'
+									? repoFirstCommitSha
+									: undefined!,
+							// TODO - Add other repo provider data once the model documentation is available
+						},
+					},
+				],
+			} satisfies CreateDraftChangesetRequest),
+		});
+
+		const changesetData = ((await changesetRsp.json()) as ChangesetResult).data;
+		const patch = changesetData.patches[0];
 
 		const { url, method, headers } = patch.secureUploadData;
-		const patchId = patch.id;
+		// const patchId = patch.id;
 
 		// Upload patch to returned S3 url
-		await fetch(url, {
+		await this.connection.fetchRaw(url, {
 			method: method,
 			headers: {
 				'Content-Type': 'plain/text',
@@ -168,168 +322,209 @@ export class DraftService implements Disposable {
 			body: contents,
 		});
 
-		// PATCH /v1/patches/:patchId
-		await this.connection.fetch(Uri.joinPath(this.connection.baseGkApiUri, `/v1/patches/${patchId}`).toString(), {
-			method: 'PATCH',
-			body: JSON.stringify({
-				baseCommitSha: baseSha,
-				gitProfileId: gitProfileId,
-				gitProvider: remote.provider.id,
-				// TODO: this is a hack and won't always work, so we probably need to plumb this through the RemoteProviders
-				// BUT there is a bigger issue with repo identification here -- as we also need to know the base url of the repo (self-hosted)
-				gitRepositoryName: remote.provider.path.split('/')[1],
-				gitRepositoryOwner: remote.provider.owner,
-				gitBranchName: branchName,
-			}),
-		});
-
 		return {
-			...newDraft,
-			changesets: [changesetCreatedData],
+			type: 'cloud',
+			id: draftId,
+			createdBy: draftData.createdBy,
+			organizationId: draftData.organizationId,
+			deepLinkUrl: draftData.deepLink,
+			isPublic: draftData.isPublic,
+
+			createdAt: new Date(draftData.createdAt),
+			updatedAt: new Date(draftData.updatedAt),
+
+			title: draftData.title,
+			description: draftData.description,
+
+			changesets: [
+				{
+					id: changesetData.id,
+					draftId: changesetData.draftId,
+					parentChangesetId: changesetData.parentChangesetId,
+					userId: changesetData.userId,
+					gitUserName: changesetData.gitUserName,
+					gitUserEmail: changesetData.gitUserEmail,
+					deepLinkUrl: changesetData.deepLink,
+					createdAt: new Date(changesetData.createdAt),
+					updatedAt: new Date(changesetData.updatedAt),
+					patches: changesetData.patches.map(p => ({
+						type: 'cloud',
+						id: p.id,
+						changesetId: p.changesetId,
+						userId: changesetData.userId,
+						baseBranchName: p.baseBranchName,
+						baseCommitSha: p.baseCommitSha,
+						contents: contents,
+
+						repo: undefined!,
+					})),
+				},
+			],
 		};
 	}
 
-	async get(id: string): Promise<Draft | undefined> {
-		const draftResponse = await this.connection.fetch(
-			Uri.joinPath(this.connection.baseGkApiUri, `v1/drafts/${id}`).toString(),
-			{
-				method: 'GET',
-			},
-		);
+	async getDraft(id: string): Promise<Draft> {
+		type Result = { data: DraftResponse };
 
-		const draftData = (await draftResponse.json()).data;
+		const rsp = await this.connection.fetchGkDevApi(`v1/drafts/${id}`, {
+			method: 'GET',
+		});
+
+		const result = ((await rsp.json()) as Result).data;
 		const changeSets = await this.getChangesets(id); // TODO@eamodio The changesets don't come in on the GET call above, and the GET call for changesets is 404ing.
 		return {
 			type: 'cloud',
-			id: draftData.id,
-			linkUrl: draftData.deepLink,
-			title: draftData.title,
-			description: draftData.description,
-			createdAt: new Date(draftData.createdAt),
-			updatedAt: new Date(draftData.updatedAt),
-			createdBy: draftData.createdBy,
-			isPublic: draftData.isPublic,
-			organizationId: draftData.organizationId,
+			id: result.id,
+			createdBy: result.createdBy,
+			organizationId: result.organizationId,
+			deepLinkUrl: result.deepLink,
+			isPublic: result.isPublic,
+			createdAt: new Date(result.createdAt),
+			updatedAt: new Date(result.updatedAt),
+			title: result.title,
+			description: result.description,
 			changesets: changeSets ?? [],
 		};
 	}
 
-	// TODO: This call is 404ing...maybe it's not implemented yet?
-	async getChangesets(id: string): Promise<DraftChangeset[] | undefined> {
-		const changesetsResponse = await this.connection.fetch(
-			Uri.joinPath(this.connection.baseGkApiUri, `/v1/drafts/${id}/changesets`).toString(),
-			{
-				method: 'GET',
-			},
-		);
+	async getDrafts(): Promise<Draft[]> {
+		type Result = { data: DraftResponse[] };
 
-		const changesetsData = (await changesetsResponse.json()).data;
-		return changesetsData.map((changesetData: any): DraftChangeset => {
-			const { id, createdAt, updatedAt, draftId, gitProfileId, parentChangesetId, patches } = changesetData;
-			return {
-				id: id,
-				createdAt: new Date(createdAt),
-				updatedAt: new Date(updatedAt),
-				draftId: draftId,
-				gitProfileId: gitProfileId,
-				parentChangesetId: parentChangesetId,
-				patches: patches,
-			};
-		}) as DraftChangeset[];
+		const rsp = await this.connection.fetchGkDevApi('/v1/drafts', {
+			method: 'GET',
+		});
+
+		const data = ((await rsp.json()) as Result).data;
+		return data.map(
+			(d): Draft => ({
+				type: 'cloud',
+				id: d.id,
+				createdBy: d.createdBy,
+				organizationId: d.organizationId,
+				deepLinkUrl: d.deepLink,
+				isPublic: d.isPublic,
+				createdAt: new Date(d.createdAt),
+				updatedAt: new Date(d.updatedAt),
+				title: d.title,
+				description: d.description,
+			}),
+		);
 	}
 
-	async getPatches(id: string, options?: { includeContents?: boolean }): Promise<DraftData[] | undefined> {
-		const patchesResponse = await this.connection.fetch(
-			Uri.joinPath(this.connection.baseGkApiUri, `/v1/drafts/${id}/patches`).toString(),
-			{
-				method: 'GET',
-			},
+	async getChangesets(id: string): Promise<DraftChangeset[]> {
+		type Result = { data: DraftChangesetResponse[] };
+
+		const rsp = await this.connection.fetchGkDevApi(`/v1/drafts/${id}/changesets`, {
+			method: 'GET',
+		});
+
+		const data = ((await rsp.json()) as Result).data;
+		return data.map(
+			(d): DraftChangeset => ({
+				id: d.id,
+				draftId: d.draftId,
+				parentChangesetId: d.parentChangesetId,
+				userId: d.userId,
+				gitUserName: d.gitUserName,
+				gitUserEmail: d.gitUserEmail,
+				deepLinkUrl: d.deepLink,
+				createdAt: new Date(d.createdAt),
+				updatedAt: new Date(d.updatedAt),
+				patches: d.patches.map(p => ({
+					type: 'cloud',
+					id: p.id,
+					changesetId: p.changesetId,
+					userId: d.userId,
+					baseBranchName: p.baseBranchName,
+					baseCommitSha: p.baseCommitSha,
+					contents: undefined!,
+
+					// TODO@eamodio FIX THIS
+					repo: this.container.git.getBestRepository()!,
+				})),
+			}),
 		);
+	}
 
-		const patchesData: DraftResponse[] = (await patchesResponse.json()).data;
+	async getPatches(id: string, options?: { includeContents?: boolean }): Promise<DraftPatch[]> {
+		type Result = { data: DraftPatchResponse[] };
+
+		const rsp = await this.connection.fetchGkDevApi(`/v1/drafts/${id}/patches`, {
+			method: 'GET',
+		});
+
+		const data = ((await rsp.json()) as Result).data;
 		const patches = await Promise.allSettled(
-			patchesData.map(async (patchData: any): Promise<DraftData> => {
-				const { draftId, gitProfileId, gitRepositoryName, gitBranchName } = patchData;
-				const { url, method, headers } = patchData.secureDownloadData;
-				let contents = '';
-				let patchDownloadResponse;
+			data.map(async (d): Promise<DraftPatch> => {
+				let contents = undefined;
 				if (options?.includeContents) {
-					// Download patch from returned S3 url
-					patchDownloadResponse = await this.connection.fetch(url, {
-						method: method,
-						headers: {
-							Accept: 'text/plain',
-							Host: headers?.['Host']?.['0'] ?? '',
-						},
-					});
-
-					contents = await patchDownloadResponse.text();
+					try {
+						contents = await this.getPatchContentsCore(d.secureDownloadData);
+					} catch (ex) {
+						debugger;
+					}
 				}
 
 				return {
-					id: patchData.id,
-					draftId: draftId,
-					gitProfileId: gitProfileId,
-					gitRepositoryName: gitRepositoryName,
-					gitBranchName: gitBranchName,
+					id: d.id,
+					// draftId: d.draftId,
+					changesetId: d.changesetId,
+					userId: d.userId,
+					baseBranchName: d.baseBranchName,
+					baseCommitSHA: d.baseCommitSha,
 					contents: contents,
 				};
 			}),
 		);
 
-		return patches.map(patch => getSettledValue(patch)) as DraftData[];
+		return patches
+			.filter(
+				(p: PromiseSettledResult<DraftPatch>): p is PromiseFulfilledResult<DraftPatch> =>
+					p.status === 'fulfilled',
+			)
+			.map(p => p.value);
 	}
 
-	async getPatch(id: string): Promise<DraftData | undefined> {
-		const patchResponse = await this.connection.fetch(
-			Uri.joinPath(this.connection.baseGkApiUri, `/v1/patches/${id}`).toString(),
-			{
-				method: 'GET',
-			},
-		);
+	async getPatch(id: string): Promise<DraftPatch | undefined> {
+		type Result = { data: DraftPatchResponse };
 
-		const patchData = (await patchResponse.json()).data;
-		const { draftId, gitProfileId, gitRepositoryName, gitBranchName } = patchData;
-		const { url, method, headers } = patchData.secureDownloadData;
-
-		// Download patch from returned S3 url
-		const patchDownloadResponse = await fetch(url, {
-			method: method,
-			headers: {
-				Accept: 'text/plain',
-				Host: headers?.['Host']?.['0'] ?? '',
-			},
+		const rsp = await this.connection.fetchGkDevApi(`/v1/patches/${id}`, {
+			method: 'GET',
 		});
 
-		const contents = await patchDownloadResponse.text();
+		const data = ((await rsp.json()) as Result).data;
+		const contents = await this.getPatchContentsCore(data.secureDownloadData);
 
 		return {
-			id: id,
-			draftId: draftId,
-			gitProfileId: gitProfileId,
-			gitRepositoryName: gitRepositoryName,
-			gitBranchName: gitBranchName,
+			id: data.id,
+			// draftId: data.draftId,
+			changesetId: data.changesetId,
+			userId: data.userId,
+			baseBranchName: data.baseBranchName,
+			baseCommitSHA: data.baseCommitSha,
 			contents: contents,
 		};
 	}
 
 	async getPatchContents(id: string): Promise<string | undefined> {
-		// const subscription = await this.ensureSubscription();
-		// if (subscription.account == null) return undefined;
+		type Result = { data: DraftPatchResponse };
 
 		// GET /v1/patches/:patchId
-		const patchResponse = await this.connection.fetch(
-			Uri.joinPath(this.connection.baseGkApiUri, `/v1/patches/${id}`).toString(),
-			{
-				method: 'GET',
-			},
-		);
+		const rsp = await this.connection.fetchGkDevApi(`/v1/patches/${id}`, {
+			method: 'GET',
+		});
 
-		const patchData = (await patchResponse.json()).data;
-		const { url, method, headers } = patchData.secureDownloadData;
+		const data = ((await rsp.json()) as Result).data;
+		return this.getPatchContentsCore(data.secureDownloadData);
+	}
+
+	private async getPatchContentsCore(
+		secureLink: DraftPatchResponse['secureDownloadData'],
+	): Promise<string | undefined> {
+		const { url, method, headers } = secureLink;
 
 		// Download patch from returned S3 url
-		const patchDownloadResponse = await fetch(url, {
+		const contentsRsp = await this.connection.fetchRaw(url, {
 			method: method,
 			headers: {
 				Accept: 'text/plain',
@@ -337,6 +532,6 @@ export class DraftService implements Disposable {
 			},
 		});
 
-		return patchDownloadResponse.text();
+		return contentsRsp.text();
 	}
 }

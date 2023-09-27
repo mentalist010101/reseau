@@ -6519,6 +6519,35 @@
 				"category": "GitLens"
 			},
 			{
+				"command": "gitlens.views.drafts.copy",
+				"title": "Copy",
+				"category": "GitLens"
+			},
+			{
+				"command": "gitlens.views.drafts.refresh",
+				"title": "Refresh",
+				"category": "GitLens",
+				"icon": "$(refresh)"
+			},
+			{
+				"command": "gitlens.views.drafts.create",
+				"title": "Create Cloud Patch...",
+				"category": "GitLens",
+				"icon": "$(add)"
+			},
+			{
+				"command": "gitlens.views.drafts.delete",
+				"title": "Delete Cloud Patch...",
+				"category": "GitLens",
+				"icon": "$(trash)"
+			},
+			{
+				"command": "gitlens.views.drafts.open",
+				"title": "Open",
+				"category": "GitLens",
+				"icon": "$(eye)"
+			},
+			{
 				"command": "gitlens.views.fileHistory.changeBase",
 				"title": "Change Base...",
 				"category": "GitLens",
@@ -9300,6 +9329,26 @@
 					"when": "false"
 				},
 				{
+					"command": "gitlens.views.drafts.copy",
+					"when": "false"
+				},
+				{
+					"command": "gitlens.views.drafts.refresh",
+					"when": "false"
+				},
+				{
+					"command": "gitlens.views.drafts.create",
+					"when": "false"
+				},
+				{
+					"command": "gitlens.views.drafts.delete",
+					"when": "false"
+				},
+				{
+					"command": "gitlens.views.drafts.open",
+					"when": "false"
+				},
+				{
 					"command": "gitlens.views.fileHistory.changeBase",
 					"when": "false"
 				},
@@ -10834,6 +10883,16 @@
 					"group": "5_gitlens@1"
 				},
 				{
+					"command": "gitlens.views.drafts.refresh",
+					"when": "view =~ /^gitlens\\.views\\.drafts/",
+					"group": "navigation@99"
+				},
+				{
+					"command": "gitlens.views.drafts.create",
+					"when": "view =~ /^gitlens\\.views\\.drafts/ && gitlens:plus",
+					"group": "navigation@1"
+				},
+				{
 					"command": "gitlens.views.fileHistory.setEditorFollowingOn",
 					"when": "view =~ /^gitlens\\.views\\.fileHistory/ && gitlens:views:fileHistory:canPin && !gitlens:views:fileHistory:editorFollowing",
 					"group": "navigation@10"
@@ -11344,6 +11403,21 @@
 					"command": "gitlens.plus.loginOrSignUp",
 					"when": "viewItem == gitlens:message:signin",
 					"group": "inline@1"
+				},
+				{
+					"command": "gitlens.views.drafts.open",
+					"when": "viewItem =~  /gitlens:draft\\b/ && gitlens:plus",
+					"group": "inline@1"
+				},
+				{
+					"command": "gitlens.views.drafts.open",
+					"when": "viewItem =~  /gitlens:draft\\b/ && gitlens:plus",
+					"group": "1_gitlens_actions@1"
+				},
+				{
+					"command": "gitlens.views.drafts.delete",
+					"when": "viewItem =~  /gitlens:draft\\b/ && gitlens:plus",
+					"group": "6_gitlens_actions@1"
 				},
 				{
 					"command": "gitlens.views.workspaces.convert",
@@ -14368,6 +14442,12 @@
 				"when": "gitlens:enabled && focusedView =~ /^gitlens\\.views\\.contributors/"
 			},
 			{
+				"command": "gitlens.views.drafts.copy",
+				"key": "ctrl+c",
+				"mac": "cmd+c",
+				"when": "gitlens:enabled && focusedView =~ /^gitlens\\.views\\.drafts/"
+			},
+			{
 				"command": "gitlens.views.fileHistory.copy",
 				"key": "ctrl+c",
 				"mac": "cmd+c",
@@ -14488,6 +14568,20 @@
 				"when": "!gitlens:hasVirtualFolders"
 			},
 			{
+				"view": "gitlens.views.drafts",
+				"contents": "Cloud Patches allow you to easily share code with your teamates, accessible from anywhere, streamlining your workflow with better collaboration."
+			},
+			{
+				"view": "gitlens.views.drafts",
+				"contents": "[Create Cloud Patch](command:gitlens.views.drafts.create)\n\n☁️ Access is based on your plan, e.g. Free, Pro, etc",
+				"when": "gitlens:plus"
+			},
+			{
+				"view": "gitlens.views.drafts",
+				"contents": "[Start Free Pro Trial](command:gitlens.plus.loginOrSignUp)\n\nStart a free 7-day Pro trial to use Cloud Patches, or [sign in](command:gitlens.plus.loginOrSignUp).\n☁️ Requires an account and access is based on your plan, e.g. Free, Pro, etc",
+				"when": "!gitlens:plus"
+			},
+			{
 				"view": "gitlens.views.workspaces",
 				"contents": "Workspaces allow you to easily group and manage multiple repositories together, accessible from anywhere, streamlining your workflow.\n\nCreate workspaces just for yourself or share (coming soon in GitLens) them with your team for faster onboarding and better collaboration."
 			},
@@ -14541,6 +14635,15 @@
 					"contextualTitle": "GL",
 					"icon": "$(gitlens-gitlens)",
 					"initialSize": 6,
+					"visibility": "visible"
+				},
+				{
+					"id": "gitlens.views.drafts",
+					"name": "Cloud Patches",
+					"when": "!gitlens:untrusted && !gitlens:hasVirtualFolders",
+					"contextualTitle": "GL",
+					"icon": "$(cloud)",
+					"initialSize": 2,
 					"visibility": "visible"
 				},
 				{

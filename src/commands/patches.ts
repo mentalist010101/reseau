@@ -3,7 +3,7 @@ import { env, window, workspace } from 'vscode';
 import { Commands } from '../constants';
 import type { Container } from '../container';
 import { showPatchesView } from '../plus/drafts/actions';
-import type { Draft, DraftData, LocalDraft } from '../plus/drafts/draftsService';
+import type { Draft, DraftPatch, LocalDraft } from '../plus/drafts/draftsService';
 import { getRepositoryOrShowPicker } from '../quickpicks/repositoryPicker';
 import { command } from '../system/command';
 import type { CommandContext } from './base';
@@ -114,20 +114,20 @@ export class CreateCloudPatchCommand extends Command {
 		const d = await workspace.openTextDocument({ content: diff.contents, language: 'diff' });
 		await window.showTextDocument(d);
 
-		const patch = await this.container.drafts.create(repo, diff.baseSha, diff.contents);
+		const patch = await this.container.drafts.createDraft(repo, diff.baseSha, diff.contents);
 		void this.showPatchNotification(patch);
 	}
 
 	private async showPatchNotification(patch: Draft | undefined) {
 		if (patch == null) return;
 
-		await env.clipboard.writeText(patch.linkUrl);
+		await env.clipboard.writeText(patch.deepLinkUrl);
 
 		const copy = { title: 'Copy Link' };
 		const result = await window.showInformationMessage(`Created cloud patch ${patch.id}`, copy);
 
 		if (result === copy) {
-			await env.clipboard.writeText(patch.linkUrl);
+			await env.clipboard.writeText(patch.deepLinkUrl);
 		}
 	}
 }
@@ -195,13 +195,13 @@ export class OpenCloudPatchCommand extends Command {
 			return;
 		}
 
-		const draft = await this.container.drafts.get(args?.id);
+		const draft = await this.container.drafts.getDraft(args?.id);
 		if (draft == null) {
 			void window.showErrorMessage(`Cannot open cloud patch: patch ${args.id} not found`);
 			return;
 		}
 
-		let patch: DraftData | undefined;
+		let patch: DraftPatch | undefined;
 		if (args?.patchId) {
 			patch = await this.container.drafts.getPatch(args.patchId);
 		} else {

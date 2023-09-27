@@ -554,26 +554,42 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 	// 	return commit;
 	// }
 
-	// eslint-disable-next-line @typescript-eslint/require-await
+	private async getDraftPatch(draft: Draft): Promise<GitCloudPatch | undefined> {
+		if (draft.changesets == null) {
+			const changesets = await this.container.drafts.getChangesets(draft.id);
+			draft.changesets = changesets;
+		}
+
+		const patch = draft.changesets[0].patches[0];
+		if (patch == null) return undefined;
+
+		if (patch.contents == null) {
+			const contents = await this.container.drafts.getPatchContents(patch.id);
+			patch.contents = contents;
+		}
+
+		return patch;
+	}
+
 	private async getDetailsModel(draft: LocalDraft | Draft): Promise<DraftDetails> {
-		let patch: GitPatch | GitCloudPatch;
+		let patch: GitPatch | GitCloudPatch | undefined;
 		if (draft.type === 'local') {
 			patch = draft.patch;
 		} else {
-			patch = draft.changesets[0].patches[0];
+			patch = await this.getDraftPatch(draft);
 		}
 
-		if (patch.files == null) {
+		if (patch?.contents != null && patch.files == null) {
 			setTimeout(async () => {
-				const files = await this.container.git.getDiffFiles('', patch.contents);
-				patch.files = files?.files;
+				const files = await this.container.git.getDiffFiles('', patch!.contents!);
+				patch!.files = files?.files;
 
 				this.updatePendingContext({ draft: draft }, true);
 				this.updateState();
 			}, 1);
 		}
 
-		const files = patch.files?.map(({ status, repoPath, path, originalPath }) => {
+		const files = patch?.files?.map(({ status, repoPath, path, originalPath }) => {
 			const icon = getGitFileStatusIcon(status);
 			return {
 				path: path,
@@ -591,26 +607,33 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 			};
 		});
 
-		if (draft.type === 'local' || patch.type === 'file') {
+		if (draft.type === 'local' || patch?.type === 'file') {
 			return {
 				type: 'local',
 				files: files,
-				repoPath: patch.repo?.path,
-				repoName: patch.repo?.name,
-				baseRef: patch.baseRef,
+				repoPath: patch?.repo?.path,
+				repoName: patch?.repo?.name,
+				baseRef: patch?.baseRef,
 			};
+		}
+
+		if (patch != null && patch.baseRef == null) {
+			patch.baseRef = patch.baseCommitSha;
 		}
 
 		return {
 			type: 'cloud',
-			repoPath: patch.repo.path,
-			repoName: patch.repo.name,
+			// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+			repoPath: patch?.repo?.path!,
+			// eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+			repoName: patch?.repo?.name!,
 			author: {
 				name: 'You',
 				email: 'no@way.com',
 				avatar: undefined,
 			},
 			files: files,
+			baseRef: patch?.baseRef,
 			createdAt: draft.createdAt.getTime(),
 			updatedAt: draft.updatedAt.getTime(),
 		};
@@ -645,13 +668,14 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 	}
 
 	private async getUnreachablePatchCommit(): Promise<GitCommit | undefined> {
-		let patch: GitPatch | GitCloudPatch;
+		let patch: GitPatch | GitCloudPatch | undefined;
 		switch (this._context.draft?.type) {
 			case 'local':
 				patch = this._context.draft.patch;
 				break;
 			case 'cloud':
-				patch = this._context.draft.changesets[0]?.patches[0];
+				patch = await this.getDraftPatch(this._context.draft);
+				if (patch == null) return undefined;
 				break;
 			default:
 				throw new Error('Invalid patch type');
@@ -682,7 +706,7 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 			try {
 				const commit = await this.container.git.createUnreachableCommitForPatch(
 					patch.repo.uri,
-					patch.contents,
+					patch.contents!,
 					patch.baseRef ?? 'HEAD',
 					'PATCH',
 				);
@@ -723,13 +747,14 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 	}
 
 	private async selectPatchBase() {
-		let patch: GitPatch | GitCloudPatch;
+		let patch: GitPatch | GitCloudPatch | undefined;
 		switch (this._context.draft?.type) {
 			case 'local':
 				patch = this._context.draft.patch;
 				break;
 			case 'cloud':
-				patch = this._context.draft.changesets[0]?.patches[0];
+				patch = await this.getDraftPatch(this._context.draft);
+				if (patch == null) return undefined;
 				break;
 			default:
 				throw new Error('Invalid patch type');
@@ -742,13 +767,14 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 	}
 
 	private async selectPatchRepo() {
-		let patch: GitPatch | GitCloudPatch;
+		let patch: GitPatch | GitCloudPatch | undefined;
 		switch (this._context.draft?.type) {
 			case 'local':
 				patch = this._context.draft.patch;
 				break;
 			case 'cloud':
-				patch = this._context.draft.changesets[0]?.patches[0];
+				patch = await this.getDraftPatch(this._context.draft);
+				if (patch == null) return undefined;
 				break;
 			default:
 				throw new Error('Invalid patch type');

@@ -6,7 +6,6 @@ import type { Autolink } from '../../../../annotations/autolinks';
 import type { IssueOrPullRequest } from '../../../../git/models/issue';
 import type { PullRequestShape } from '../../../../git/models/pullRequest';
 import type { Serialized } from '../../../../system/serialize';
-import { pluralize } from '../../../../system/string';
 import type { State } from '../../../commitDetails/protocol';
 import { messageHeadlineSplitterToken } from '../../../commitDetails/protocol';
 import { uncommittedSha } from '../commitDetails';
@@ -372,20 +371,6 @@ export class GlCommitDetails extends GlDetailsBase {
 			: 'Pin this Commit\nSuspends Automatic Following';
 
 		return html`
-			${this.wipState != null && this.wipState.changes > 0 && !this.isUncommitted
-				? html`<div class="wip-details">
-						<span class="wip-changes"
-							><span
-								>${pluralize('file change', this.wipState.changes, {
-									plural: 'file changes',
-								})}
-								on</span
-							>
-							<span class="wip-branch">${this.wipState.branchName}</span></span
-						>
-						<gl-button appearance="alert" data-action="wip">View Changes</gl-button>
-				  </div>`
-				: nothing}
 			<div class="top-details">
 				<div class="top-details__top-menu">
 					<div class="top-details__actionbar${this.state?.pinned ? ' is-pinned' : ''}">

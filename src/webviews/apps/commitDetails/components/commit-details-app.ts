@@ -1,8 +1,9 @@
 import { Badge, defineGkElement } from '@gitkraken/shared-web-components';
-import { html, LitElement } from 'lit';
+import { html, LitElement, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import type { Serialized } from '../../../../system/serialize';
+import { pluralize } from '../../../../system/string';
 import type { State } from '../../../commitDetails/protocol';
 import { uncommittedSha } from '../commitDetails';
 import '../../shared/components/button';
@@ -85,9 +86,14 @@ export class GlCommitDetailsApp extends LitElement {
 						<button
 							class="details-tab__item ${this.state?.mode === 'wip' ? ' is-active' : ''}"
 							data-action="wip"
+							title="${this.state?.wip?.changes
+								? `${pluralize('file change', this.state.wip.changes, {
+										plural: 'file changes',
+								  })} on ${this.state.wip.branchName}`
+								: nothing}"
 						>
 							WIP${this.state?.wip?.changes
-								? html` <gk-badge variant="filled">${this.state?.wip?.changes}</gk-badge>`
+								? html` &nbsp;<gk-badge variant="filled">${this.state.wip.changes}</gk-badge>`
 								: ''}
 						</button>
 					</nav>

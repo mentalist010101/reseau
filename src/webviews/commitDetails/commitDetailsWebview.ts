@@ -937,7 +937,7 @@ export class CommitDetailsWebviewProvider implements WebviewProvider<State, Seri
 		void executeGitCommand({ command: 'search', state: { openPickInView: true } });
 	}
 
-	private async showWip(params: ShowWipParams) {
+	private showWip(params: ShowWipParams) {
 		let repo;
 		let { repoPath } = params;
 		if (repoPath == null) {
@@ -951,9 +951,7 @@ export class CommitDetailsWebviewProvider implements WebviewProvider<State, Seri
 
 		this.updatePendingContext({ mode: params.mode });
 		if (params.mode === 'commit') {
-			// this._context.commit != null ? this._context.commit	:
-			const commit = await this.container.git.getCommit(repoPath, uncommitted);
-			void this.updateCommit(commit, { force: true, immediate: true });
+			this.updateState();
 		} else {
 			void this.updateWipState(repo);
 		}

@@ -5,6 +5,24 @@
 	--gitlens-scrollbar-gutter-width: 10px;
 }
 
+.vscode-high-contrast,
+.vscode-dark {
+	--color-background--level-05: var(--color-background--lighten-05);
+	--color-background--level-075: var(--color-background--lighten-075);
+	--color-background--level-10: var(--color-background--lighten-10);
+	--color-background--level-15: var(--color-background--lighten-15);
+	--color-background--level-30: var(--color-background--lighten-30);
+}
+
+.vscode-high-contrast-light,
+.vscode-light {
+	--color-background--level-05: var(--color-background--darken-05);
+	--color-background--level-075: var(--color-background--darken-075);
+	--color-background--level-10: var(--color-background--darken-10);
+	--color-background--level-15: var(--color-background--darken-15);
+	--color-background--level-30: var(--color-background--darken-30);
+}
+
 // generic resets
 html {
 	font-size: 62.5%;
@@ -380,24 +398,30 @@ ul {
 }
 
 .wip-details {
-	padding: 0.5em;
-	background: var(--color-alert-infoBackground);
-	border: 1px solid var(--color-alert-infoBorder);
 	display: flex;
+	padding: 0.4rem 0.8rem;
+	background: var(--color-alert-infoBackground);
+	border-left: 0.3rem solid var(--color-alert-infoBorder);
+	align-items: center;
 	justify-content: space-between;
 
-	& .wip-changes {
-		display: flex;
-		align-items: center;
+	.wip-changes {
+		display: inline-flex;
+		align-items: baseline;
+	}
 
-		& .wip-branch {
-			margin-left: 5px;
-			background: var(--color-alert-infoHoverBackground);
-			border-radius: 3px;
-			padding: 0px 3px 2px 3px;
-			border: 1px solid var(--color-alert-infoBorder);
-			margin-top: -1px;
-		}
+	.wip-branch {
+		display: inline-block;
+		padding: 0 0.3rem 0.2rem;
+		margin-left: 0.4rem;
+		// background: var(--color-background--level-05);
+		border: 1px solid var(--color-foreground--50);
+		border-radius: 0.3rem;
+	}
+
+	gl-button {
+		padding: 0.2rem 0.8rem;
+		opacity: 0.8;
 	}
 }
 

@@ -10,7 +10,7 @@ import type { HierarchicalItem } from '../../../../system/array';
 import { makeHierarchical } from '../../../../system/array';
 import type { Serialized } from '../../../../system/serialize';
 import { pluralize } from '../../../../system/string';
-import type { State } from '../../../commitDetails/protocol';
+import type { CommitDetails, State } from '../../../commitDetails/protocol';
 import { messageHeadlineSplitterToken } from '../../../commitDetails/protocol';
 import { uncommittedSha } from '../commitDetails';
 import '../../shared/components/button';
@@ -372,30 +372,26 @@ export class GlCommitDetailsApp extends LitElement {
 		`;
 	}
 
-	private renderCommitStats() {
-		if (this.state?.commit?.stats?.changedFiles == null) {
+	private renderCommitStats(details?: Serialized<CommitDetails>) {
+		if (details?.stats?.changedFiles == null) {
 			return undefined;
 		}
 
-		if (typeof this.state.commit.stats.changedFiles === 'number') {
-			return html`<commit-stats
-				added="?"
-				modified="${this.state.commit.stats.changedFiles}"
-				removed="?"
-			></commit-stats>`;
+		if (typeof details.stats.changedFiles === 'number') {
+			return html`<commit-stats added="?" modified="${details.stats.changedFiles}" removed="?"></commit-stats>`;
 		}
 
-		const { added, deleted, changed } = this.state.commit.stats.changedFiles;
+		const { added, deleted, changed } = details.stats.changedFiles;
 		return html`<commit-stats added="${added}" modified="${changed}" removed="${deleted}"></commit-stats>`;
 	}
 
-	private renderFileList() {
-		const files = this.state!.commit!.files!;
+	private renderFileList(files: CommitDetails['files'] = [], isUncommitted = false) {
+		// const files = this.state!.commit!.files!;
 
 		let items;
 		let classes;
 
-		if (this.isUncommitted) {
+		if (isUncommitted) {
 			items = [];
 			classes = `indentGuides-${this.state!.preferences.indentGuides}`;
 
@@ -423,13 +419,13 @@ export class GlCommitDetailsApp extends LitElement {
 		return html`<list-container class=${classes ?? nothing}>${items}</list-container>`;
 	}
 
-	private renderFileTree() {
-		const files = this.state!.commit!.files!;
+	private renderFileTree(files: CommitDetails['files'] = [], isUncommitted = false) {
+		// const files = this.state!.commit!.files!;
 		const compact = this.state!.preferences?.files?.compact ?? true;
 
 		let items;
 
-		if (this.isUncommitted) {
+		if (isUncommitted) {
 			items = [];
 
 			const staged = files.filter(f => f.staged);
@@ -492,16 +488,17 @@ export class GlCommitDetailsApp extends LitElement {
 		`;
 	}
 
-	private renderChangedFiles() {
+	private renderChangedFiles(details?: Serialized<CommitDetails>, isUncommitted = false) {
 		const layout = this.state?.preferences?.files?.layout ?? 'auto';
+		const files = details?.files;
 
 		let value = 'tree';
 		let icon = 'list-tree';
 		let label = 'View as Tree';
 		let isTree = false;
-		if (this.state?.commit?.files != null) {
+		if (this.state != null && files != null) {
 			if (layout === 'auto') {
-				isTree = this.state.commit.files.length > (this.state.preferences?.files?.threshold ?? 5);
+				isTree = files.length > (this.state.preferences?.files?.threshold ?? 5);
 			} else {
 				isTree = layout === 'tree';
 			}
@@ -528,7 +525,7 @@ export class GlCommitDetailsApp extends LitElement {
 		return html`
 			<webview-pane collapsable expanded>
 				<span slot="title">Files changed </span>
-				<span slot="subtitle" data-region="stats">${this.renderCommitStats()}</span>
+				<span slot="subtitle" data-region="stats">${this.renderCommitStats(details)}</span>
 				<action-nav slot="actions">
 					<action-item
 						data-action="files-layout"
@@ -540,7 +537,7 @@ export class GlCommitDetailsApp extends LitElement {
 
 				<div class="change-list" data-region="files">
 					${when(
-						this.state?.commit?.files == null,
+						files == null,
 						() => html`
 							<div class="section section--skeleton">
 								<skeleton-loader></skeleton-loader>
@@ -552,7 +549,10 @@ export class GlCommitDetailsApp extends LitElement {
 								<skeleton-loader></skeleton-loader>
 							</div>
 						`,
-						() => (isTree ? this.renderFileTree() : this.renderFileList()),
+						() =>
+							isTree
+								? this.renderFileTree(files, isUncommitted)
+								: this.renderFileList(files, isUncommitted),
 					)}
 				</div>
 			</webview-pane>
@@ -572,10 +572,13 @@ export class GlCommitDetailsApp extends LitElement {
 			${this.state?.wip?.changes && !this.isUncommitted
 				? html`<div class="wip-details">
 						<span class="wip-changes"
-							>${pluralize('file change', this.state.wip.changes, {
-								plural: 'file changes',
-							})}
-							on <span class="wip-branch">${this.state.wip.branchName}</span></span
+							><span
+								>${pluralize('file change', this.state.wip.changes, {
+									plural: 'file changes',
+								})}
+								on</span
+							>
+							<span class="wip-branch">${this.state.wip.branchName}</span></span
 						>
 						<gl-button appearance="alert" data-action="wip">View Changes</gl-button>
 				  </div>`
@@ -708,8 +711,8 @@ export class GlCommitDetailsApp extends LitElement {
 					)}
 				</div>
 			</div>
-			${this.renderCommitMessage()} ${this.renderAutoLinks()} ${this.renderChangedFiles()}
-			${this.renderExplainAi()}
+			${this.renderCommitMessage()} ${this.renderAutoLinks()}
+			${this.renderChangedFiles(this.state.commit, this.isUncommitted)} ${this.renderExplainAi()}
 		`;
 	}
 
@@ -745,7 +748,7 @@ export class GlCommitDetailsApp extends LitElement {
 					</div>
 				</div>
 			</div>
-			${this.renderCommitMessage()}${this.renderChangedFiles()}
+			${this.renderChangedFiles(this.state.wip.commit, true)}
 		`;
 	}
 

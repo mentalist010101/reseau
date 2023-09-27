@@ -1,3 +1,4 @@
+import { joinPaths, normalizePath } from '../../system/path';
 import { maybeStopWatch } from '../../system/stopwatch';
 import { getLines, pluralize } from '../../system/string';
 import type { GitDiffFile, GitDiffHunkLine, GitDiffLine, GitDiffShortStat } from '../models/diff';
@@ -181,7 +182,7 @@ export function parseDiffNameStatusFiles(data: string, repoPath: string): GitFil
 export function parseApplyFiles(data: string, repoPath: string): GitFileChange[] | undefined {
 	if (!data) return undefined;
 
-	const sw = maybeStopWatch('parseApplyFiles', { log: false, logLevel: LogLevel.Debug });
+	const sw = maybeStopWatch('parseApplyFiles', { log: false, logLevel: 'debug' });
 
 	const files = new Map<string, GitFileChange>();
 
@@ -195,7 +196,7 @@ export function parseApplyFiles(data: string, repoPath: string): GitFileChange[]
 
 		const [insertions, deletions, path] = line.split('\t');
 		files.set(
-			path,
+			normalizePath(path),
 			new GitFileChange(repoPath, path, 'M' as GitFileStatus, undefined, undefined, {
 				changes: 0,
 				additions: parseInt(insertions, 10),
@@ -208,12 +209,15 @@ export function parseApplyFiles(data: string, repoPath: string): GitFileChange[]
 		line = line.trim();
 		if (!line) continue;
 
-		const match = /(rename) (.+) => (.+)(?: \(\d+%\))|(create|delete) mode \d+ (.+)/.exec(line);
+		const match = /(rename) (.*?)\{(.+?)\s+=>\s+(.+?)\}(?: \(\d+%\))|(create|delete) mode \d+ (.+)/.exec(line);
 		if (match == null) continue;
 
-		const [, rename, renameOriginalPath, renamePath, createOrDelete, createOrDeletePath] = match;
+		let [, rename, renameRoot, renameOriginalPath, renamePath, createOrDelete, createOrDeletePath] = match;
 
 		if (rename != null) {
+			renamePath = normalizePath(joinPaths(renameRoot, renamePath));
+			renameOriginalPath = normalizePath(joinPaths(renameRoot, renameOriginalPath));
+
 			const file = files.get(renamePath)!;
 			files.set(
 				renamePath,
@@ -227,7 +231,7 @@ export function parseApplyFiles(data: string, repoPath: string): GitFileChange[]
 				),
 			);
 		} else {
-			const file = files.get(createOrDeletePath)!;
+			const file = files.get(normalizePath(createOrDeletePath))!;
 			files.set(
 				createOrDeletePath,
 				new GitFileChange(

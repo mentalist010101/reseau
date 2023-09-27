@@ -174,7 +174,6 @@ export class CommitDetailsApp extends App<Serialized<State>> {
 				this.component.explain = { summary: result.summary };
 			} else {
 				this.component.explain = undefined;
-				this.component.explainBusy = false;
 			}
 		} catch (ex) {
 			this.component.explain = { error: { message: 'Error retrieving content' } };

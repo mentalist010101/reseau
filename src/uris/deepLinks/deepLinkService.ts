@@ -575,7 +575,7 @@ export class DeepLinkService implements Disposable {
 						});
 					}
 
-					if (repoOpenType === DeepLinkRepoOpenType.Current && targetType === DeepLinkType.Patch) {
+					if (repoOpenType === 'current' && targetType === DeepLinkType.Patch) {
 						action = DeepLinkServiceAction.RepoOpenedForPatch;
 						break;
 					}

@@ -1,5 +1,5 @@
 /*global*/
-import { ViewFilesLayout } from '../../../../config';
+import type { ViewFilesLayout } from '../../../../config';
 import type { State } from '../../../../plus/webviews/patchDetails/protocol';
 import {
 	DidChangeNotificationType,
@@ -179,14 +179,14 @@ export class PatchDetailsApp extends App<Serialized<State>> {
 
 	private onToggleFilesLayout(e: MouseEvent) {
 		const layout = ((e.target as HTMLElement)?.dataset.switchValue as ViewFilesLayout) ?? undefined;
-		if (layout === this.state.preferences?.files?.layout) return;
+		if (layout === this.state.preferences.files.layout) return;
 
-		const files = {
-			...this.state.preferences?.files,
-			layout: layout ?? ViewFilesLayout.Auto,
-			compact: this.state.preferences?.files?.compact ?? true,
-			threshold: this.state.preferences?.files?.threshold ?? 5,
-			icon: this.state.preferences?.files?.icon ?? 'type',
+		const files: State['preferences']['files'] = {
+			...this.state.preferences.files,
+			layout: layout ?? 'auto',
+			compact: this.state.preferences.files.compact ?? true,
+			threshold: this.state.preferences.files.threshold ?? 5,
+			icon: this.state.preferences.files.icon ?? 'type',
 		};
 
 		this.state.preferences = {

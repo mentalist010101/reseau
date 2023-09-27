@@ -1,3 +1,4 @@
+import { Badge, defineGkElement } from '@gitkraken/shared-web-components';
 import { html, LitElement } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
@@ -64,6 +65,12 @@ export class GlCommitDetailsApp extends LitElement {
 		return actions;
 	}
 
+	constructor() {
+		super();
+
+		defineGkElement(Badge);
+	}
+
 	override render() {
 		return html`
 			<div class="commit-detail-panel scrollable">
@@ -79,7 +86,9 @@ export class GlCommitDetailsApp extends LitElement {
 							class="details-tab__item ${this.state?.mode === 'wip' ? ' is-active' : ''}"
 							data-action="wip"
 						>
-							WIP${this.state?.wip?.changes ? ` (${this.state?.wip?.changes})` : ''}
+							WIP${this.state?.wip?.changes
+								? html` <gk-badge variant="filled">${this.state?.wip?.changes}</gk-badge>`
+								: ''}
 						</button>
 					</nav>
 					${when(

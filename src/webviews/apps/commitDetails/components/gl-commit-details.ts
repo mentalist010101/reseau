@@ -372,7 +372,7 @@ export class GlCommitDetails extends GlDetailsBase {
 			: 'Pin this Commit\nSuspends Automatic Following';
 
 		return html`
-			${this.wipState != null && !this.isUncommitted
+			${this.wipState != null && this.wipState.changes > 0 && !this.isUncommitted
 				? html`<div class="wip-details">
 						<span class="wip-changes"
 							><span

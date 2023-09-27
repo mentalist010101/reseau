@@ -186,6 +186,7 @@ export const enum Commands {
 	OpenFolderHistory = 'gitlens.openFolderHistory',
 	OpenOnRemote = 'gitlens.openOnRemote',
 	OpenIssueOnRemote = 'gitlens.openIssueOnRemote',
+	OpenCloudPatch = 'gitlens.openCloudPatch',
 	OpenPatch = 'gitlens.openPatch',
 	OpenPullRequestOnRemote = 'gitlens.openPullRequestOnRemote',
 	OpenAssociatedPullRequestOnRemote = 'gitlens.openAssociatedPullRequestOnRemote',

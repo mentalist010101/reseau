@@ -4695,6 +4695,11 @@
 				"category": "GitLens"
 			},
 			{
+				"command": "gitlens.openCloudPatch",
+				"title": "Open Cloud Patch...",
+				"category": "GitLens"
+			},
+			{
 				"command": "gitlens.openPatch",
 				"title": "Open Patch...",
 				"category": "GitLens"
@@ -8065,6 +8070,10 @@
 				{
 					"command": "gitlens.createCloudPatch",
 					"when": "gitlens:enabled && gitlens:plus"
+				},
+				{
+					"command": "gitlens.openCloudPatch",
+					"when": "false"
 				},
 				{
 					"command": "gitlens.openPatch",

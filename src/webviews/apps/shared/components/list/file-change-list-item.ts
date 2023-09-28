@@ -3,6 +3,7 @@ import { customElement, property, query, state } from 'lit/decorators.js';
 import type { TextDocumentShowOptions } from 'vscode';
 import type { ListItem, ListItemSelectedEvent } from './list-item';
 import '../code-icon';
+import '../status/git-status';
 
 // Can only import types from 'vscode'
 const BesideViewColumn = -2; /*ViewColumn.Beside*/
@@ -16,27 +17,6 @@ export interface FileChangeListItemDetail {
 }
 
 // TODO: "change-list__action" should be a separate component
-
-// TODO: use the model version
-const statusTextMap: Record<string, string> = {
-	'.': 'Unchanged',
-	'!': 'Ignored',
-	'?': 'Untracked',
-	A: 'Added',
-	D: 'Deleted',
-	M: 'Modified',
-	R: 'Renamed',
-	C: 'Copied',
-	AA: 'Conflict',
-	AU: 'Conflict',
-	UA: 'Conflict',
-	DD: 'Conflict',
-	DU: 'Conflict',
-	UD: 'Conflict',
-	UU: 'Conflict',
-	T: 'Modified',
-	U: 'Updated but Unmerged',
-};
 
 @customElement('file-change-list-item')
 export class FileChangeListItem extends LitElement {
@@ -140,11 +120,6 @@ export class FileChangeListItem extends LitElement {
 		return !this.tree && this.pathIndex > -1 ? this.path.substring(0, this.pathIndex) : '';
 	}
 
-	@state()
-	get statusName() {
-		return this.status !== '' ? statusTextMap[this.status] : '';
-	}
-
 	override render() {
 		return html`
 			<list-item
@@ -157,7 +132,7 @@ export class FileChangeListItem extends LitElement {
 				?checked=${this.checked}
 				@selected=${this.onComparePrevious}
 			>
-				<img slot="icon" .src=${this.icon} .title=${this.statusName} .alt=${this.statusName} />
+				<gl-git-status slot="icon" .status=${this.status}></gl-git-status>
 				${this.fileName} ${this.tree ? nothing : html`<span slot="description">${this.filePath}</span>`}
 				<span slot="actions">
 					<a

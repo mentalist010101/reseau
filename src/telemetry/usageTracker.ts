@@ -24,6 +24,7 @@ export type TrackedUsageFeatures =
 	| 'graphWebview'
 	| 'homeView'
 	| 'lineHistoryView'
+	| 'patchCreateView'
 	| 'patchDetailsView'
 	| 'rebaseEditor'
 	| 'remotesView'

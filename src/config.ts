@@ -559,6 +559,7 @@ interface ViewsConfigs {
 	readonly drafts: object; // TODO@eamodio add real types
 	readonly fileHistory: FileHistoryViewConfig;
 	readonly lineHistory: LineHistoryViewConfig;
+	readonly patchCreate: PatchCreateViewConfig;
 	readonly patchDetails: PatchDetailsViewConfig;
 	readonly remotes: RemotesViewConfig;
 	readonly repositories: RepositoriesViewConfig;
@@ -617,6 +618,18 @@ export interface CommitsViewConfig {
 }
 
 export interface CommitDetailsViewConfig {
+	readonly avatars: boolean;
+	readonly files: ViewsFilesConfig;
+	readonly autolinks: {
+		readonly enabled: boolean;
+		readonly enhanced: boolean;
+	};
+	readonly pullRequests: {
+		readonly enabled: boolean;
+	};
+}
+
+export interface PatchCreateViewConfig {
 	readonly avatars: boolean;
 	readonly files: ViewsFilesConfig;
 	readonly autolinks: {

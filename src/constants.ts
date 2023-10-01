@@ -474,6 +474,7 @@ export type WebviewViewTypes =
 	| 'graph'
 	| 'graphDetails'
 	| 'home'
+	| 'patchCreate'
 	| 'patchDetails'
 	| 'timeline';
 export type WebviewViewIds = `gitlens.views.${WebviewViewTypes}`;

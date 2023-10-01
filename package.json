@@ -14831,6 +14831,15 @@
 					"contextualTitle": "GL",
 					"icon": "$(gitlens-commit-view)",
 					"initialSize": 6
+				},
+				{
+					"type": "webview",
+					"id": "gitlens.views.patchCreate",
+					"name": "Create Patch",
+					"when": "!gitlens:disabled",
+					"contextualTitle": "GL",
+					"icon": "$(gitlens-commit-view)",
+					"initialSize": 6
 				}
 			]
 		},

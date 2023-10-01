@@ -12,6 +12,7 @@ import {
 	OpenFileOnRemoteCommandType,
 	SelectPatchBaseCommandType,
 	SelectPatchRepoCommandType,
+	ToggleModeCommandType,
 	UpdatePreferencesCommandType,
 } from '../../../../plus/webviews/patchDetails/protocol';
 import type { Serialized } from '../../../../system/serialize';
@@ -75,6 +76,7 @@ export class PatchDetailsApp extends App<Serialized<State>> {
 			DOM.on('[data-switch-value]', 'click', e => this.onToggleFilesLayout(e)),
 			DOM.on('[data-action="ai-explain"]', 'click', e => this.onAIExplain(e)),
 			DOM.on('[data-action="switch-ai"]', 'click', e => this.onSwitchAIModel(e)),
+			DOM.on('[data-action="mode"]', 'click', e => this.onModeClicked(e)),
 			DOM.on<GlPatchDetailsApp, ApplyPatchDetail>('gl-patch-details-app', 'apply-patch', e =>
 				this.onApplyPatch(e.detail),
 			),
@@ -135,6 +137,13 @@ export class PatchDetailsApp extends App<Serialized<State>> {
 		}
 	}
 
+	private onModeClicked(e: Event) {
+		const mode = ((e.target as HTMLElement)?.dataset.actionValue as 'draft' | 'create') ?? undefined;
+		if (mode === this.state.mode) return;
+
+		this.sendCommand(ToggleModeCommandType, { mode: mode });
+	}
+
 	private onApplyPatch(e: ApplyPatchDetail) {
 		console.log('onApplyPatch', e);
 	}
@@ -170,7 +179,6 @@ export class PatchDetailsApp extends App<Serialized<State>> {
 				this.component.explain = { summary: result.summary };
 			} else {
 				this.component.explain = undefined;
-				this.component.explainBusy = false;
 			}
 		} catch (ex) {
 			this.component.explain = { error: { message: 'Error retrieving content' } };
@@ -219,6 +227,7 @@ export class PatchDetailsApp extends App<Serialized<State>> {
 	private get component() {
 		if (this._component == null) {
 			this._component = (document.getElementById('app') as GlPatchDetailsApp)!;
+			this._component.app = this;
 		}
 		return this._component;
 	}

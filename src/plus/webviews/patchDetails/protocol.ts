@@ -47,6 +47,27 @@ interface CloudDraftDetails {
 
 export type DraftDetails = LocalDraftDetails | CloudDraftDetails;
 
+export interface RangeRef {
+	baseSha: string;
+	sha: string | undefined;
+	branchName: string;
+	// shortSha: string;
+	// summary: string;
+	// message: string;
+	// author: GitCommitIdentityShape & { avatar: string | undefined };
+	// committer: GitCommitIdentityShape & { avatar: string | undefined };
+	// parents: string[];
+	// repoPath: string;
+	// stashNumber?: string;
+}
+
+export interface Change {
+	repository: { name: string; path: string };
+	range: RangeRef;
+	files: GitFileChangeShape[];
+	type: 'commit' | 'wip';
+}
+
 export interface Preferences {
 	avatars: boolean;
 	dateFormat: DateTimeFormat | string;
@@ -59,9 +80,12 @@ export type UpdateablePreferences = Partial<Pick<Preferences, 'files'>>;
 export interface State {
 	webviewId: WebviewIds | WebviewViewIds;
 	timestamp: number;
+	mode: 'draft' | 'create';
+
+	preferences: Preferences;
 
 	draft?: DraftDetails;
-	preferences: Preferences;
+	create?: Change[];
 }
 
 export type ShowCommitDetailsViewCommandArgs = string[];
@@ -103,6 +127,12 @@ export const ExplainCommandType = new IpcCommandType<undefined>('patch/explain')
 export type UpdatePreferenceParams = UpdateablePreferences;
 export const UpdatePreferencesCommandType = new IpcCommandType<UpdatePreferenceParams>('patch/preferences/update');
 
+export interface ToggleModeParams {
+	repoPath?: string;
+	mode: 'draft' | 'create';
+}
+export const ToggleModeCommandType = new IpcCommandType<ToggleModeParams>('patch/toggleMode');
+
 // NOTIFICATIONS
 
 export interface DidChangeParams {
@@ -117,3 +147,6 @@ export type DidExplainParams =
 	  }
 	| { error: { message: string } };
 export const DidExplainCommandType = new IpcNotificationType<DidExplainParams>('patch/didExplain');
+
+export type DidChangeCreateParams = Pick<Serialized<State>, 'create'>;
+export const DidChangeCreateNotificationType = new IpcNotificationType<DidChangeCreateParams>('patch/create/didChange');

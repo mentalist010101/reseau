@@ -606,6 +606,7 @@ export class CommitDetailsWebviewProvider implements WebviewProvider<State, Seri
 		if (this._repositorySubscription == null && commit != null) {
 			const repo = await this.container.git.getOrOpenRepository(commit.repoPath);
 			if (repo != null) {
+				// FIXME: can't see changes until commit details are shown for the repository
 				this._repositorySubscription = [
 					repo,
 					Disposable.from(

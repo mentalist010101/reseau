@@ -135,7 +135,6 @@ export class GlDetailsBase extends LitElement {
 				level="${level}"
 				?stash=${this.isStash}
 				?uncommitted=${this.isUncommitted}
-				icon="${file.icon.dark}"
 				path="${file.path}"
 				repo="${file.repoPath}"
 				?staged=${file.staged}

@@ -1,11 +1,11 @@
 import type {
+	CancellationToken,
 	CancellationTokenSource,
 	ConfigurationChangeEvent,
-	Disposable,
 	TextDocumentShowOptions,
 	ViewColumn,
 } from 'vscode';
-import { Uri, window } from 'vscode';
+import { Disposable, Uri, window } from 'vscode';
 import type { CoreConfiguration } from '../../../constants';
 import { Commands } from '../../../constants';
 import type { Container } from '../../../container';
@@ -23,6 +23,8 @@ import type { GitFileChange } from '../../../git/models/file';
 import { getGitFileStatusIcon } from '../../../git/models/file';
 import type { GitCloudPatch, GitPatch } from '../../../git/models/patch';
 import { createReference } from '../../../git/models/reference';
+import type { Repository, RepositoryChangeEvent } from '../../../git/models/repository';
+import { RepositoryChange, RepositoryChangeComparisonMode } from '../../../git/models/repository';
 import { showCommitPicker } from '../../../quickpicks/commitPicker';
 import { getRepositoryOrShowPicker } from '../../../quickpicks/repositoryPicker';
 import { executeCommand, registerCommand } from '../../../system/command';
@@ -41,14 +43,17 @@ import { updatePendingContext } from '../../../webviews/webviewController';
 import type { Draft, LocalDraft } from '../../drafts/draftsService';
 import type { ShowInCommitGraphCommandArgs } from '../graph/protocol';
 import type {
+	Change,
 	DidExplainParams,
 	DraftDetails,
 	FileActionParams,
 	Preferences,
 	State,
+	ToggleModeParams,
 	UpdateablePreferences,
 } from './protocol';
 import {
+	DidChangeCreateNotificationType,
 	DidChangeNotificationType,
 	DidExplainCommandType,
 	ExplainCommandType,
@@ -60,11 +65,14 @@ import {
 	OpenInCommitGraphCommandType,
 	SelectPatchBaseCommandType,
 	SelectPatchRepoCommandType,
+	ToggleModeCommandType,
 	UpdatePreferencesCommandType,
 } from './protocol';
 
 interface Context {
+	mode: 'draft' | 'create';
 	draft: LocalDraft | Draft | undefined;
+	create: Change[] | undefined;
 	preferences: Preferences;
 
 	visible: boolean;
@@ -84,7 +92,9 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 		private readonly host: WebviewController<State, Serialized<State>>,
 	) {
 		this._context = {
+			mode: 'draft',
 			draft: undefined,
+			create: undefined,
 			preferences: {
 				avatars: configuration.get('views.patchDetails.avatars'),
 				dateFormat: configuration.get('defaultDateFormat') ?? 'MMMM Do, YYYY h:mma',
@@ -97,7 +107,10 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 			visible: false,
 		};
 
-		this._disposable = configuration.onDidChangeAny(this.onAnyConfigurationChanged, this);
+		this._disposable = Disposable.from(
+			configuration.onDidChangeAny(this.onAnyConfigurationChanged, this),
+			container.git.onDidChangeRepository(this.onRepositoriesChanged, this),
+		);
 	}
 
 	dispose() {
@@ -230,13 +243,55 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 	}
 
 	private _selectionTrackerDisposable: Disposable | undefined;
+	// private _repositoryTrackerDisposable: Disposable | undefined;
+	private _repositorySubscriptions: Map<Repository, Disposable> | undefined;
 	private ensureTrackers(): void {
 		this._selectionTrackerDisposable?.dispose();
 		this._selectionTrackerDisposable = undefined;
+		// this._repositoryTrackerDisposable?.dispose();
+		// this._repositoryTrackerDisposable = undefined;
+		if (this._repositorySubscriptions != null) {
+			for (const disposable of this._repositorySubscriptions.values()) {
+				disposable.dispose();
+			}
+			this._repositorySubscriptions.clear();
+			this._repositorySubscriptions = undefined;
+		}
 
 		if (!this.host.visible) return;
 
 		this._selectionTrackerDisposable = this.container.events.on('draft:selected', this.onDraftSelected, this);
+		// this._repositoryTrackerDisposable = this.container.git.onDidChangeRepository(this.onRepositoryChanged, this);
+
+		// TODO do we need to watch each individual repository?
+		const repos = this.container.git.openRepositories;
+		for (const repo of repos) {
+			this.watchRepository(repo);
+		}
+	}
+
+	private onRepositoriesChanged(_e: RepositoryChangeEvent) {
+		this.ensureTrackers();
+		void this.updateCreateState();
+	}
+
+	private watchRepository(repository: Repository) {
+		if (this._repositorySubscriptions == null) {
+			this._repositorySubscriptions = new Map();
+		}
+
+		if (this._repositorySubscriptions.has(repository)) return;
+
+		const disposable = Disposable.from(
+			repository.onDidChange(this.onRepositoriesChanged, this),
+			repository.onDidChangeFileSystem(() => this.updateCreateState(repository), this),
+			repository.onDidChange(e => {
+				if (e.changed(RepositoryChange.Index, RepositoryChangeComparisonMode.Any)) {
+					void this.updateCreateState(repository);
+				}
+			}),
+		);
+		this._repositorySubscriptions.set(repository, disposable);
 	}
 
 	onMessageReceived(e: IpcMessage) {
@@ -282,6 +337,18 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 			case SelectPatchRepoCommandType.method:
 				onIpc(SelectPatchRepoCommandType, e, () => void this.selectPatchRepo());
 				break;
+			case ToggleModeCommandType.method:
+				onIpc(ToggleModeCommandType, e, params => this.toggleMode(params));
+				break;
+		}
+	}
+
+	private toggleMode(params: ToggleModeParams) {
+		this.updatePendingContext({ mode: params.mode });
+		if (params.mode === 'draft') {
+			this.updateState();
+		} else {
+			void this.updateCreateState();
 		}
 	}
 
@@ -336,7 +403,9 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 		const state = serialize<State>({
 			webviewId: this.host.id,
 			timestamp: Date.now(),
+			mode: current.mode,
 			draft: details,
+			create: current.create,
 			preferences: current.preferences,
 		});
 		return state;
@@ -896,6 +965,115 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 
 		// return getContext('gitlens:webview:graph:active') || getContext('gitlens:webview:rebase:active')
 		// 	? { ...params.showOptions, viewColumn: ViewColumn.Beside } : params.showOptions;
+	}
+
+	private async updateCreateState(repository?: Repository) {
+		const create: Change[] = this._context.create ?? [];
+		const repos = this.container.git.openRepositories;
+		for (const repo of repos) {
+			if (repository != null && repo !== repository) continue;
+
+			const change = await this.getWipChange(repo);
+			const index = create.findIndex(c => c.repository.path === repo.path);
+			if (change == null) {
+				if (index !== -1) {
+					create.splice(index, 1);
+				}
+				continue;
+			}
+
+			if (index !== -1) {
+				create[index] = change;
+			} else {
+				create.push(change);
+			}
+		}
+
+		this.updatePendingContext({ create: create });
+		this.updateState();
+	}
+
+	@debug({ args: false })
+	private async updateWipState(repository: Repository, cancellation?: CancellationToken): Promise<void> {
+		const change = await this.getWipChange(repository);
+		if (cancellation?.isCancellationRequested) return;
+
+		const success =
+			!this.host.ready || !this.host.visible
+				? await this.host.notify(DidChangeCreateNotificationType, {
+						create: change != null ? [serialize<Change>(change)] : undefined,
+				  })
+				: false;
+		if (success) {
+			this._context.create = change != null ? [change] : undefined;
+		} else {
+			this.updatePendingContext({ create: change != null ? [change] : undefined });
+			this.updateState();
+		}
+	}
+
+	private async getWipChange(repository: Repository): Promise<Change | undefined> {
+		const status = await this.container.git.getStatusForRepo(repository.path);
+		return status == null
+			? undefined
+			: {
+					type: 'wip',
+					repository: {
+						name: repository.name,
+						path: repository.path,
+					},
+					files: status.files.map(file => {
+						return {
+							repoPath: file.repoPath,
+							path: file.path,
+							status: file.status,
+							originalPath: file.originalPath,
+							staged: file.staged,
+						};
+					}),
+					range: {
+						baseSha: 'HEAD',
+						sha: undefined,
+						branchName: status.branch,
+					},
+			  };
+	}
+
+	private async getCommitChange(commit: GitCommit): Promise<Change> {
+		// const [commitResult, avatarUriResult, remoteResult] = await Promise.allSettled([
+		// 	!commit.hasFullDetails() ? commit.ensureFullDetails().then(() => commit) : commit,
+		// 	commit.author.getAvatarUri(commit, { size: 32 }),
+		// 	this.container.git.getBestRemoteWithRichProvider(commit.repoPath, { includeDisconnected: true }),
+		// ]);
+		// commit = getSettledValue(commitResult, commit);
+		// const avatarUri = getSettledValue(avatarUriResult);
+		// const remote = getSettledValue(remoteResult);
+
+		commit = !commit.hasFullDetails() ? await commit.ensureFullDetails().then(() => commit) : commit;
+		const repo = commit.getRepository()!;
+
+		return {
+			type: 'commit',
+			repository: {
+				name: repo.name,
+				path: repo.path,
+			},
+			range: {
+				baseSha: commit.sha,
+				sha: undefined,
+				branchName: repo.branch.name,
+			},
+			files:
+				commit.files?.map(({ status, repoPath, path, originalPath, staged }) => {
+					return {
+						repoPath: repoPath,
+						path: path,
+						status: status,
+						originalPath: originalPath,
+						staged: staged,
+					};
+				}) ?? [],
+		};
 	}
 }
 

@@ -1,5 +1,5 @@
 import type { Disposable } from 'vscode';
-import { TreeItem, TreeItemCollapsibleState } from 'vscode';
+import { TreeItem, TreeItemCollapsibleState, window } from 'vscode';
 import type { RepositoriesViewConfig } from '../config';
 import { Commands } from '../constants';
 import type { Container } from '../container';
@@ -125,10 +125,20 @@ export class DraftsView extends ViewBase<'drafts', DraftsViewNode, RepositoriesV
 			),
 			registerViewCommand(
 				this.getQualifiedCommand('delete'),
-				// eslint-disable-next-line @typescript-eslint/require-await
 				async (node: DraftNode) => {
-					// await this.container.drafts.deleteDraft(node.draft.id);
-					void node.getParent()?.triggerChange(true);
+					const confirm = { title: 'Delete' };
+					const cancel = { title: 'Cancel', isCloseAffordance: true };
+					const result = await window.showInformationMessage(
+						`Are you sure you want to delete draft '${node.draft.title}'?`,
+						{ modal: true },
+						confirm,
+						cancel,
+					);
+
+					if (result === confirm) {
+						await this.container.drafts.deleteDraft(node.draft.id);
+						void node.getParent()?.triggerChange(true);
+					}
 				},
 				this,
 			),

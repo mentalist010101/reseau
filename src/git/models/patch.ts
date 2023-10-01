@@ -4,7 +4,7 @@ import type { GitDiffFiles } from './diff';
 import type { Repository } from './repository';
 
 export interface GitPatch {
-	readonly type: 'file';
+	readonly _brand: 'file';
 	readonly id?: undefined;
 	readonly uri: Uri;
 	readonly contents: string;
@@ -16,7 +16,7 @@ export interface GitPatch {
 }
 
 export interface GitCloudPatch {
-	readonly type: 'cloud';
+	readonly _brand: 'cloud';
 	readonly id: string;
 	readonly changesetId: string;
 	readonly userId: string;

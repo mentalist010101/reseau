@@ -102,7 +102,7 @@ export class CreateCloudPatchCommand extends Command {
 	async execute(args?: CreatePatchCommandArgs) {
 		let repo;
 		if (args?.repoPath == null) {
-			repo = await getRepositoryOrShowPicker('Create Patch');
+			repo = await getRepositoryOrShowPicker('Create Cloud Patch');
 		} else {
 			repo = this.container.git.getRepository(args.repoPath);
 		}
@@ -114,7 +114,31 @@ export class CreateCloudPatchCommand extends Command {
 		const d = await workspace.openTextDocument({ content: diff.contents, language: 'diff' });
 		await window.showTextDocument(d);
 
-		const patch = await this.container.drafts.createDraft(repo, diff.baseSha, diff.contents);
+		// ask the user for a title
+
+		const title = await window.showInputBox({
+			title: 'Create Cloud Patch',
+			prompt: 'Enter a title for the patch',
+			validateInput: value => (value == null || value.length === 0 ? 'A title is required' : undefined),
+		});
+		if (title == null) return;
+
+		// ask the user for an optional description
+		const description = await window.showInputBox({
+			title: 'Create Cloud Patch',
+			prompt: 'Enter an optional description for the patch',
+		});
+
+		const patch = await this.container.drafts.createDraft(
+			'patch',
+			title,
+			{
+				contents: diff.contents,
+				baseSha: diff.baseSha,
+				repository: repo,
+			},
+			{ description: description },
+		);
 		void this.showPatchNotification(patch);
 	}
 
@@ -159,9 +183,9 @@ export class OpenPatchCommand extends ActiveEditorCommand {
 		}
 
 		const patch: LocalDraft = {
-			type: 'local',
+			_brand: 'local',
 			patch: {
-				type: 'file',
+				_brand: 'file',
 				uri: document.uri,
 				contents: document.getText(),
 			},

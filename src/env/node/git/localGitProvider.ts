@@ -3027,6 +3027,12 @@ export class LocalGitProvider implements GitProvider, Disposable {
 		return files[0];
 	}
 
+	@log()
+	async getFirstCommitSha(repoPath: string): Promise<string | undefined> {
+		const data = await this.git.rev_list(repoPath, 'HEAD', { maxParents: 0 });
+		return data?.[0];
+	}
+
 	@gate()
 	@debug()
 	async getGitDir(repoPath: string): Promise<GitDir> {
@@ -4542,12 +4548,6 @@ export class LocalGitProvider implements GitProvider, Disposable {
 
 		const data = await this.git.ls_tree(repoPath, ref);
 		return GitTreeParser.parse(data) ?? [];
-	}
-
-	@log()
-	async getUniqueRepositoryId(repoPath: string): Promise<string | undefined> {
-		const data = await this.git.rev_list(repoPath, 'HEAD', { maxParents: 0 });
-		return data?.[0];
 	}
 
 	@log({ args: { 1: false } })

@@ -573,7 +573,7 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 
 	private async getDetailsModel(draft: LocalDraft | Draft): Promise<DraftDetails> {
 		let patch: GitPatch | GitCloudPatch | undefined;
-		if (draft.type === 'local') {
+		if (draft._brand === 'local') {
 			patch = draft.patch;
 		} else {
 			patch = await this.getDraftPatch(draft);
@@ -607,7 +607,7 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 			};
 		});
 
-		if (draft.type === 'local' || patch?.type === 'file') {
+		if (draft._brand === 'local' || patch?._brand === 'file') {
 			return {
 				type: 'local',
 				files: files,
@@ -669,7 +669,7 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 
 	private async getUnreachablePatchCommit(): Promise<GitCommit | undefined> {
 		let patch: GitPatch | GitCloudPatch | undefined;
-		switch (this._context.draft?.type) {
+		switch (this._context.draft?._brand) {
 			case 'local':
 				patch = this._context.draft.patch;
 				break;
@@ -748,7 +748,7 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 
 	private async selectPatchBase() {
 		let patch: GitPatch | GitCloudPatch | undefined;
-		switch (this._context.draft?.type) {
+		switch (this._context.draft?._brand) {
 			case 'local':
 				patch = this._context.draft.patch;
 				break;
@@ -768,7 +768,7 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 
 	private async selectPatchRepo() {
 		let patch: GitPatch | GitCloudPatch | undefined;
-		switch (this._context.draft?.type) {
+		switch (this._context.draft?._brand) {
 			case 'local':
 				patch = this._context.draft.patch;
 				break;

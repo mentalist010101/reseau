@@ -24,6 +24,8 @@ import {
 	parseDeepLinkUri,
 } from './deepLink';
 
+const missingRepositoryId = '-';
+
 export class DeepLinkService implements Disposable {
 	private readonly _disposables: Disposable[] = [];
 	private _context: DeepLinkServiceContext;
@@ -491,7 +493,7 @@ export class DeepLinkService implements Disposable {
 							}
 						}
 
-						if (repoId != null && repoId !== '-') {
+						if (repoId != null && repoId !== missingRepositoryId) {
 							// Repo ID can be any valid SHA in the repo, though standard practice is to use the
 							// first commit SHA.
 							if (await this.container.git.validateReference(repo.path, repoId)) {
@@ -958,12 +960,7 @@ export class DeepLinkService implements Disposable {
 		compareWithRef?: StoredNamedRef,
 	): Promise<URL> {
 		const repoPath = typeof refOrRepoPath !== 'string' ? refOrRepoPath.repoPath : refOrRepoPath;
-		let repoId;
-		try {
-			repoId = await this.container.git.getUniqueRepositoryId(repoPath);
-		} catch {
-			repoId = '-';
-		}
+		const repoId = (await this.container.git.getUniqueRepositoryId(repoPath)) ?? missingRepositoryId;
 
 		let targetType: DeepLinkType | undefined;
 		let targetId: string | undefined;

@@ -1,10 +1,11 @@
 import { Badge, defineGkElement, Menu, MenuItem, Popover } from '@gitkraken/shared-web-components';
 import { html, LitElement, nothing } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import type { DraftDetails, State } from '../../../../../plus/webviews/patchDetails/protocol';
 import { pluralize } from '../../../../../system/string';
 import type { PatchDetailsApp } from '../patchDetails';
+import type { CreatePatchEventDetail } from './gl-patch-create';
 import './gl-draft-details';
 import './gl-patch-create';
 
@@ -116,12 +117,38 @@ export class GlPatchDetailsApp extends LitElement {
 				<main id="main" tabindex="-1">
 					${when(
 						this.mode === 'draft',
-						() => html`<gl-draft-details .state=${this.state} .explain=${this.explain}></gl-draft-details>`,
-						() => html`<gl-patch-create .state=${this.state}></gl-patch-create>`,
+						() =>
+							html`<gl-draft-details
+								.state=${this.state}
+								.explain=${this.explain}
+								@share-local-patch=${this.onShareLocalPatch}
+								@copy-cloud-link=${this.onCopyCloudLink}
+							></gl-draft-details>`,
+						() =>
+							html`<gl-patch-create
+								.state=${this.state}
+								@create-patch=${this.onPatchCreate}
+							></gl-patch-create>`,
 					)}
 				</main>
 			</div>
 		`;
+	}
+
+	onShowInGraph(e: CustomEvent<ShowPatchInGraphDetail>) {
+		this.dispatchEvent(new CustomEvent<ShowPatchInGraphDetail>('graph-show-patch', { detail: e.detail }));
+	}
+
+	private onPatchCreate(e: CustomEvent<CreatePatchEventDetail>) {
+		this.dispatchEvent(new CustomEvent<CreatePatchEventDetail>('create-patch', { detail: e.detail }));
+	}
+
+	private onShareLocalPatch(_e: CustomEvent<undefined>) {
+		this.dispatchEvent(new CustomEvent<undefined>('share-local-patch'));
+	}
+
+	private onCopyCloudLink(_e: CustomEvent<undefined>) {
+		this.dispatchEvent(new CustomEvent<undefined>('copy-cloud-link'));
 	}
 
 	protected override createRenderRoot() {

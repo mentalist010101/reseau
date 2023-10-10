@@ -1,7 +1,10 @@
 /*global*/
 import type { ViewFilesLayout } from '../../../../config';
-import type { State } from '../../../../plus/webviews/patchDetails/protocol';
+import type { State, ToggleModeParams } from '../../../../plus/webviews/patchDetails/protocol';
 import {
+	CopyCloudLinkCommandType,
+	CreateFromLocalPatchCommandType,
+	CreatePatchCommandType,
 	DidChangeNotificationType,
 	DidExplainCommandType,
 	ExplainCommandType,
@@ -10,6 +13,7 @@ import {
 	OpenFileComparePreviousCommandType,
 	OpenFileCompareWorkingCommandType,
 	OpenFileOnRemoteCommandType,
+	OpenInCommitGraphCommandType,
 	SelectPatchBaseCommandType,
 	SelectPatchRepoCommandType,
 	ToggleModeCommandType,
@@ -21,6 +25,7 @@ import { ExecuteCommandType, onIpc } from '../../../protocol';
 import { App } from '../../shared/appBase';
 import type { FileChangeListItem, FileChangeListItemDetail } from '../../shared/components/list/file-change-list-item';
 import { DOM } from '../../shared/dom';
+import type { CreatePatchEventDetail } from './components/gl-patch-create';
 import type {
 	ApplyPatchDetail,
 	ChangePatchBaseDetail,
@@ -87,7 +92,16 @@ export class PatchDetailsApp extends App<Serialized<State>> {
 				this.onSelectPatchRepo(e.detail),
 			),
 			DOM.on<GlPatchDetailsApp, ShowPatchInGraphDetail>('gl-patch-details-app', 'graph-show-patch', e =>
-				this.onSelectPatchRepo(e.detail),
+				this.onShowPatchInGraph(e.detail),
+			),
+			DOM.on<GlPatchDetailsApp, CreatePatchEventDetail>('gl-patch-details-app', 'create-patch', e =>
+				this.onCreatePatch(e.detail),
+			),
+			DOM.on<GlPatchDetailsApp, undefined>('gl-patch-details-app', 'share-local-patch', () =>
+				this.onShareLocalPatch(),
+			),
+			DOM.on<GlPatchDetailsApp, undefined>('gl-patch-details-app', 'copy-cloud-link', () =>
+				this.onCopyCloudLink(),
 			),
 		];
 
@@ -137,8 +151,24 @@ export class PatchDetailsApp extends App<Serialized<State>> {
 		}
 	}
 
+	private onShowPatchInGraph(_e: ShowPatchInGraphDetail) {
+		// this.sendCommand(OpenInCommitGraphCommandType, { });
+	}
+
+	private onCreatePatch(e: CreatePatchEventDetail) {
+		this.sendCommand(CreatePatchCommandType, e);
+	}
+
+	private onShareLocalPatch() {
+		this.sendCommand(CreateFromLocalPatchCommandType, undefined);
+	}
+
+	private onCopyCloudLink() {
+		this.sendCommand(CopyCloudLinkCommandType, undefined);
+	}
+
 	private onModeClicked(e: Event) {
-		const mode = ((e.target as HTMLElement)?.dataset.actionValue as 'draft' | 'create') ?? undefined;
+		const mode = ((e.target as HTMLElement)?.dataset.actionValue as ToggleModeParams['mode']) ?? undefined;
 		if (mode === this.state.mode) return;
 
 		this.sendCommand(ToggleModeCommandType, { mode: mode });

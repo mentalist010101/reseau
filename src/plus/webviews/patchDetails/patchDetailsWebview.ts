@@ -1,11 +1,5 @@
-import type {
-	CancellationToken,
-	CancellationTokenSource,
-	ConfigurationChangeEvent,
-	TextDocumentShowOptions,
-	ViewColumn,
-} from 'vscode';
-import { Disposable, Uri, window } from 'vscode';
+import type { CancellationToken, ConfigurationChangeEvent, TextDocumentShowOptions, ViewColumn } from 'vscode';
+import { CancellationTokenSource, Disposable, env, Uri, window } from 'vscode';
 import type { CoreConfiguration } from '../../../constants';
 import { Commands } from '../../../constants';
 import type { Container } from '../../../container';
@@ -53,6 +47,8 @@ import type {
 	UpdateablePreferences,
 } from './protocol';
 import {
+	CopyCloudLinkCommandType,
+	CreateFromLocalPatchCommandType,
 	DidChangeCreateNotificationType,
 	DidChangeNotificationType,
 	DidExplainCommandType,
@@ -76,6 +72,7 @@ interface Context {
 	preferences: Preferences;
 
 	visible: boolean;
+	wipStateLoaded: boolean;
 }
 
 export class PatchDetailsWebviewProvider implements WebviewProvider<State, Serialized<State>> {
@@ -92,7 +89,7 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 		private readonly host: WebviewController<State, Serialized<State>>,
 	) {
 		this._context = {
-			mode: 'draft',
+			mode: 'create',
 			draft: undefined,
 			create: undefined,
 			preferences: {
@@ -105,6 +102,7 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 					) ?? 'onHover',
 			},
 			visible: false,
+			wipStateLoaded: false,
 		};
 
 		this._disposable = Disposable.from(
@@ -272,7 +270,7 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 
 	private onRepositoriesChanged(_e: RepositoryChangeEvent) {
 		this.ensureTrackers();
-		void this.updateCreateState();
+		void this.updateCreateStateFromWip();
 	}
 
 	private watchRepository(repository: Repository) {
@@ -284,10 +282,10 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 
 		const disposable = Disposable.from(
 			repository.onDidChange(this.onRepositoriesChanged, this),
-			repository.onDidChangeFileSystem(() => this.updateCreateState(repository), this),
+			repository.onDidChangeFileSystem(() => this.updateCreateStateFromWip(repository), this),
 			repository.onDidChange(e => {
 				if (e.changed(RepositoryChange.Index, RepositoryChangeComparisonMode.Any)) {
-					void this.updateCreateState(repository);
+					void this.updateCreateStateFromWip(repository);
 				}
 			}),
 		);
@@ -340,7 +338,25 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 			case ToggleModeCommandType.method:
 				onIpc(ToggleModeCommandType, e, params => this.toggleMode(params));
 				break;
+			case CopyCloudLinkCommandType.method:
+				onIpc(CopyCloudLinkCommandType, e, () => this.copyCloudLink());
+				break;
+			case CreateFromLocalPatchCommandType.method:
+				onIpc(CreateFromLocalPatchCommandType, e, () => this.shareLocalPatch());
+				break;
 		}
+	}
+
+	private shareLocalPatch() {
+		if (this._context.draft?._brand !== 'local') return;
+
+		this.updateCreateFromLocalPatch();
+	}
+
+	private copyCloudLink() {
+		if (this._context.draft?._brand !== 'cloud') return;
+
+		void env.clipboard.writeText(this._context.draft.deepLinkUrl);
 	}
 
 	private toggleMode(params: ToggleModeParams) {
@@ -348,7 +364,7 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 		if (params.mode === 'draft') {
 			this.updateState();
 		} else {
-			void this.updateCreateState();
+			void this.updateCreateStateFromWip();
 		}
 	}
 
@@ -386,16 +402,16 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 		let details;
 		if (current.draft != null) {
 			details = await this.getDetailsModel(current.draft);
+		}
 
-			// if (!current.richStateLoaded) {
-			// 	this._cancellationTokenSource = new CancellationTokenSource();
+		if (current.create == null && !current.wipStateLoaded) {
+			this._cancellationTokenSource = new CancellationTokenSource();
 
-			// 	const cancellation = this._cancellationTokenSource.token;
-			// 	setTimeout(() => {
-			// 		if (cancellation.isCancellationRequested) return;
-			// 		void this.updateRichState(current, cancellation);
-			// 	}, 100);
-			// }
+			const cancellation = this._cancellationTokenSource.token;
+			setTimeout(() => {
+				if (cancellation.isCancellationRequested) return;
+				void this.updateCreateStateFromWip(undefined, cancellation);
+			}, 100);
 		}
 
 		// const commitChoices = await Promise.all(this.commits.map(async commit => summaryModel(commit)));
@@ -407,6 +423,7 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 			draft: details,
 			create: current.create,
 			preferences: current.preferences,
+			wipStateLoaded: current.wipStateLoaded,
 		});
 		return state;
 	}
@@ -967,13 +984,47 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 		// 	? { ...params.showOptions, viewColumn: ViewColumn.Beside } : params.showOptions;
 	}
 
-	private async updateCreateState(repository?: Repository) {
+	private updateCreateFromLocalPatch() {
+		if (this._context.draft?._brand !== 'local') return;
+
+		const patch = this._context.draft.patch;
+
+		const change: Change = {
+			repository: {
+				name: patch.repo!.name,
+				path: patch.repo!.path,
+			},
+			range: {
+				baseSha: patch.baseRef ?? 'HEAD',
+				sha: patch.commit?.sha,
+				// TODO: need to figure out branch name
+				branchName: '',
+			},
+			files:
+				patch.files?.map(file => {
+					return {
+						repoPath: file.repoPath,
+						path: file.path,
+						status: file.status,
+						originalPath: file.originalPath,
+					};
+				}) ?? [],
+			type: 'commit',
+		};
+
+		this.updatePendingContext({ mode: 'create', wipStateLoaded: false, create: [change] });
+		this.updateState();
+	}
+
+	private async updateCreateStateFromWip(repository?: Repository, cancellation?: CancellationToken) {
 		const create: Change[] = this._context.create ?? [];
 		const repos = this.container.git.openRepositories;
 		for (const repo of repos) {
 			if (repository != null && repo !== repository) continue;
 
 			const change = await this.getWipChange(repo);
+			if (cancellation?.isCancellationRequested) return;
+
 			const index = create.findIndex(c => c.repository.path === repo.path);
 			if (change == null) {
 				if (index !== -1) {
@@ -989,7 +1040,7 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 			}
 		}
 
-		this.updatePendingContext({ create: create });
+		this.updatePendingContext({ wipStateLoaded: true, create: create });
 		this.updateState();
 	}
 
@@ -1074,6 +1125,33 @@ export class PatchDetailsWebviewProvider implements WebviewProvider<State, Seria
 					};
 				}) ?? [],
 		};
+	}
+
+	private async getChangeContents(change: Change) {
+		const repo = this.container.git.getRepository(change.repository.path)!;
+		const diff = await this.container.git.getDiff(repo.path, change.range.baseSha, change.range.sha);
+		if (diff == null) return;
+
+		return {
+			repository: repo,
+			baseSha: change.range.baseSha,
+			contents: diff.contents,
+		};
+	}
+
+	// create a patch from the current working tree or from a commit
+	// create a draft from the resulting patch
+	// how do I incorporate branch
+	private async createDraft(title: string, change: Change, description?: string) {
+		const changeContents = await this.getChangeContents(change);
+		if (changeContents == null) return;
+
+		const draft = await this.container.drafts.createDraft(
+			'patch',
+			title,
+			changeContents,
+			description ? { description: description } : undefined,
+		);
 	}
 }
 

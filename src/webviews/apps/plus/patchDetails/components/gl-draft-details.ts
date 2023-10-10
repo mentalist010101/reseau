@@ -468,13 +468,22 @@ export class GlDraftDetails extends LitElement {
 							${when(
 								this.state?.draft?.type === 'cloud',
 								() => html`
-									<a class="commit-action" href="#">
+									<a class="commit-action" href="#" @click=${this.onCopyCloudLink}>
 										<code-icon icon="link"></code-icon>
 										<span class="top-details__sha">Copy Link</span></a
 									>
 								`,
+								() => html`
+									<a
+										class="commit-action"
+										href="#"
+										aria-label="Share Patch"
+										title="Share Patch"
+										@click=${this.onShareLocalPatch}
+										>Share</a
+									>
+								`,
 							)}
-							<a class="commit-action" href="#" aria-label="Share Patch" title="Share Patch">Share</a>
 							<a class="commit-action" href="#" aria-label="Show Patch Actions" title="Show Patch Actions"
 								><code-icon icon="kebab-vertical"></code-icon
 							></a>
@@ -554,6 +563,24 @@ export class GlDraftDetails extends LitElement {
 
 	onShowInGraph(_e: MouseEvent | KeyboardEvent) {
 		const evt = new CustomEvent<ShowPatchInGraphDetail>('graph-show-patch', {
+			detail: {
+				draft: this.state.draft!,
+			},
+		});
+		this.dispatchEvent(evt);
+	}
+
+	onCopyCloudLink() {
+		const evt = new CustomEvent('copy-cloud-link', {
+			detail: {
+				draft: this.state.draft!,
+			},
+		});
+		this.dispatchEvent(evt);
+	}
+
+	onShareLocalPatch() {
+		const evt = new CustomEvent('share-local-patch', {
 			detail: {
 				draft: this.state.draft!,
 			},

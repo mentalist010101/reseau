@@ -81,6 +81,7 @@ export interface State {
 	webviewId: WebviewIds | WebviewViewIds;
 	timestamp: number;
 	mode: 'draft' | 'create';
+	wipStateLoaded: boolean;
 
 	preferences: Preferences;
 
@@ -96,6 +97,13 @@ export interface ApplyPatchParams {
 	target?: 'head' | 'branch' | 'worktree';
 }
 export const ApplyPatchCommandType = new IpcCommandType<ApplyPatchParams>('patch/apply');
+
+export interface CreatePatchParams {
+	title: string;
+	description?: string;
+	changes: Change[];
+}
+export const CreatePatchCommandType = new IpcCommandType<CreatePatchParams>('patch/create');
 
 export interface OpenInCommitGraphParams {
 	repoPath: string;
@@ -132,6 +140,10 @@ export interface ToggleModeParams {
 	mode: 'draft' | 'create';
 }
 export const ToggleModeCommandType = new IpcCommandType<ToggleModeParams>('patch/toggleMode');
+
+export const CopyCloudLinkCommandType = new IpcCommandType<undefined>('patch/cloud/copyLink');
+
+export const CreateFromLocalPatchCommandType = new IpcCommandType<undefined>('patch/local/createPatch');
 
 // NOTIFICATIONS
 

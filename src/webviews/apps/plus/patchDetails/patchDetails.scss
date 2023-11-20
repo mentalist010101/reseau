@@ -134,48 +134,17 @@ textarea.message-input__control {
 }
 
 .commit-detail-panel {
-	height: 100vh;
-	display: flex;
-	flex-direction: column;
+	// height: 100vh;
+	// display: flex;
+	// flex-direction: column;
 	overflow: hidden;
 }
 
-main {
-	flex: 1 1 auto;
-	overflow: hidden;
-}
+// main {
+// 	flex: 1 1 auto;
+// 	overflow: hidden;
+// }
 
 gl-patch-create {
 	display: contents;
-}
-
-.pane-groups {
-	display: flex;
-	flex-direction: column;
-	height: 100%;
-
-	&__group {
-		min-height: 0;
-		flex: 1 1 auto;
-		display: flex;
-		flex-direction: column;
-		overflow: hidden;
-
-		webview-pane {
-			flex: none;
-
-			&[expanded] {
-				min-height: 0;
-				flex: 1;
-			}
-		}
-	}
-
-	&__group-fixed {
-		flex: none;
-
-		webview-pane::part(content) {
-			overflow: visible;
-		}
-	}
 }

@@ -364,7 +364,9 @@ ul {
 }
 
 .commit-detail-panel {
-	max-height: 100vh;
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
 	overflow: auto;
 	scrollbar-gutter: stable;
 	color: var(--vscode-sideBar-foreground);
@@ -373,6 +375,11 @@ ul {
 	[aria-hidden='true'] {
 		display: none;
 	}
+}
+
+main {
+	flex: 1 1 auto;
+	overflow: auto;
 }
 
 .ai-content {
@@ -408,6 +415,7 @@ ul {
 }
 
 .details-tab {
+	flex: none;
 	display: flex;
 	justify-content: stretch;
 	align-items: center;
@@ -442,6 +450,37 @@ ul {
 		&.is-active {
 			color: var(--color-foreground);
 			border-bottom-color: var(--vscode-button-hoverBackground);
+		}
+	}
+}
+
+.pane-groups {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+
+	&__group {
+		min-height: 2.3rem;
+		flex: 1 1 auto;
+		display: flex;
+		flex-direction: column;
+		overflow: hidden;
+
+		webview-pane {
+			flex: none;
+
+			&[expanded] {
+				min-height: 4.4rem;
+				flex: 1;
+			}
+		}
+	}
+
+	&__group-fixed {
+		flex: none;
+
+		webview-pane::part(content) {
+			overflow: visible;
 		}
 	}
 }

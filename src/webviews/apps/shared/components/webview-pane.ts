@@ -113,6 +113,9 @@ export class WebviewPane extends LitElement {
 	@property({ type: Boolean, reflect: true })
 	loading = false;
 
+	@property({ type: Boolean, reflect: true })
+	scrollable = false;
+
 	renderTitle() {
 		if (!this.collapsable) {
 			return html`<div class="label">

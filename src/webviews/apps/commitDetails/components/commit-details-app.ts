@@ -89,35 +89,35 @@ export class GlCommitDetailsApp extends LitElement {
 
 		return html`
 			<div class="commit-detail-panel scrollable">
+				<nav class="details-tab">
+					<button
+						class="details-tab__item ${this.state?.mode === 'commit' ? ' is-active' : ''}"
+						data-action="details"
+					>
+						${this.isStash ? 'Stash' : 'Commit'}
+					</button>
+					<button
+						class="details-tab__item ${this.state?.mode === 'wip' ? ' is-active' : ''}"
+						data-action="wip"
+						title="${ifDefined(
+							this.state?.mode === 'wip' && wip?.changes?.files.length
+								? `${pluralize('change', wip.changes.files.length)} on ${
+										wip.repositoryCount > 1
+											? `${wip.changes.repository.name}:${wip.changes.branchName}`
+											: wip.changes.branchName
+								  }`
+								: undefined,
+						)}"
+					>
+						Working
+						Changes${ifDefined(
+							this.state?.mode === 'wip' && wip?.changes?.files.length
+								? html` &nbsp;<gk-badge variant="filled">${wip.changes.files.length}</gk-badge>`
+								: undefined,
+						)}
+					</button>
+				</nav>
 				<main id="main" tabindex="-1">
-					<nav class="details-tab">
-						<button
-							class="details-tab__item ${this.state?.mode === 'commit' ? ' is-active' : ''}"
-							data-action="details"
-						>
-							${this.isStash ? 'Stash' : 'Commit'}
-						</button>
-						<button
-							class="details-tab__item ${this.state?.mode === 'wip' ? ' is-active' : ''}"
-							data-action="wip"
-							title="${ifDefined(
-								this.state?.mode === 'wip' && wip?.changes?.files.length
-									? `${pluralize('change', wip.changes.files.length)} on ${
-											wip.repositoryCount > 1
-												? `${wip.changes.repository.name}:${wip.changes.branchName}`
-												: wip.changes.branchName
-									  }`
-									: undefined,
-							)}"
-						>
-							Working
-							Changes${ifDefined(
-								this.state?.mode === 'wip' && wip?.changes?.files.length
-									? html` &nbsp;<gk-badge variant="filled">${wip.changes.files.length}</gk-badge>`
-									: undefined,
-							)}
-						</button>
-					</nav>
 					${when(
 						this.state?.mode === 'commit',
 						() =>

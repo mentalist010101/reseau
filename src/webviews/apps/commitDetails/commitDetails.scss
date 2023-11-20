@@ -1,1 +1,6 @@
 @use '../shared/styles/details-base';
+
+gl-commit-details,
+gl-wip-details {
+	display: contents;
+}

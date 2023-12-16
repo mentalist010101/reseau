@@ -1,0 +1,13 @@
+{% extends 'contacts/base.html' %}
+{% block content %}
+<h2> {{id}} </h2>
+<p><a href="/contact/">Retour</a></p>
+<ul>
+
+    <li class='cont'> Adresse mail:  {{contacts.email}}</li>
+    <li class='cont'> code pays:  +{{contacts.pays}}</li>
+    <li class='cont'>numero de telephone: {{contacts.numero_telephone}}</li>
+</ul>
+<p><a href="/contact/{{contacts.id}}/change/">Modifier le contact</a>
+    <p><a href="/contact/{{contacts.id}}/delete/">Supprimer le contact</a>
+{% endblock%}

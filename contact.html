@@ -1,0 +1,13 @@
+{% extends 'contacts/base.html' %}
+{% block content %}
+
+    <h3><a href="/contact/ajouter"> Creer nouveau contact</a></h3>
+    <h4>Vos contacts</h4>
+    <ul class='liste'>
+        {% for contact in contacts %}
+         <li><div class='cont'><a href="/contact/{{contact.id}}/">{{contact.nom|upper}}   {{contact.prenom|upper}}<br> <div class="contact"> </a></div></li>
+        {% endfor %}
+    </ul>
+    <p> Vous avez {{contacts|length}} contacts.</p>
+{% endblock %}
+   

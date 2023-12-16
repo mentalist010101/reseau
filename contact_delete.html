@@ -1,0 +1,9 @@
+{% extends 'contacts/base.html' %}
+{% block content %}
+<h3>Supprimer le contact</h3>
+<p color='red'>Etes-vous sur de vouloir supprimer ce contact?:{{contacts.nom}}</p>
+<form action="" method="post">
+    {% csrf_token %}
+    <input type="submit" value="supprimer">
+</form>
+{% endblock %}

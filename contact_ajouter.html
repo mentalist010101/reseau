@@ -1,0 +1,10 @@
+{% extends 'contacts/base.html' %}
+{% block content %}
+<h3>Ajouter le contact</h3>
+<form action="" method="post" >
+{% csrf_token %}
+{{form.as_p}}
+<input type="submit" value="Enregistrer">
+</form>
+
+{% endblock %}

@@ -1,0 +1,42 @@
+/* {background: ivory}*/
+body{
+    background-image: url(img/wallpaperbetter7.jpg);
+}
+
+
+h3{
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    font-style: oblique;
+}
+li{
+    font-weight: bolder;
+    font-style: oblique;
+    text-decoration:double;
+	list-style-type:none;
+}
+li div{
+    background-color: aqua;
+    display: inline;
+}
+a{
+    text-decoration: none;
+}
+.cont{
+    display: inline-block;
+	width: 25%;
+	border: 2px solid #FC0;
+	border-top-right-radius: 20px;
+	border-top-left-radius: 20px;
+	margin: 20px;
+	padding-top: 12px;
+	background-color: #E4E6E3;
+	box-shadow: 4px 4px 12px grey;
+}
+.cont:hover {
+	position: relative;
+	left: 4px;
+	top: 4px;
+}
+.liste{
+	list-style-type: none;
+}
